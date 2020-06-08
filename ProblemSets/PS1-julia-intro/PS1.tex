@@ -1,0 +1,129 @@
+\documentclass[12pt,english]{article}
+\usepackage{mathptmx}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{geometry}
+\geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\usepackage{babel}
+\usepackage{amsmath}
+\usepackage[authoryear]{natbib}
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+ breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false]
+ {hyperref}
+\usepackage{breakurl}
+
+\begin{document}
+
+\title{Problem Set 1}
+\author{ECON 6343: Econometrics III\\
+Prof. Tyler Ransom\\
+University of Oklahoma}
+\date{Due: September 1, 9:00 AM}
+
+\maketitle
+Directions: Answer all questions. Each student must turn in their own copy, but you may work in groups. Clearly label all answers. Show all of your code. Turn in jl-file(s), output files and writeup via GitHub. Your writeup may simply consist of comments in jl-file(s). If applicable, put the names of all group members at the top of your writeup or jl-file.
+
+
+Before starting, you will need to install and load the following packages:
+\begin{itemize}
+    \item[~] \texttt{JLD2}
+    \item[~] \texttt{Random}
+    \item[~] \texttt{LinearAlgebra}
+    \item[~] \texttt{Statistics}
+    \item[~] \texttt{CSV} 
+    \item[~] \texttt{DataFrames} 
+    \item[~] \texttt{FreqTables} 
+\end{itemize}
+
+
+\begin{enumerate}
+\setcounter{enumi}{-1}
+\item GitHub setup
+    \begin{enumerate}
+        \item Create a GitHub account
+        \item Fork the class repository to your account
+    \end{enumerate}
+
+
+\item Initializing variables and practice with basic matrix operations
+
+\begin{enumerate}
+\item Create the following four matrices of random numbers, \emph{setting the seed to} '1234'\footnote{To set the seed, type the following code (after loading the \texttt{Random} package): \texttt{Random.seed!(1234)}}. Name the matrices and set the dimensions as noted
+
+\begin{enumerate}
+\item $A_{10\times7}$ - random numbers distributed $U\left[-5,10\right]$
+\item $B_{10\times7}$ - random numbers distributed $N\left(-2,15\right)$ {[}st dev is $15${]}
+\item $C_{5\times7}$ - the first 5 rows and first 5 columns of $A$ and the last two columns and first 5 rows of $B$
+\item $D_{10\times7}$ - where $D_{i,j}=A_{i,j}$ if $A_{i,j}\leq0$, or $0$ otherwise
+\end{enumerate}
+\item Use a built-in Julia function to list the number of elements of $A$
+\item Use a series of built-in Julia functions to list the number of \emph{unique} elements of $D$
+\item Using the \texttt{reshape()} function, create a new matrix called $E$ which is the `vec' operator\footnote{See \url{http://en.wikipedia.org/wiki/Vectorization_(mathematics)}} applied to $B$. Can you find an easier way to accomplish this?
+\item Create a new array called $F$ which is 3-dimensional and contains $A$ in the first column of the third dimension and $B$ in the second column of the third dimension
+\item Use the \texttt{permutedims()} function to twist $F$ so that it is now $F_{2\times10\times7}$ instead of $F_{10\times7\times2}$. Save this new matrix as $F$.
+\item Create a matrix $G$ which is equal to $B\otimes C$ (the Kronecker product of $B$ and $C$). What happens when you try $C\otimes F$?
+\item Save the matrices $A$, $B$, $C$, $D$, $E$, $F$ and $G$ as a .jld file named \texttt{matrixpractice}.
+\item Save only the matrices $A$, $B$, $C$, and $D$ as a .jld file called \texttt{firstmatrix}.
+\item Export $C$ as a .csv file called \texttt{Cmatrix}. You will first need to transform $C$ into a \texttt{DataFrame}.
+\item Export $D$ as a tab-delimited .dat file called \texttt{Dmatrix}. You will first need to transform $D$ into a \texttt{DataFrame}.
+\item Wrap a function definition around all of the code for question 1. Call the function \texttt{q1()}. The function should have 0 inputs and should output the arrays $A$, $B$, $C$ and $D$. At the very bottom of your script you should add the code \texttt{A,B,C,D = q1()}.
+\end{enumerate}
+\item Practice with loops and comprehensions
+
+\begin{enumerate}
+\item Write a loop or use a comprehension that computes the element-by-element product of $A$ and $B$. Name the new matrix $AB$. Create a matrix called $AB2$ that accomplishes this task without a loop or comprehension.
+\item Write a loop that creates a column vector called \texttt{Cprime} which contains only the elements of C that are between -5 and 5 (inclusive). Create a vector called \texttt{Cprime2} which does this calculation without a loop.
+\item Using loops or comprehensions, create a 3-dimensional array called $X$ that is of dimension $N\times K\times T$ where $N=15,169$, $K=6$, and $T=5$. For all $t$, the columns of $X$ should be (in order):
+
+\begin{itemize}
+\item an intercept (i.e. vector of ones)
+\item a dummy variable that is 1 with probability .75$*\left(6-t\right)/5$
+\item a continuous variable distributed normal with mean $15+t-1$ and standard deviation $5\left(t-1\right)$
+\item a continuous variable distributed normal with mean $\pi\left(6-t\right)/3$ and standard deviation $1/e$
+\item a discrete variable distributed ``discrete normal'' with mean 12 and standard deviation 2.19\footnote{A discrete normal random variable is properly called a binomial random variable. The distribution described above can be implemented by choosing binomial parameters $n$ and $p$ where $n=20$ and $p=0.6$. Use Julia's \texttt{binornd} command to generate this vector of $X$. }
+\item a discrete variable distributed binomial with $n=20$ and $p=0.5$\\
+\\
+i.e., let columns 1, 5 and 6 remain stationary over time. 
+\end{itemize}
+\item Use comprehensions to create a matrix $\beta$ which is $K\times T$ and whose elements evolve across time in the following fashion:
+
+\begin{itemize}
+\item $1,1.25,1.5,...$
+\item $\ln\left(t\right)$
+\item $-\sqrt{t}$
+\item $e^{t}-e^{t+1}$
+\item $t$
+\item $t/3$
+\end{itemize}
+\item Use comprehensions to create a matrix $Y$ which is $N\times T$ defined by $Y_{t}=X_{t}\beta_{t}+\varepsilon_{t}$, where $\varepsilon_{t}\overset{iid}{\sim}N\left(0,\sigma=.36\right)$
+\item Wrap a function definition around all of the code for question 2. Call the function \texttt{q2()}. The function should have take as inputs the arrays $A$, $B$ and $C$. It should return nothing. At the very bottom of your script you should add the code \texttt{q2(A,B,C,D)}. Make sure \texttt{q2()} gets called after \texttt{q1()}!
+\end{enumerate}
+\item Reading in Data and calculating summary statistics
+
+\begin{enumerate}
+\item Clear the workspace and import the file \texttt{nlsw88.csv} into Julia as a \texttt{DataFrame}. Make sure you appropriately convert missing values and variable names. Save the result as \texttt{nlsw88.jld}.
+\item What percentage of the sample has never been married? What percentage are college graduates?
+\item Use the \texttt{tabulate} command to report what percentage of the sample is in each race category
+\item Use the \texttt{describe()} function to create a matrix called \texttt{summarystats} which lists the mean, median, standard deviation, min, max, number of unique elements, and interquartile range (75th percentile minus 25th percentile) of the data frame. How many \texttt{grade} observations are missing?
+\item Show the joint distribution of industry and occupation using a cross-tabulation.
+\item Tabulate the mean wage over industry and occupation categories. Hint: you should first subset the data frame to only include the columns industry, occupation and wage. You should then follow the ``split-apply-combine'' directions \href{https://juliadata.github.io/DataFrames.jl/stable/man/split_apply_combine/}{\texttt{here}}.
+\item Wrap a function definition around all of the code for question 3. Call the function \texttt{q3()}. The function should have no inputs and no outputs. At the very bottom of your script you should add the code \texttt{q3()}.
+\end{enumerate}
+\item Practice with functions
+
+\begin{enumerate}
+\item Load \texttt{firstmatrix.jld}.
+\item Write a function called \texttt{matrixops} that takes as inputs the matrices $A$ and $B$ from question (a) of problem 1 and has three outputs: \emph{(i)} the element-by-element product of the inputs, \emph{(ii)} the product $A^{\prime}B$, and \emph{(iii)} the sum of all the elements of $A+B$.
+\item Starting on line 2 of the function, write a comment that explains what \texttt{matrixops} does.
+\item Evaluate \texttt{matrixops()} using $A$ and $B$ from question (a) of problem 1
+\item Just before the first executable line of \texttt{matrixops.m} (i.e. right after the first-line comments), write an if statement which gives an error if the two inputs are not the same size. Have the error say ``inputs must have the same size.''
+\item Evaluate \texttt{matrixops.m} using $C$ and $D$ from question (a) of problem 1. What happens?
+\item Now evaluate \texttt{matrixops.m} using \texttt{ttl\_exp} and \texttt{wage} from \texttt{nlsw88.jld}. Hint: before doing this, you will need to convert the data frame columns to Arrays. e.g. \texttt{convert(Array,nlsw88.ttl\_exp)}, depending on what you called the data frame object [I called it \texttt{nlsw88}].
+\item Wrap a function definition around all of the code for question 4. Call the function \texttt{q4()}. The function should have no inputs or outputs. At the very bottom of your script you should add the code \texttt{q4()}.
+\end{enumerate}
+
+\item Turn in your files as a commit to the \texttt{ProblemSets/PS1-julia-intro/} folder on your GitHub fork. You can do this by simply clicking ``upload files'' in the appropriate folder, or you can use the GitHub desktop app, RStudio, or the command line to stage, commit and push the files.
+\end{enumerate}
+
+\end{document}

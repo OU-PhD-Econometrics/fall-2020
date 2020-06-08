@@ -1,0 +1,10 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+ProblemSets/PS1-julia-intro/PS1solutions.jl
+ProblemSets/PS1-julia-intro/Cmatrix.csv
+ProblemSets/PS1-julia-intro/Dmatrix.dat
+ProblemSets/PS1-julia-intro/firstmatrix.jld
+ProblemSets/PS1-julia-intro/matrixpractice.jld
+ProblemSets/PS1-julia-intro/nlsw88.jld
