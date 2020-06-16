@@ -303,12 +303,12 @@ h1 {
   margin-left: 15px;
 }
 
-/*.remark-inline-code {*/
-  /*background: rgb(240,235,196); /* lighter */
+.remark-inline-code {
+  background: rgb(240,235,196); /* lighter */
   /* background: #e7e8e2; /* darker */
-  /*border-radius: 3px;*/
-  /*padding: 4px;*/
-/*}*/
+  border-radius: 3px;
+  padding: 4px;
+}
 
 /* 2/3 left; 1/3 right */
 .more-left {

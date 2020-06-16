@@ -214,6 +214,13 @@ println("β-hat is $(round(bbeta_hat[1],digits=3)) and the true β is $(round(bb
 
 ---
 
+# Installing Julia
+
+- Go [here](https://julialang.org/downloads/) and install to whichever OS you are using
+
+
+---
+
 # Learning Julia
 
 - The best way to learn a programming language is through experience
@@ -223,4 +230,250 @@ println("β-hat is $(round(bbeta_hat[1],digits=3)) and the true β is $(round(bb
 - I recommend [this cheat sheet](https://juliadocs.github.io/Julia-Cheat-Sheet/)
 
 
+---
+
+# Why Julia?
+
+- Julia is great for computational economics
+
+- R, Python and Matlab are also great
+
+- I really like Julia because it is easy to code in and delivers excellent peformance
+
+- If you click [here](https://julialang.org/benchmarks/) you can see that Julia delivers similar performance as C and FORTRAN
+
+- But it's .hi-crimson[much easier] to use! No code compilation is required. Instead, Julia has a just-in-time (JIT) compiler
+
+---
+
+# Julia basics
+
+- Your first problem set will give you the opportunity to learn basics of matrix and data manipulation in Julia
+
+- Julia is open-source like LaTeX, Python and R, meaning that many people contribute packages
+
+- To install a package, type `]` and then `add <PkgName>`
+
+- Most common packages we will use for this class: `Distributions, LinearAlgebra, BenchmarkTools, DataFrames, Optim`
+
+- You will be given a list of required packages at the top of every problem set
+
+- (Note: package installation in Julia can take quite awhile)
+
+---
+
+# Choosing a text editor
+
+- Programming can be more productive if you have a good development environment (IDE)
+
+- There are many options out there
+
+- Microsoft's VS Code seems to be gaining quite a bit of popularity
+
+- It contains features that will help spot errors in your code that you wouldn't have otherwise seen
+
+- Other IDE options include RStudio, Atom, Sublime, Notepad++, Vim, Emacs
+
+- Just choose one you like and go with it. I use Vim but have recently started using VS Code more
+
+---
+
+# Programming practices
+
+- Programming $\equiv$ writing a set of instructions
+
+1. Some rules (e.g. syntax) you can't break
+
+2. Other rules are more like "guidelines" that will make things easier for someone else to read, or make your code run faster
+
+- Some rules are general across all languages; others are specific to whatever language you're using
+
+- See Ivan Rudik's [slides](https://raw.githack.com/AEM7130/spring-2020/master/lecture_notes/lecture_2/2a_coding.html#141) for much more on these
+
+---
+
+# Programming practices
+
+- You want to make your code readable to others and to your future self
+
+- You also want to have things set up so that when you inevitably make a mistake, it will be easy to identify and resolve
+
+- A great intro to programming practices is [Gentzkow and Shapiro's guide](https://web.stanford.edu/~gentzkow/research/CodeAndData.pdf).
+
+- This guide emphasizes the following principles:
+
+    - Automate everything you can
+    - Use version control
+    - Organize directories and files sanely
+    - Use functions for code that will need to be repeated many times
+    - Provide documentation
+
+---
+
+# Version control
+
+- I will try to show you best practices throughout the semester
+
+- Today, we'll focus on version control
+
+- The most popular version control system is known as Git
+
+- Git was developed by Linus Torvalds, inventor of the Linux operating system
+
+- Version control is how all software you use gets developed
+
+- The software remembers every change that was logged throughout each file's history
+
+- [Grant McDermott](https://raw.githack.com/uo-ec607/lectures/master/02-git/02-Git.html#8): "Imagine if Dropbox and the 'Track changes' feature in MS Word had a baby. Git would be that baby."
+
+---
+
+# Version control
+
+
+> Here is a good rule of thumb: If you are trying to solve a problem, and there are multi-billion dollar firms whose entire business model depends on solving the same problem, and there are whole courses at your university devoted to how to solve that problem, you might want to figure out what the experts do and see if you can’t learn something from it.
+
+([Gentzkow & Shapiro](https://web.stanford.edu/~gentzkow/research/CodeAndData.pdf), p. 5)
+
+---
+
+# Using Git and GitHub
+
+- .hi-crimson[Git] is a version control system
+
+- .hi-crimson[GitHub] is a website for hosting repositories that use Git as version control
+
+- There are other Git hosting services out there, like GitLab and BitBucket
+
+- I prefer GitHub for a number of reasons, but it's not really important which you use
+
+- For this class, we will be using GitHub
+
+---
+
+# Using Git on your computer
+
+- There are many ways to use Git for this class
+
+- If you are an R user, you can access Git via RStudio
+
+- If not, you can install [GitHub Desktop](https://desktop.github.com/)
+
+- Or you can just post updates directly to the GitHub website
+
+---
+
+# Git vocab
+
+- .hi-crimson[Repository:] A folder of code files
+
+- .hi-crimson[Clone:] The act of downloading an entire GitHub repository onto your local machine
+
+- .hi-crimson[Fork:] The act of copying someone else's entire GitHub repository into your account
+
+- .hi-crimson[README:] A file that contains documentation as to the repository's contents
+
+---
+
+# Git operations
+
+There are four main git operations:
+
+- .hi-crimson[Add:] Tell Git which changes you want to add to the repository's history
+
+- .hi-crimson[Commit:] Officially etch the added changes into the repository's history
+
+- .hi-crimson[Pull:] Download new changes from a GitHub repository onto your local machine
+
+- .hi-crimson[Push:] Upload a commit from your local machine to a GitHub repository
+
+---
+
+# Other Git lingo
+
+- .hi-crimson[Branch:] A parallel version of a repository where some of the files are different
+
+- .hi-crimson[Merge:] Combining two branches into one
+
+- .hi-crimson[Pull request:] When you propose changes to a repository you don't own
+    - i.e. you "request" that another user "pull" (and merge) your branch of their repository, where you have made some changes to their repository
+
+---
+
+# Git vs. Dropbox/Google Drive/Box
+
+- Dropbox (and similar products) will create a new version of a file every single time it is saved
+
+- With Git, .hi[you] get to determine how often changes are logged (this happens with adding and committing changes)
+
+- The power with version control is that it is easy to roll back changes when you inevitably discover a typo, want to look at something different, etc.
+
+- GitHub will not allow you to upload any files larger than 100MB. Thus, Git is not great at tracking large datasets
+
+- My approach is to ensure I have the code to reproduce any datasets, so I can re-generate the data if circumstances require
+
+---
+
+# Other Git resources
+
+- Grant McDermott's [slides](https://raw.githack.com/uo-ec607/lectures/master/02-git/02-Git.html#1) are exceptional
+
+- [Here](https://www.youtube.com/watch?v=77W2JSL7-r8) is a nice video tutorial on how to use GitHub desktop
+
+- For this class, you will be able to get by with very little Git knowledge
+
+- But if you want to get serious about doing reproducible research, I recommend practicing with Git as much as possible
+
+- I also recommend learning how to use the shell and Git through the shell
+
+
+---
+
+# Activity: Forking the class repository
+
+- After signing up for a GitHub account, go to the class [repository](https://github.com/OU-PhD-Econometrics/fall-2020) and click `Fork` in the top-righthand corner
+
+- Once you do this, you should be able to visit https://github.com/your-username/fall-2020 and see an exact copy of all of the files
+
+---
+
+# Activity: Making a commit on the GitHub website
+
+- Go to the folder `ProblemSets/PS1-julia-intro`
+
+- Click on the button `Create new file` towards the top of the file list (but below the `Fork` button)
+
+- Call the file `<your initials>.txt`
+
+- On line one of the file, type your first and last name
+
+- At the bottom of the page, where it says `Commit new file`, type the following message in the box: "Making my first GitHub commit"
+
+- Click the green button
+
+---
+
+# Viewing the commit history
+
+- Now click on the button that says `< > Code` near the top-lefthand side of the website (but below the "Fork" section)
+
+- Then click on where it says `<N> commits` on the lefthand side of the panel just above the `Create new file` button
+
+- You should now see a commit issued by you 
+
+- If you click on the `< >` button on the commit just _below_ your new commit, you'll be able to see what the repo looked like before you added your new file.
+
+
+
+---
+
+# Big Picture
+
+- Developing good programming skills takes a long time
+
+- I have been programming for well over a decade and I still make bone-headed mistakes (just ask my co-authors!)
+
+- Following good programming practices and will make the programming process less painful
+
+- But always remember that mistakes are how we learn, so don't be scared of making mistakes!
 
