@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Lecture 1</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Tyler Ransom" />
+    <link href="01slides_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="01slides_files/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="01slides_files/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="my-css.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Lecture 1
+## Productivity and Computational Tools
+### Tyler Ransom
+### ECON 6343, University of Oklahoma
+
+---
+
+
+# Attribution
+
+- The slides for this course are closely adapted from Ivan Rudik's [course](https://github.com/AEM7130/spring-2020) at Cornell
+
+- Ivan has graciously distributed his materials under the MIT License
+
+- I will also make use of some of Grant McDermott's [course materials](https://github.com/uo-ec607/lectures) at the University of Oregon
+
+- Grant also has graciously distributed his materials under the MIT License
+
+- My course materials will also be distributed under the MIT License
+
+--
+
+
+- If you find this class lacking in a particular detail, you can likely find that detail in Ivan's or Grant's course materials.
+
+---
+
+# Software prerequisites
+
+Necessary things to download for this course:
+
+- [Julia or JuliaPro](https://julialang.org/downloads/)
+
+- [Git](https://git-scm.com/downloads)
+
+- Create a [GitHub](https://github.com) account if you don't already have one
+
+
+---
+
+# What this class is about
+
+This class is a smattering of advanced econometrics topics.
+
+1. Understanding the usefulness of structural modeling
+
+2. Learning the computational tools for estimating structural models
+
+3. Advanced topics in treatment effects and measurement error models
+
+You will practice by doing lots and lots of programming.
+
+---
+
+# Applicability of topics
+
+The techniques we will cover are used in a wide variety of fields of applied microeconomics:
+
+- Labor
+- Education
+- IO
+- Public
+- Development
+- Health
+- Urban/Regional
+- Environmental
+- Others
+
+---
+
+# What you need to succeed in this course
+
+1. Previous PhD-level econometrics class (either Econometrics I or Econometrics II; preferably both)
+
+2. Previous coding experience or willingness to spend some time learning as you go
+
+---
+
+# Course materials
+
+1. Everything we use in the course will be .hi-crimson[freely available] and posted to the course GitHub (which we will discuss more about momentarily)
+
+2. Book (free [online](https://eml.berkeley.edu/books/choice2.html)):
+
+  1. Train (2003)
+
+3. Various published academic papers
+
+---
+
+# What we will cover in the class
+
+1. Basic computing and things you need to think about
+
+2. Coding, version control, reproducibility, workflow
+
+3. Estimating and simulating structural models
+
+4. Subjective expectations models
+
+5. Measurement error correction
+
+6. Treatment effects
+
+7. Machine learning
+
+---
+
+# What you have to do
+
+- Come to class
+
+- Weekly coding problem sets
+
+- Midterm exam
+
+- One presentation of a paper from the literature
+
+- Write a referee report on an unpublished paper of your choosing (can be the same paper you presented)
+
+    - Papers should be related to course material in some way
+
+
+
+
+---
+
+# Grading
+
+- Problem sets: 50%
+
+
+- Class participation: 10%
+
+
+- Midterm exam: 10%
+
+
+- Paper presentation: 15%
+
+
+- Paper referee report: 15%
+
+---
+
+# Problem sets (50% in all)
+
+- You .hi-crimson[must] use Julia and write .jl scripts, no Jupyter
+
+- You can work in groups of up to 3, but you must turn in your own code
+
+- Problem sets will be where you .hi-crimson[implement] the techniques we learn in class on your own,
+but we will be doing our fair share of coding in class
+
+- Along the way, I will try to teach you good programming practices
+
+
+---
+
+# Computational paper presentations (15%)
+
+- Everyone will present a paper near the end of the semester
+
+- The paper can apply methods we've learned about (or will learn about),
+or can be a new method that we have not covered
+
+- You must consult with me at least 1 week prior to your scheduled presentation
+date to ensure the paper is appropriate for a presentation
+
+---
+
+# Referee report (15%)
+
+- Part of being a scientist is reviewing others' research
+
+- You will do a referee report of a paper of your choosing
+
+- The paper shouldn't be published, or if it has been published, you should use the earliest pre-print version
+
+- More details about how to do this towards the end of the semester
+
+---
+
+# Slides
+
+All slides will be available on the [course GitHub page](https://github.com/OU-PhD-Econometrics/fall-2020)
+
+--
+
+The slides are made with R Markdown and can run Julia via the JuliaCall package, e.g.
+
+
+```julia
+# true coefficient
+bbeta = π;
+# random x data
+x = randn(100,1)*5 .+ 3;
+# OLS data generating process
+y = bbeta.*x .+ randn(100,1)*10;
+
+# OLS estimation
+bbeta_hat = inv(x'x)x'y;
+
+println("β-hat is $(round(bbeta_hat[1],digits=3)) and the true β is $(round(bbeta,digits=3)).")
+```
+
+---
+
+# Learning Julia
+
+- The best way to learn a programming language is through experience
+
+- It is also great to have a reference of commonly used functions alongside
+
+- I recommend [this cheat sheet](https://juliadocs.github.io/Julia-Cheat-Sheet/)
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
