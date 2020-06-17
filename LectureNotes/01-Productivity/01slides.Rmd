@@ -5,7 +5,7 @@ author: Tyler Ransom
 date: ECON 6343, University of Oklahoma
 output:
   xaringan::moon_reader:
-    css: ['default', 'metropolis', 'metropolis-fonts', 'my-css.css']
+    css: ['default', 'metropolis', 'metropolis-fonts', 'ou-colors.css']
     # self_contained: true
     nature:
       highlightStyle: github
