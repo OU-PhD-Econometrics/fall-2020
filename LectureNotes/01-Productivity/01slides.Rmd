@@ -359,6 +359,8 @@ println("β-hat is $(round(bbeta_hat[1],digits=3)) and the true β is $(round(bb
 
 - If not, you can install [GitHub Desktop](https://desktop.github.com/)
 
+- Or you can access Git via VS Code
+
 - Or you can just post updates directly to the GitHub website
 
 ---
