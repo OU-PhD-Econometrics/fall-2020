@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Reference Material</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Tyler Ransom" />
+    <link href="00slides_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="00slides_files/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="00slides_files/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="ou-colors.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Reference Material
+## Intro and Tips for Julia
+### Tyler Ransom
+### ECON 6343, University of Oklahoma
+
+---
+
+
+# Julia
+
+- Julia is scientific computing language
+
+- Similar in function to Python, R, or Matlab
+
+- Aims to be a "high-level" language that is performant enough for intensive applications
+
+- "High-level" in the sense that it doesn't require compilation to run
+
+- "Performant" in the sense that it can sometimes run as fast as C, C++ or FORTRAN
+
+- ... and can be considerably faster than Python, R or Matlab.
+
+---
+
+# Julia speed benchmarks (Source: [julialang.org](https://julialang.org/benchmarks/))
+
+.center[
+![](benchmarks.svg)&lt;!-- --&gt;
+]
+
+---
+
+# What makes Julia different?
+
+- .hi[just in time] (JIT) compilation
+
+- .hi[rich type system], which can yield massive performance gains
+
+- .hi[multiple dispatch] (i.e. the same function can be reused for different types of inputs)
+
+- .hi[metaprogramming] (like macros in Stata)
+
+- .hi[loops don't slow you down] (compared to Matlab or R, where they are very slow)
+
+---
+
+# Learning Julia
+
+- There are lots of resources for learning Julia
+
+- Ultimately, learning is through experience
+
+- [Julia homepage](https://julialang.org/)
+
+- [Documentation](https://docs.julialang.org/en/v1/)
+
+- [Julia Discourse](https://discourse.julialang.org/)
+
+- [YouTube](https://www.youtube.com/user/JuliaLanguage)
+
+- [Cheat sheet](https://juliadocs.github.io/Julia-Cheat-Sheet/)
+
+I regularly use all of these resources as I program in Julia
+
+---
+
+# Installing Julia
+
+Go [here](https://julialang.org/downloads/) and follow the instructions for your computer's operating system
+
+---
+
+# Julia REPL
+
+REPL = .hi[R]ead .hi[E]val .hi[P]rint .hi[L]oop (i.e. the interactive console)
+
+- Open Julia and you should see a prompt that says `julia&gt; `
+
+Stuff the REPL can do:
+
+- basic calculator functions; e.g. `sqrt(π)` which returns 1.77245
+
+- up arrow for last command
+
+- `;` enters shell mode (where you can issue system commands from inside Julia)
+
+- `?` enters help mode, e.g. `?sqrt`
+
+- `]` opens package manager; e.g. `] add LinearAlgebra` (note: may [take awhile](https://twitter.com/chrispdanko/status/1256382196895682560?s=20))
+
+
+---
+
+# Basic operations (see [cheatsheet](https://juliadocs.github.io/Julia-Cheat-Sheet/) for more details)
+
+- .hi[Array indexing:] use `[]`, e.g. `X[5,2]`
+
+- .hi[Show output:] use `println()`, e.g. `println("size of X is ", size(X))`
+
+- .hi[Assignment:] use `=`, e.g. `X = rand(15,3)`
+
+- .hi[Commenting:] use `#` for single line, `#= ... =#` for multi-line
+
+- .hi[Element-wise operators:] must put a `.` in front, e.g. `x .+ y` if `x` and `y` are arrays
+
+- .hi[Load installed package:] `using Random`
+
+- .hi[Execute script:] `include("myfile.jl")` `\(\equiv\)` `do myfile.do` or `source('myfile.R')`
+
+---
+
+# Creating and executing a Julia script
+
+- In Stata or R, you create a script and then execute it
+
+- The same thing is true in Julia, but with a slight difference
+
+- In Julia, even scripts should have functions wrapped around them
+
+- The following is the contents of `myscript.jl`
+
+```julia
+using &lt;Package1&gt;, &lt;Package2&gt;
+function scriptwrapper()
+    X = [ones(15,1) rand(15,3)]
+    y = randn(15,1)
+    β = X\y # compute OLS
+end
+scriptwrapper()
+```
+
+- Then execute this script at the REPL by typing `include("myscript.jl")`
+
+
+---
+
+# Why do I need to wrap everything in a function?
+
+- Wrapping code in a function allows the JIT compiler to optimize the code
+
+- This is where the speed gains come from
+
+- An added benefit is that it [promotes good programming practices](https://twitter.com/tyleransom/status/1227633474733060097?s=20)
+
+    - Putting everything in a function encourages you to abstract
+    
+    - Abstraction usually leads to performance gains (see p. 22 [here](https://web.stanford.edu/~gentzkow/research/CodeAndData.pdf))
+
+---
+
+# The most common error message you'll receive
+
+- Julia is obsessive about types
+
+- `1.0` is different from `1` (the former is a `Float64` while the latter is an `Int64`)
+
+- This matters: e.g. some functions are optimized to only accept `Int64` types
+
+If you type this: `ones(π,1)`
+
+You'll get this:
+
+```julia
+ERROR: MethodError: no method matching ones(::Irrational{:π}, ::Int64)
+Closest candidates are:
+  ones(::Union{Integer, AbstractUnitRange}...) at array.jl:448
+  ones(::Type{T}, ::Union{Integer, AbstractUnitRange}...) where T at array.jl:449
+Stacktrace:
+ [1] top-level scope at none:0
+```
+
+
+---
+
+# `MethodError`
+
+- The error message on the previous slide is saying that you are violating the rules of the function you're calling
+
+- The solution is to read the error message and note that this function requires `Integer` types as inputs
+
+- You will also encounter error messages in the following common situations:
+
+    - You are supplying the wrong number of inputs to a function
+    
+    - You are trying to call a function or object that Julia can't find
+    
+    - (either you haven't loaded a required package, or you haven't called that fn. yet)
+    
+- To resolve errors, copy the error message into a search engine and see what shows
+
+---
+
+# Cool Julia features
+
+- My favorite feature is the ability to use Greek symbols in programming
+
+    - To write these, just simply type the LaTeX code for the symbol and then press Tab
+
+    - e.g. `\pi`+Tab = `π`
+
+- Another cool feature is the `Distributions.jl` package
+
+    - This package allows a user to specify any desired probability distribution
+
+    - The user can take draws from it, compute quantiles or probabilities, etc.
+    
+- You can also double index an object
+
+    - e.g. `X = rand(15,2)` followed by `X[2,:][2]` (though this example is silly)
+
+---
+
+# Comprehensions
+
+- Another excellent feature is known as comprehensions
+
+- Allows the user in 1 line of code to create an object that could be a complex formula
+
+- e.g. computing a present value `\(\sum_{t=1}^T \beta^t Y_t\)`
+
+- `PV = sum([β^t*Y[t] for t=1:T])`
+
+- Comprehensions allow for much lighter syntax than in other languages
+
+---
+
+# Data Input and Output
+
+- .hi[Read a CSV file:] `using CSV; data = CSV.read("filename.csv")`
+
+- .hi[Write a CSV file:] `using CSV; CSV.write("filename.csv", data)`
+
+- .hi[Save a Julia Object:] `using JLD; save("filename.jld", "object_key", object, ...)` 
+
+    - [this is like `.dta` (Stata) or `.rda` (R)]
+
+- .hi[Load a Julia Object:] `using JLD; d = load("filename.jld") # Returns a dict`
+
+    - A `dict` (Dictionary) is a named list of objects [kind of like a `list()` in R]
+
+
+---
+
+# Running a regression
+
+- The `CSV` package is usually used in concert with the `DataFrames` package
+
+- To run Generalized Linear Model (GLM) regressions, use the `GLM` package
+
+```julia
+using CSV, DataFrames, GLM, HTTP, CategoricalArrays
+
+# load Stata auto dataset (i.e. `sysuse auto` in Stata)
+url = "https://tyleransom.github.io/teaching/MetricsLabs/auto.csv"
+auto = CSV.read(HTTP.get(url).body)
+
+# set `rep78` variable to be categorical
+categorical!(auto,:rep78)
+
+# run basic regression (`reg price mpg foreign headroom i.rep78` in Stata)
+lm(@formula(price ~ mpg + foreign + headroom + rep78), auto)
+```
+
+- Tip: a function with a `!` after its name means it overwrites its input
+
+- This is an overarching Julia convention
+
+---
+
+# Piping in Julia
+
+- In R, `%&gt;%` can be used to create piping chains
+
+- This makes code more readable
+
+- e.g. `x %&gt;% mean() %&gt;% log()` instead of `log(mean(x))`
+
+- In Julia, you can pipe with `|&gt;`, e.g. `x |&gt; sum |&gt; log`
+
+- Note: `|&gt;` is `|` and then `&gt;` (it doesn't show up separately in this font)
+
+
+---
+
+# Where to go from here
+
+- [Problem Set 1](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ProblemSets/PS1-julia-intro/PS1.pdf) will provide ample opportunity to practice Julia
+
+- There are other tips and tricks that you will pick up over time
+
+- Either from the [cheatsheet](https://juliadocs.github.io/Julia-Cheat-Sheet/) or on the [Discourse site](https://discourse.julialang.org/)
+
+- The Discourse community is really nice, even if (like me) you ask a stupid question
+
+- Happy coding!
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
