@@ -136,8 +136,9 @@ function scriptwrapper()
     X = [ones(15,1) rand(15,3)]
     y = randn(15,1)
     β = X\y # compute OLS
+    return β
 end
-scriptwrapper()
+βhat = scriptwrapper()
 ```
 
 - Then execute this script at the REPL by typing `include("myscript.jl")`
