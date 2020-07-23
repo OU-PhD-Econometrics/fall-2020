@@ -1,0 +1,636 @@
+---
+title: "Lecture 3"
+subtitle: "Structural Modeling Workflow"
+author: Tyler Ransom
+date: ECON 6343, University of Oklahoma
+output:
+  xaringan::moon_reader:
+    includes:
+        in_header: "03slides_files/mathjax-equation-numbers.html"
+    css: ['default', 'metropolis', 'metropolis-fonts', 'ou-colors.css']
+    # self_contained: true
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: '16:9'
+
+---
+
+```{r, load_refs, include=FALSE, cache=FALSE}
+library(RefManageR)
+BibOptions(check.entries = FALSE,
+           bib.style = "authoryear",
+           style = "markdown",
+           hyperlink = FALSE,
+           dashed = TRUE)
+biblio <- ReadBib("../../References/References.bib", check = FALSE)
+#biblio <- ReadBib(system.file("Bib", "biblatexExamples.bib", package = "RefManageR"))
+```
+
+# Today
+
+- What steps are required to estimate a structural model?
+
+- Go through each step on an example model
+
+---
+
+# Steps we won't discuss today
+
+- The material we discuss today will already assume you have data
+
+- And that you have sufficient understanding of your data
+
+- It also assumes you have an understanding of your preferred coding language
+
+- These are all non-trivial steps, but they are typically covered in other classes
+
+- I will (indirectly) try to help you develop these skills throughout the course
+
+
+
+---
+
+# Steps to performing structural estimation
+
+Mike Keane gave a [talk](https://www.youtube.com/watch?v=0hazaPBAYWE) at the University of Chicago in 2015 and listed these steps:
+
+1. Theoretical Model Development
+
+2. Practical Specification Issues
+
+3. Solving the Model
+
+4. Understanding How the Model Works
+
+5. Estimation
+
+6. Validation
+
+7. Policy Experiments
+
+
+
+---
+
+# An example model
+
+To help fix ideas, let's revisit a commonly used model in introductory econometrics:
+
+$$
+\begin{align}
+\log(w_{i}) =& \beta_0 + \beta_1 s_{i} + \beta_2 x_{i} + \beta_3 x^2_{i} + \varepsilon_{i}
+\label{eq:basicmincer}
+\end{align}
+$$
+
+where we have cross-sectional data and where
+- $i$ indexes individuals
+- $w_{i}$ is employment income
+- $s_{i}$ is years of schooling
+- $x_{i}$ is years of work experience (or, more commonly, _potential_ work experience)
+- $\varepsilon_{i}$ is anything else that determines income
+
+We want to estimate $\left(\beta_1,\beta_2,\beta_3\right)$, which are .hi[returns to human capital investment]
+
+---
+
+# Quick review
+
+- It is nearly certain that \eqref{eq:basicmincer} suffers from omitted variable bias
+
+    - i.e. there are lots of factors in $\varepsilon_{i}$ that are correlated with both $s_i$ and $w_i$
+
+- Thus, our estimates of $\left(\beta_1,\beta_2,\beta_3\right)$ will not be causal
+
+- We could try to get causal estimates using a variety of identification strategies:
+
+- find a valid instrument for $s_i$ `r Citep(biblio,"angristKrueger1991","card1995")`
+
+- exploit a discontinuity in $s_i$ `r Citep(biblio,"ost_al2018")`
+
+- randomize $s_i$ `r Citep(biblio,"attanasio_al2011")`
+
+- etc.
+
+
+---
+
+# A structural view of Equation \eqref{eq:basicmincer}
+
+- We know that \eqref{eq:basicmincer} will produced biased estimates, but _why_? Some possibilities:
+
+- .hi[ability bias]
+    - $s_i$ and $w_i$ are both positively correlated with unobservable cognitive ability
+
+- .hi[comparative advantage]
+    - multidimensional unobservable ability $\implies$ self-selection into schooling
+
+- .hi[credit constraints] 
+    - $s_i$ is a costly investment; some people may not be able to borrow enough
+
+- .hi[preference heterogeneity] (differing tastes for $s_i$, differing discount rates)
+
+---
+
+# 1. Theoretical Model Development
+
+- Since schooling has an up-front cost and long-term benefit, need a dynamic model
+
+    - period 1: decide how much schooling to get
+
+    - period 2: choose whether or not to work; if working, receive income by \eqref{eq:basicmincer}
+    
+    - individuals choose schooling level to maximize lifetime utility
+
+- Preferences (denote utility in period $t$ by $u_t$, with $s,x$ and $w$ defined previously)
+
+$$
+\begin{align}
+u_1\left(z,c,\eta_1\right) & = f\left(z,c,\eta_1\right) \nonumber \\
+u_2\left(w\left(s,x\right),k,\eta_2\right) & = g\left(w\left(s,x\right),k,\eta_2\right) \\
+\label{eq:utils}
+\end{align}
+$$
+where $z$ is family background, $c$ is schooling costs, $k$ is number of kids in adult household and $\eta_t$ are unobservable preferences [similar to $\varepsilon$ in \eqref{eq:basicmincer}]
+
+---
+
+# 1. Theoretical Model Development
+
+With discount factor $\delta \in \left[0,1\right]$, the discounted lifetime utility function is then
+
+$$
+\begin{align}
+V & = u_1\left(z,c,\eta_1\right) + \delta u_2\left(w\left(s,x\right),k,\eta_2\right)
+\label{eq:PDV}
+\end{align}
+$$
+
+- Equations \eqref{eq:basicmincer}–\eqref{eq:PDV} define our model
+
+- This model is still .hi[laughably unrealistic], but at least we have something
+
+- A number of important questions arise (But we'll ignore these for today)
+    - Where is cognitive ability? What exactly does $c$ represent? Where are loans?
+    - Maybe people should care about _consumption_ in period 2, not income
+    - Does family background really only enter $u_1$ and not $\log\left(w\right)$?
+    - Should $x$ in \eqref{eq:basicmincer} be a function of $s$? (Lower $s \implies$ longer working life)
+    - What are people's beliefs about future $k$ when deciding $s$?
+
+---
+
+# Overview of the theoretical model
+
+- As you can see, it takes a lot of know-how to write down even a simple model
+
+- Requires knowledge about the subject and about math/econ more generally
+
+.smallest[
+.pull-left[
+.hi[Exogenous variables]
+- family background $(z)$
+- schooling costs $(c)$
+- children in household $(k)$
+
+.hi[Endogenous variables]
+- schooling $(s)$
+- period-2 work decision
+
+]
+
+.pull-right[
+.hi[Outcome variable]
+- labor income $(w)$
+
+.hi[Unobservables]
+- income $(\varepsilon)$
+- preferences $(\eta_t)$
+
+.hi[Model parameters]
+- returns to human capital $(\beta)$
+- discount factor $(\delta)$
+- other parameters implied by $f(\cdot)$ and $g(\cdot)$
+
+]
+]
+
+---
+
+# 2. Practical Specification Issues
+
+- Now that we have a model, we need to figure out how to take it to data
+
+- This is where we apply knowledge about .hi[our data] and .hi[stats/econometrics]
+
+- Key data questions:
+    - Can we observe the variables of the model in our data set?
+    - If so, are they reliably measured?
+
+- Key specification questions:
+    - How to model $\eta_t$ and $\varepsilon$? (Need to make distributional assumptions)
+    - Functional forms of $f(\cdot)$ and $g(\cdot)$
+    - Should $s$ be continuous (years of schooling) or discrete (college/not)?
+
+---
+
+# 2. Practical Specification Issues
+
+- We won't get into too many details about this today, but specification is important!
+
+- What determines the specification is often:
+
+    - what is reliably measured in the data
+    
+    - what is computationally feasible to estimate
+    
+- Parameters of the model either need to be .hi[estimated] or .hi[calibrated]
+
+- e.g. often we don't have reliable data to allow us to estimate $\delta$; we must calibrate it
+
+- Computational feasibility often governs how we specify the different functions
+
+    - e.g. _linear-in-parameters_ with _additively separable_ unobservables [like \eqref{eq:basicmincer}]
+
+
+---
+
+# Example with real data
+
+- Here is some real data from the most recent round of the NLSY97
+
+.scroll-box-12[
+```{julia,eval=F}
+using CSV, DataFrames, Statistics
+df = CSV.read("Data/slides3data.csv"; missingstrings=["NA"])
+size(df)
+# outputs (6009, 12)
+
+describe(df)
+# outputs the below:
+12×8 DataFrame
+│ Row │ variable       │ mean     │ min  │ median  │ max     │ nunique │ nmissing │
+│     │ Symbol         │ Float64  │ Real │ Float64 │ Real    │ Nothing │ Union…   │
+├─────┼────────────────┼──────────┼──────┼─────────┼─────────┼─────────┼──────────┤
+│ 1   │ id             │ 4534.71  │ 4    │ 4544.0  │ 9022    │         │          │
+│ 2   │ female         │ 0.52671  │ 0    │ 1.0     │ 1       │         │          │
+│ 3   │ black          │ 0.269762 │ 0    │ 0.0     │ 1       │         │          │
+│ 4   │ latin          │ 0.210351 │ 0    │ 0.0     │ 1       │         │          │
+│ 5   │ white          │ 0.511067 │ 0    │ 1.0     │ 1       │         │          │
+│ 6   │ employed       │ 0.756532 │ 0    │ 1.0     │ 1       │         │          │
+│ 7   │ wage           │ 25.5309  │ 8.0  │ 20.0    │ 150.0   │         │ 933      │
+│ 8   │ collgrad       │ 0.350474 │ 0    │ 0.0     │ 1       │         │          │
+│ 9   │ age            │ 34.967   │ 33   │ 35.0    │ 37      │         │          │
+│ 10  │ parent_college │ 0.238975 │ 0    │ 0.0     │ 1       │         │          │
+│ 11  │ numkids        │ 1.32684  │ 0    │ 1.0     │ 9       │         │          │
+│ 12  │ efc            │ 4.2243   │ 0.0  │ 0.77763 │ 118.111 │         │          │
+```
+]
+
+- We have demographics/background, wages, employment status, education, fertility
+- N=6009, age $\in \{33,\ldots,37\}$, and 35% of respondents graduated college
+- 24% have at least one college-graduate parent
+
+---
+
+# Example: setting up the specification
+
+- It looks like we can estimate some form of our model
+
+- We have family background, cost of college (this is the `efc` variable)
+
+- We have employment status, wage and number of children
+
+- It looks like we'll have to have $s$ be binary (`collgrad` variable)
+
+- Also need to assume $x = age - 18$ if non-grad, $x = age - 22$ if grad  `r Citep(biblio,"mincer1974")`
+
+- Then we just need to add some functional form assumptions, and we'll be ready
+
+    - $\varepsilon \sim$ Normal, $\eta_t \sim$ Logistic
+    - $u_{i1} = \alpha_0 + \alpha_1 \text{ parent_college} + \alpha_2 \text{ efc} + \eta_1$
+    - $u_{i2} = \gamma_0 + \gamma_1 \mathbb{E} \log w_{i} + \gamma_2 \text{ numkids} + \eta_2$
+
+
+---
+
+# Parameters of the empirical model
+
+- We can now detail the parameters of the empirical model
+
+- .hi[wage parameters] $(\beta,\sigma_{\varepsilon})$
+    - The latter is the std. dev. of income shocks
+
+- .hi[schooling parameters] $(\alpha)$
+
+- .hi[employment parameters] $(\gamma,\delta)$
+
+- Then write down a statistical objective function as a fn. of data and parameters
+
+    - e.g. maximize the likelihood, or minimize the sum of the squared residuals
+
+- We'll learn how to do this in later classes, but not today
+
+
+---
+
+# 3. Solving and 4. Understanding How the Model Works
+
+- .hi[Solving the model:] 
+
+    - solve the dynamic utility max problem for given parameter values
+    
+    - (we aren't estimating parameter values yet)
+    
+    - (we will talk about how to do this next week)
+
+- .hi[Understanding the model:] 
+
+    - simulate data from the model
+    
+    - make sure the simulated data is consistent with the model's implications
+    
+    - look at descriptive statistics from the simulated data
+
+---
+
+# 3. Solving and 4. Understanding How the Model Works
+
+- Start with as simple of a model as possible; make sure things are working
+
+- When introducing more complexities, do "numerical comparative statics"
+
+- Make sure the parameters move in the correct directions
+
+   - e.g. $\uparrow \beta_1 \implies \uparrow$ schooling (ceteris paribus)
+   
+- If they don't, you've likely got a bug somewhere
+
+
+---
+
+# Example with real data
+
+- How would we do this in Julia?
+
+- We can simulate log wages and then see how close we got
+
+- This is kind of silly in our simple model, but the workflow is there
+
+```{julia,eval=F}
+N = size(df,1)
+β = [1.65,.4,.06,-.0002]
+σ = .4;
+df.exper = df.age .- ( 18*(1 .- df.collgrad) .+ 22*df.collgrad )
+df.lwsim = β[1] .+ β[2]*df.collgrad .+ β[3]*df.exper .+ β[4]*df.exper.^2 .+ σ*randn(N)
+df.lw    = log.(df.wage)
+```
+
+- We can then compare how `df.lwsim` compares with `df.lw` in the data
+.scroll-box-4[
+```{julia,eval=F}
+describe(df;cols=[:lw,:lwsim])
+# returns
+│ Row │ variable │ mean    │ min     │ median  │ max     │ nunique │ nmissing │ eltype                  │
+│     │ Symbol   │ Float64 │ Float64 │ Float64 │ Float64 │ Nothing │ Union…   │ Type                    │
+├─────┼──────────┼─────────┼─────────┼─────────┼─────────┼─────────┼──────────┼─────────────────────────┤
+│ 1   │ lw       │ 3.06219 │ 2.07944 │ 2.99573 │ 5.01064 │         │ 933      │ Union{Missing, Float64} │
+│ 2   │ lwsim    │ 2.67169 │ 1.12192 │ 2.67668 │ 3.98557 │         │          │ Float64                 │
+```
+]
+
+---
+
+# 5. Estimation
+
+- Most structural models require .hi[nonlinear estimation]
+
+- e.g. MLE/GMM or their simulated counterparts
+
+- In nonlinear optimization, starting values are crucial
+   
+- Initializing at random starting values is likely to give poor results
+
+- Keane recommends calibrating the model by hand
+
+    - e.g. match the intercept of each equation to the $\overline{Y}$'s in the data
+
+- I recommend estimating an intercepts-only model (or with very few $X$'s)
+
+- But this advice is model-specific!
+
+
+---
+
+# 5. Estimation
+
+- There are lots of algorithms for nonlinear optimization
+
+- We'll talk more about these later in the course
+
+- Your next problem set will show how to do this in Julia
+
+---
+
+# Example using real data
+
+- In our simple model, we can get good starting values by estimating OLS and logits
+
+- The wage equation can be estimated by OLS (on the subsample who are employed)
+```{julia,eval=F}
+using GLM
+β̂ = lm(@formula(lw ~ collgrad + exper + exper^2), df[df.employed.==1,:])
+# returns
+Coefficients:
+─────────────────────────────────────────────────────────────────────────────────
+               Estimate  Std. Error    t value  Pr(>|t|)    Lower 95%   Upper 95%
+─────────────────────────────────────────────────────────────────────────────────
+(Intercept)   2.94607    0.323145     9.11688     <1e-18   2.31255     3.57959
+collgrad      0.534326   0.0271395   19.6881      <1e-82   0.481119    0.587532
+exper        -0.0265561  0.0412115   -0.644386    0.5194  -0.107351    0.0542385
+exper ^ 2     0.0014304  0.00132307   1.08112     0.2797  -0.00116346  0.00402426
+─────────────────────────────────────────────────────────────────────────────────
+
+df.elwage = predict(β̂, df) # generates expected log wage for all observations
+
+r2(β̂)                               # reports R2
+sqrt(deviance(β̂)/dof_residual(β̂))  # reports root mean squared error
+```
+
+---
+
+# Example using real data
+
+- The $u_t$ equations can be estimated as simple logits (on the full sample)
+
+.scroll-box-14[
+```{julia,eval=F}
+α̂ = glm(@formula(collgrad ~ parent_college + efc), df, Binomial(), LogitLink())
+# returns
+Coefficients:
+──────────────────────────────────────────────────────────────────────────────────
+                  Estimate  Std. Error   z value  Pr(>|z|)   Lower 95%   Upper 95%
+──────────────────────────────────────────────────────────────────────────────────
+(Intercept)     -1.20091    0.0364888   -32.9118    <1e-99  -1.27243    -1.1294
+parent_college   1.47866    0.068433     21.6074    <1e-99   1.34453     1.61278
+efc              0.0450253  0.00437704   10.2867    <1e-24   0.0364464   0.0536041
+──────────────────────────────────────────────────────────────────────────────────
+
+γ̂ = glm(@formula(employed ~ elwage + numkids), df, Binomial(), LogitLink())
+# returns
+Coefficients:
+──────────────────────────────────────────────────────────────────────────────
+               Estimate  Std. Error   z value  Pr(>|z|)  Lower 95%   Upper 95%
+──────────────────────────────────────────────────────────────────────────────
+(Intercept)  -4.25036     0.454826   -9.34503    <1e-20  -5.1418    -3.35892
+elwage        1.80081     0.149078   12.0796     <1e-32   1.50863    2.093
+numkids      -0.0797204   0.0218106  -3.65512    0.0003  -0.122468  -0.0369724
+──────────────────────────────────────────────────────────────────────────────
+```
+]
+
+
+---
+
+# Do these results make sense?
+
+- It can be informative to try and interpret even these simple results
+
+- wage equation:
+
+    - insignificant return to experience is surprising; otherwise makes sense
+    
+- schooling choice:
+
+    - If `efc` captures college costs, it should have a negative sign
+    - This suggests omitted variable bias in this equation
+    
+- employment choice:
+
+    - These results check out; may want to introduce nonlinearities in `numkids`
+
+
+---
+
+# 6. Validation
+
+- If you have a good model, it should be .hi[valid] (i.e. predict well out of sample)
+
+- Validation is not always possible, but it's good to do if you can
+
+- e.g. if experimental data, estimate on control group, validate on treatment group
+
+- e.g. see if model can replicate major policy change in data
+
+- More simply, you could throw out half your data, then try to predict other half
+
+    - This is typically not done if the full sample isn't huge
+
+---
+
+# 7. Policy Experiments
+
+- This is the main reason to do structural estimation!
+
+- Structural estimation $\implies$ recovering the DGP of the model
+
+- Once we know the DGP, we can simulate data from it and do policy experiments
+
+    - requires having policy-invariant parameters!
+
+- We can predict the effects of:
+
+    - proposed policies
+    
+    - hypothetical policies
+    
+- Contrast with RCTs, which only reveal effects of implemented policies
+
+---
+
+# Example using real data
+
+- We have two policy variables we could play with
+
+    1. `efc` (i.e. how much gov't subsidizes college tuition & fees)
+    2. return to schooling (this could change due to e.g. technological change)
+
+- Here's how we would look at a counterfactual with lower cost:
+.scroll-box-4[
+```{julia,eval=F}
+df_cfl     = deepcopy(df)
+df_cfl.efc = df.efc .- 1         # change value of efc to be $1,000 less
+df.basesch = predict(α̂, df)     # predicted collgrad probabilities under status quo
+df.cflsch  = predict(α̂, df_cfl) # predicted collgrad probabilities under counterfactual
+describe(df;cols=[:basesch,:cflsch])
+# returns
+│ Row │ variable │ mean     │ min      │ median   │ max      │ nunique │ nmissing │
+│     │ Symbol   │ Float64  │ Float64  │ Float64  │ Float64  │ Nothing │ Int64    │
+├─────┼──────────┼──────────┼──────────┼──────────┼──────────┼─────────┼──────────┤
+│ 1   │ basesch  │ 0.350474 │ 0.231313 │ 0.24387  │ 0.986715 │         │ 0        │
+│ 2   │ cflsch   │ 0.341794 │ 0.223404 │ 0.235663 │ 0.986111 │         │ 0        │
+```
+]
+- Average likelihood of `collgrad` _declines_ from 35% to 34.2%
+
+- This doesn't make sense because the `efc` coefficient didn't make sense
+
+
+---
+
+# Example using real data
+
+- We can't assess the counterfactual of increasing the return to schooling
+
+- Because `elwage` doesn't directly enter the `collgrad` logit model
+
+- This is because we aren't really estimating the dynamic model yet
+
+- We will learn how to do this in the near future
+
+
+---
+
+# In summary: Why structural estimation?
+
+- Want to examine effects of policies not yet implemented
+
+- Learn more about economics by looking through the lens of a model
+
+- Assess performance of theoretical models in explaining real-world data
+
+- Can be used to build up long-run "canonical" models of behavior in many areas
+
+- It can be really fun to do more complicated econometrics beyond simple regressions
+
+- Observational data is much cheaper to collect than experimental data
+
+
+---
+
+# In summary: Why _not_ structural estimation?
+
+- It's really difficult to write down and estimate a tractable, realistic model!
+
+- It requires additional effort beyond data preparation and running regressions
+
+- Understanding identification of the model takes a lot of effort, too
+
+- It can be really miserable to try and debug the code of a structural estimation
+
+- Many structural models can take weeks to estimate one specification
+
+    - in addition to months spent coding/debugging beforehand
+
+- As you can see, even with a simple model things have already gotten complicated!
+
+---
+
+# References
+.smallest[
+```{r refs, echo=FALSE, results="asis"}
+#PrintBibliography(biblio, start = 1, end = 2)
+PrintBibliography(biblio)
+```
+]
