@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Lecture 4</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Tyler Ransom" />
+    <link href="04slides_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="04slides_files/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="04slides_files/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            TeX: { equationNumbers: { autoNumber: "AMS" } },
+        });
+    </script>
+        <style>
+        .mjx-mrow a {
+            color: black;
+            pointer-events: none;
+            cursor: default;
+        }
+    </style>
+    <link rel="stylesheet" href="ou-colors.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Lecture 4
+## Static Discrete Choice Models
+### Tyler Ransom
+### ECON 6343, University of Oklahoma
+
+---
+
+
+
+
+# Attribution
+
+Many of these slides are based on slides written by Peter Arcidiacono. I use them with his permission.
+
+These slides also heavily follow Chapter 2 of Train (2009)
+
+---
+
+# Plan for the day
+
+1. Describe static discrete choice models
+
+2. Derive logit probabilities
+
+3. Show how to estimate logit and multinomial logit models
+
+4. Cover the IIA property
+
+5. Discuss expected utility and consumer surplus
+
+---
+
+# What are discrete choice models?
+
+- Discrete choice models are one of the workhorses of structural economics
+
+- Deeply tied to economic theory:
+    - utility maximization
+    
+    - revealed preference
+
+- Used to model "utility" (broadly defined), for example:
+    
+    - consumer product purchase decisions
+
+    - firm market entry decisions
+
+    - investment decisions
+
+---
+
+# Example of a discrete choice model
+
+- Cities in the Bay Area are interested in how the introduction of rideshare services will impact ridership on Bay Area Rapid Transit (BART)
+
+- Questions that cities need to know the answers to:
+    
+    - Is rideshare a substitute for public transit or a complement?
+    - How inelastic is demand for BART? Should fares be `\(\uparrow\)` or `\(\downarrow\)`?
+    - Should BART services be scaled up to compete with rideshares?
+    - Will the influx of rideshare vehicles increase traffic congestion / pollution?
+    
+- Each of these questions requires making a counterfactual prediction
+- In particular, need a way to make such a prediction confidently and in a way that is easy to understand
+
+
+---
+
+# Properties of discrete choice models
+
+1. Agents choose from among a .hi[finite] set of alternatives (called the _choice set_)
+
+2. Alternatives in choice set are .hi[mutually exclusive]
+
+3. Choice set is .hi[exhaustive]
+
+---
+
+# Notation
+
+Let `\(d_i\)` indicate the choice individual `\(i\)` makes where `\(d_i\in\{1,\ldots, J\}\)`.
+
+Individuals choose `\(d\)` to maximize their utility, `\(U\)`, which generally is written as:
+`\begin{align}
+U_{ij}&amp;=u_{ij}+\epsilon_{ij}
+\end{align}`
+where:
+- `\(u_{ij}\)` relates observed factors to the utility individual `\(i\)` receives from choosing option `\(j\)`
+- `\(\epsilon_{ij}\)` are unobserved to the econometrician but observed to the individual
+
+`\begin{align}
+d_{ij}&amp;=1 \text{  if  } u_{ij}+\epsilon_{ij}&gt;u_{ij'}+\epsilon_{ij'}\text{  for all  } j'\neq j
+\end{align}`
+
+---
+
+# Probabilities
+With the `\(\epsilon\)`'s unobserved, the probability of individual `\(i\)` making choice `\(j\)` is given by:
+`\begin{align*}
+P_{ij}&amp;=\Pr(u_{ij}+\epsilon_{ij}&gt;u_{ij'}+\epsilon_{ij'}\,\,\forall\,\, j'\neq j)\\
+&amp;=\Pr(\epsilon_{ij'}-\epsilon_{ij}&lt;u_{ij}-u_{ij'}\,\,\forall\,\, j'\neq j)\\
+&amp;=\int_{\epsilon}I(\epsilon_{ij'}-\epsilon_{ij}&lt;u_{ij}-u_{ij'}\,\,\forall\,\, j'\neq j)f(\epsilon)d\epsilon
+\end{align*}`
+
+
+Note that, regardless of what distributional assumptions are made on the `\(\epsilon\)`'s, the probability of choosing a particular option does not change when we:
+
+1. Add a constant to the utility of all options (i.e. .hi[only differences in utility matter])
+
+2. Multiply by a positive number (need to .hi[scale something]; e.g. the variance of the `\(\epsilon\)`'s)
+
+---
+
+# Variables
+
+Suppose we have:
+`\begin{eqnarray*}
+u_{i1}=\alpha Male_i+\beta_1 X_i + \gamma Z_1\\
+u_{i2}=\alpha Male_i+\beta_2 X_i+\gamma Z_2\\
+\end{eqnarray*}`
+
+Since only differences in utility matter:
+`\begin{align*}
+u_{i1}-u_{i2}&amp;=(\beta_1-\beta_2)X_i+\gamma (Z_1-Z_2)
+\end{align*}`
+
+Can't tell whether men are happier than women, but can tell whether they more strongly prefer one option
+
+Can only obtain differenced coefficient estimates on `\(X\)`'s
+
+Can only obtain an estimate of a coefficient that is constant across choices if its corresponding variable varies by choice
+
+
+---
+
+# Number of Error Terms
+
+Similar to the `\(X\)`'s, there are restrictions on the number of error terms
+
+This is because only differences in utility matter
+
+
+Recall that he probability `\(i\)` will choose `\(j\)` is given by:
+`\begin{align}
+P_{ij}&amp;=\Pr(u_{ij}+\epsilon_{ij}&gt;u_{ij'}+\epsilon_{ij'}\,\,\forall\,\, j'\neq j)\nonumber\\
+&amp;=\Pr(\epsilon_{ij'}-\epsilon_{ij}&lt;u_{ij}-u_{ij'}\,\,\forall\,\, j'\neq j)\label{eq:intprob}\\
+&amp;=\int_{\epsilon}I(\epsilon_{ij'}-\epsilon_{ij}&lt;u_{ij}-u_{ij'}\,\,\forall\,\, j'\neq j)f(\epsilon)d\epsilon\nonumber
+\end{align}`
+where the integral is `\(J\)`-dimensional.
+
+
+---
+
+# Number of Error Terms
+
+Can rewrite the last line of \eqref{eq:intprob} as a `\(J-1\)` dimensional integral over the differenced `\(\epsilon\)`'s:
+`\begin{align}
+P_{ij}&amp;=\int_{\tilde{\epsilon}}I(\tilde{\epsilon}_{ij'}&lt;\tilde{u}_{ij'} \,\,\forall\,\, j'\neq j)g(\tilde{\epsilon})d\tilde{\epsilon}
+\end{align}`
+
+This means one dimension of `\(f(\epsilon)\)` is not identified and must therefore be normalized
+
+Arises from only differences in utility mattering (.hi[location normalization])
+
+The scale of utility also doesn't matter (.hi[scale normalization])
+
+- The scale normalization implies we must place restrictions on the variance of `\(\epsilon\)`'s
+
+---
+
+# Where does the logit formula come from?
+Consider the case when the choice set is `\(\{1,2\}\)`.  The Type 1 extreme value CDF for `\(\epsilon_2\)` is:
+`\begin{align*}
+F(\epsilon_2)&amp;=e^{-e^{(-\epsilon_2)}}
+\end{align*}`
+
+To get the probability of choosing `\(1\)`, substitute in for `\(\epsilon_2\)` with `\(\epsilon_1+u_1-u_2\)`:
+`\begin{align}
+\Pr(d_1=1|\epsilon_1)&amp;=e^{-e^{-(\epsilon_1+u_1-u_2)}}
+\end{align}`
+But `\(\epsilon_1\)` is unobserved so we need to integrate it out
+
+---
+# Logit derivation
+Taking the integral over what is random `\((\epsilon_1)\)`:
+
+`\begin{align*}
+\Pr(d_1=1)&amp;=\int_{-\infty}^{\infty}\left(e^{-e^{-(\epsilon_1+u_1-u_2)}}\right)f(\epsilon_1)d\epsilon_1\\
+&amp;=\int_{-\infty}^{\infty}\left(e^{-e^{-(\epsilon_1+u_1-u_2)}}\right)e^{-\epsilon_1}e^{-e^{-\epsilon_1}}d\epsilon_1\\
+&amp;=\int_{-\infty}^{\infty}\exp\left(-e^{-\epsilon_1}-e^{-(\epsilon_1+u_1-u_2)}\right)e^{-\epsilon_1}d\epsilon_1\\
+&amp;=\int_{-\infty}^{\infty}\exp\left(-e^{-\epsilon_1}\left[1+e^{u_2-u_1}\right]\right)e^{-\epsilon_1}d\epsilon_1
+\end{align*}`
+
+We can simplify by U-substitution where `\(t=\exp(-\epsilon_1)\)` and `\(dt=-\exp(-\epsilon_1)d\epsilon_1\)`
+
+And adjusting the bounds of integration accordingly, `\(\exp(-\infty)=0\)` and `\(\exp(\infty)=\infty\)`
+
+---
+
+# Logit Derivation
+ 
+Substituting in then yields:
+
+`\begin{align*}
+\Pr(d_1=1)&amp;=\int_{\infty}^0\exp\left(-t\left[1+e^{(u_2-u_1)}\right]\right)(-dt)\\
+&amp;=\int_0^{\infty}\exp\left(-t\left[1+e^{(u_2-u_1)}\right]\right)dt\\
+&amp;=\left.\frac{\exp\left(-t\left[1+e^{(u_2-u_1)}\right]\right)}{-\left[1+e^{(u_2-u_1)}\right]}\right\vert^{\infty}_{0}\\
+&amp;=0-\frac{1}{-\left[1+e^{(u_2-u_1)}\right]}\\
+&amp;=\frac{\exp(u_1)}{\exp(u_1)+\exp(u_2)}
+\end{align*}`
+
+---
+
+# Logit Estimation
+Consider our model from before:
+`\begin{align*}
+u_{i1}-u_{i2}=&amp;(\beta_1-\beta_2)X_i+\gamma (Z_1-Z_2)
+\end{align*}`
+
+We observe `\(X_i\)`, `\(Z_1\)`, `\(Z_2\)`, and `\(d_i\)`
+
+Assuming `\(\epsilon_1,\epsilon_2 \overset{iid}{\sim} T1EV\)` gives the likelihood of choosing `\(1\)` and `\(2\)` respectively as:
+`\begin{align*}
+P_{i1}=&amp;\frac{\exp(u_{i1}-u_{i2})}{1+\exp(u_{i1}-u_{i2})}\\
+P_{i2}=&amp;\frac{1}{1+\exp(u_{i1}-u_{i2})}
+\end{align*}`
+
+Note: if `\(\epsilon_1,\epsilon_2 \overset{iid}{\sim} T1EV\)` then  `\(\tilde{\epsilon}_1 \sim Logistic\)`, where `\(\tilde{\epsilon}_1 := \epsilon_1-\epsilon_2\)`
+
+---
+
+# Likelihood function
+We can view the event `\(d_i = j\)` as a weighted coin flip
+
+This gives us a random variable that follows the Bernoulli distribution
+
+Supposing our sample is of size `\(N\)`, the likelihood function would then be
+`\begin{align}
+\mathcal{L}\left(X,Z;\beta,\gamma\right)=&amp;\prod_{i=1}^N P_{i1}^{d_{i1}} P_{i2}^{d_{i2}} \nonumber\\
+=&amp;\prod_{i=1}^N P_{i1}^{d_{i1}}\left[1-P_{i1}\right]^{(1-d_{i1})}\label{eq:logitlike}
+\end{align}`
+
+where `\(P_{i1}\)` and `\(P_{i2}\)` are both functions of `\(X,Z,\beta,\gamma\)`
+
+---
+
+# Log likelihood function
+
+For many reasons, it's better to maximize the log likelihood function
+
+Taking the log of \eqref{eq:logitlike} gives
+
+`\begin{align}
+\ell\left(X,Z;\beta,\gamma\right)=&amp;\sum_{i=1}^N d_{i1}\log P_{i1} + (1-d_{i1}) \log \left(1-P_{i1}\right)\nonumber\\
+=&amp;\sum_{i=1}^N \sum_{j=1}^2 d_{ij}\log P_{ij}\label{eq:logitloglike}\\
+=&amp;\sum_{i=1}^N d_{i1}\left[\log \left(\exp (u_{i1}-u_{i2})\right)-\log\left(1 + \exp(u_{i1}-u_{i2})\right)\right] + \nonumber\\
+&amp;(1-d_{i1}) \left[\log \left(1\right)-\log \left(1 + \exp (u_{i1}-u_{i2})\right)\right]\nonumber\\
+=&amp;\sum_{i=1}^N d_{i1} \left[u_{i1}-u_{i2}\right]-\log\left(1+\exp(u_{i1}-u_{i2})\right)\nonumber
+\end{align}`
+
+---
+
+# Multinomial Logit Estimation
+.small[Adding more choices with i.i.d. Type I extreme value errors yields the .hi[multinomial logit]
+
+Normalizing with respect to alternative `\(J\)` we have (for `\(j\in\{1,\ldots,J-1\}\)`)
+`\begin{align}
+u_{ij}-u_{iJ}=&amp;(\beta_j-\beta_J)X_i+\gamma (Z_j-Z_{J})
+\end{align}`
+
+We observe `\(X_i, Z_1, \ldots, Z_J\)`, and `\(d_i\)`. The likelihood of choosing `\(j\)` and `\(J\)` respectively is:
+`\begin{align}
+P_{ij}&amp;=\frac{\exp(u_{ij}-u_{iJ})}{1+\sum_{j'=1}^{J-1}\exp(u_{ij'}-u_{iJ})},&amp;P_{iJ}=\frac{1}{1+\sum_{j'=1}^{J-1}\exp(u_{ij'}-u_J)}
+\end{align}`
+
+The log likelihood function we maximize is then:
+`\begin{align}
+\ell(X,Z;\beta,\gamma)=&amp;\sum_{i=1}^N\left[\sum_{j=1}^{J-1}(d_{ij}=1)(u_{ij}-u_{iJ})\right]-\ln\left(1+\sum_{j'=1}^{J-1}\exp(u_{ij'}-u_{iJ})\right)
+\end{align}`
+]
+
+
+---
+
+# Independence of Irrelevant Alternatives (IIA)
+- One of the properties of the multinomial logit model is .hi[IIA]
+
+- `\(P_{ij}/P_{ik}\)` does not depend upon what other alternatives are available:
+`\begin{align*}
+\frac{P_{ij}}{P_{ik}}&amp;=\frac{e^{u_{ij}}/\sum_{j'}e^{u_{ij'}}}{e^{u_{ik}}/\sum_{j'}e^{u_{ij'}}}\\
+&amp;=\frac{e^{u_{ij}}}{e^{u_{ik}}}\\
+&amp;=e^{u_{ij}-u_{ik}}
+\end{align*}`
+
+---
+
+# Advantage of IIA
+
+IIA can simplify estimation. Instead of using as our likelihood
+`\begin{align}
+P_{ij}=&amp;\frac{\exp(u_{ij})}{\sum_{j'}^J\exp(u_{ij'})},
+\end{align}`
+we can use the _conditional likelihood_ `\(P_i(j|j\in K)\)` where `\(K&lt;J\)`.  
+
+The log likelihood function is then  (Begg and Gray, 1984):
+`\begin{align*}
+L(\beta,\gamma|d_i\in K)&amp;=\sum_{i=1}^N\left[\sum_{j=1}^{K-1}(d_{ij}=1)(u_{ij}-u_{iK})\right]\\
+&amp;-\ln\left(1+\sum_{j'=1}^K\exp(u_{ij'}-u_{iK})\right)
+\end{align*}`
+
+---
+
+# Disadvantage of IIA
+
+Most famously illustrated by the "red bus/blue bus problem"
+
+- Consider a commuter with the choice set `\(\{\text{ride a blue-colored bus}, \text{drive a car}\}\)`
+
+- Now add a red-colored bus to the choice set
+
+- Assume that the only difference in utility between a red bus and a blue bus is in `\(\epsilon\)`
+
+- This will .hi[double] the probability of taking a bus 
+
+- Why? `\(P(\text{blue bus})/P(\text{car})\)` does not depend upon whether the red bus is available
+
+We'll talk later about how to address this disadvantage
+
+---
+
+# Expected Utility 
+- It is possible to move from the estimates of the utility function to expected utility 
+
+- (or at least differences in expected utility)
+ 
+- Individual `\(i\)` is going to choose the best alternative
+
+- Thus, expected utility from the best choice, `\(V_i\)`, is given by:
+`\begin{align*}
+V_i&amp;=E\max_{j}(u_{ij}+\epsilon_{ij})
+\end{align*}`
+where the expectation is over all possible values of `\(\epsilon _{ij}\)`
+
+
+
+---
+
+# Expected Utility
+
+For the multinomial logit, this has a closed form:
+`\begin{align}
+V_i&amp;=\ln\left(\sum_{j=1}^J\exp{u_{ij}}\right)+C
+\end{align}`
+where `\(C\)` is Euler's constant (a.k.a. Euler-Mascheroni constant)
+
+- We will use this later when we discuss dynamic discrete choice models
+
+---
+
+# Alternative expression for expected utility
+
+Note that we can also express `\(V_i\)` as:
+`\begin{align*}
+V_i&amp;=\ln\left(\sum_{j=1}^J\frac{\exp(u_{iJ})\exp(u_{ij})}{\exp(u_{iJ})}\right)+C\\
+&amp;=\ln\left(\sum_{j=1}^J\exp(u_{ij}-u_{iJ})\right)+u_{iJ}+C\\
+&amp;=\ln\left(1+\sum_{j=1}^{J-1}\exp(u_{ij}-u_{iJ})\right)+u_{iJ}+C
+\end{align*}`
+
+This representation will become useful later in the course
+
+
+
+
+
+---
+
+# From Expected Utility to Consumer Surplus
+We may want to transform utility into dollars to get consumer surplus  
+
+We need something in the utility function (such as price) that is measured in dollars
+
+Suppose `\(u_{ij}=\beta_jX_i+\gamma Z_j-\delta p_j\)`
+
+The coefficient on price, `\(\delta\)` then gives the utils-to-dollars conversion:
+`\begin{align}
+E(CS_i)=&amp;\frac{1}{\delta}\left[\ln\left(\sum_{j=1}^J\exp{u_{ij}}\right)+C\right]
+\end{align}`
+We can calculate the change in consumer surplus after a policy change as `\(E(CS_{i2})-E(CS_{i1})\)` where the `\(C\)`'s cancel out
+
+---
+
+# References
+.smallest[
+Begg, C. B. and R. Gray (1984). "Calculation of Polychotomous Logistic
+Regression Parameters Using Individualized Regressions". In:
+_Biometrika_ 71.1, pp. 11-18. DOI:
+[10.1093/biomet/71.1.11](https://doi.org/10.1093%2Fbiomet%2F71.1.11).
+
+Train, K. (2009). _Discrete Choice Methods with Simulation_. 2nd ed.
+Cambridge; New York: Cambridge University Press. ISBN: 9780521766555.
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
