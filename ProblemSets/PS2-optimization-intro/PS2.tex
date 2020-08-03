@@ -1,0 +1,210 @@
+\documentclass[12pt,english]{article}
+\usepackage{mathptmx}
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+\usepackage{geometry}
+\usepackage{xcolor}
+\geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\usepackage{amsmath}
+\usepackage[authoryear]{natbib}
+\usepackage{minted}
+\definecolor{bg}{rgb}{0.95,0.95,0.95}
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+ breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false]
+ {hyperref}
+\usepackage{breakurl}
+
+\begin{document}
+
+\title{Problem Set 2}
+\author{ECON 6343: Econometrics III\\
+Prof. Tyler Ransom\\
+University of Oklahoma}
+\date{Due: September 8, 9:00 AM}
+
+\maketitle
+Directions: Answer all questions. Each student must turn in their own copy, but you may work in groups. Clearly label all answers. Show all of your code. Turn in jl-file(s), output files and writeup via GitHub. Your writeup may simply consist of comments in jl-file(s). If applicable, put the names of all group members at the top of your writeup or jl-file.
+
+
+Before starting, you will need to install and the following packages:
+\begin{itemize}
+    \item[~] \texttt{Optim} 
+    \item[~] \texttt{HTTP} 
+    \item[~] \texttt{GLM} 
+\end{itemize}
+
+You will also need to load the following packages:
+\begin{itemize}
+    \item[~] \texttt{LinearAlgebra} 
+    \item[~] \texttt{Random} 
+    \item[~] \texttt{Statistics} 
+    \item[~] \texttt{DataFrames} 
+    \item[~] \texttt{CSV} 
+    \item[~] \texttt{FreqTables}
+\end{itemize}
+
+On Github there is a file called \texttt{PS2\_starter.jl} that has the code blocks below already created.
+
+\begin{enumerate}
+\item \textbf{Basic optimization in Julia.} We'll start by finding the value of $x$ that maximizes the function \begin{align*}f(x) &= -x^4-10x^3-2x^2-3x-2.\end{align*}
+In more formal math terms, our objective is\begin{align*} \max_x f(x) &= -x^4-10x^3-2x^2-3x-2.\end{align*}
+While we could probably solve this by hand, the goal of today's problem set is to introduce you to Julia's nonlinear optimization tools.
+
+We will use Julia's \texttt{Optim} package, which is a function \textit{minimizer}. Thus, if we want to find the maximum of $f(x)$, we need to minimize $-f(x)$.
+
+The \texttt{Optim} package provides a function called \texttt{optimize()}. This function requires three inputs: the objective function, a starting value, and an optimization algorithm. We will not get too deep into optimization algorithms in this course, but for now just use \texttt{LBFGS()}.
+
+Below is some code that shows how we can solve the objective function written above. You should copy and paste this code into your Julia script for this problem set. You should also copy, paste and run it in the REPL.
+
+\begin{minted}[bgcolor=bg]{julia}
+using Optim
+f(x) = -x[1]^4-10x[1]^3-2x[1]^2-3x[1]-2
+negf(x) = x[1]^4+10x[1]^3+2x[1]^2+3x[1]+2
+startval = rand(1)  # random number as starting value
+result = optimize(negf, startval, LBFGS())
+\end{minted}
+
+The output printed in the REPL is
+\begin{minted}[bgcolor=bg]{julia}
+ * Status: success
+
+ * Candidate solution
+    Minimizer: [-7.38e+00]
+    Minimum:   -9.643134e+02
+
+ * Found with
+    Algorithm:     L-BFGS
+    Initial Point: [2.39e-01]
+
+ * Convergence measures
+    |x - x'|               = 4.44e-06 <= 0.0e+00
+    |x - x'|/|x'|          = 6.02e-07 <= 0.0e+00
+    |f(x) - f(x')|         = 2.12e-09 <= 0.0e+00
+    |f(x) - f(x')|/|f(x')| = 2.20e-12 <= 0.0e+00
+    |g(x)|                 = 5.09e-09 <= 1.0e-08
+
+ * Work counters
+    Seconds run:   0  (vs limit Inf)
+    Iterations:    6
+    f(x) calls:    21
+    nablaf(x) calls:   21
+\end{minted}
+
+And we can see that the optimal value of $x$ is -7.38 and the maximum is $\text{-}\left(\text{-}9.643\times 10^2\right)=964.3$
+
+\item Now that we're familiar with how \texttt{Optim}'s \texttt{optimize()} function works, lets try it on some real-world data. 
+
+Specifically, let's use \texttt{Optim} to compute OLS estimates of a simple linear regression using actual data. The process for passing data to \texttt{Optim} can be tricky, so it will be helpful to go through this example.
+
+First, let's import and set up the data. Note that you will need to put the URL all on one line when executing this code in Julia.
+
+\begin{minted}[bgcolor=bg]{julia}
+using DataFrames
+using CSV
+using HTTP
+url = "https://raw.githubusercontent.com/OU-PhD-Econometrics/fall-2020/
+master/ProblemSets/PS1-julia-intro/nlsw88.csv"
+df = CSV.read(HTTP.get(url).body)
+X = [ones(size(df,1),1) df.age df.race.==1 df.collgrad.==1]
+y = df.married.==1
+\end{minted}
+
+Now let's use \texttt{Optim} to solve our objective function:
+\begin{align*}
+    \min_\beta \sum_i\left(y_i - 
+    X_i\beta\right)^2
+\end{align*}
+
+This estimates the linear probability model
+\begin{align*}
+    married_i = \beta_0 + \beta_1 age_i + \beta_2 1[race_i=1] + \beta_3 1[collgrad_i=1] + u_i
+\end{align*}
+
+A tricky thing with using \texttt{Optim} is that it requires something called a \textit{closure} to be able to pass data into the function.
+
+\begin{minted}[bgcolor=bg]{julia}
+function ols(beta, X, y)
+    ssr = (y.-X*beta)'*(y.-X*beta)
+    return ssr
+end
+
+beta_hat_ols = optimize(b -> ols(b, X, y), rand(size(X,2)), LBFGS(), 
+                        Optim.Options(g_tol=1e-6, iterations=100_000, 
+                        show_trace=true))
+println(beta_hat_ols.minimizer)
+\end{minted}
+
+We can check that this worked in a few different ways:
+
+\begin{minted}[bgcolor=bg]{julia}
+using GLM
+bols = inv(X'*X)*X'*y
+df.white = df.race.==1
+bols_lm = lm(@formula(married ~ age + white + collgrad), df)
+\end{minted}
+
+Indeed, all three ways give the same estimates.
+
+\item Use \texttt{Optim} to estimate the logit likelihood. Some things to keep in mind:
+\begin{itemize}
+    \item To maximize the likelihood, you will need to pass \texttt{Optim} the \textit{negative} of the likelihood function
+    \item The likelihood function is included in the Lecture 4 slides
+\end{itemize}
+
+\item Use the \texttt{glm()} function from the \texttt{GLM} package to check your answer. (Example code for how to do this is in the Lecture 3 slides.)
+
+
+\item Use \texttt{Optim} to estimate a multinomial logit model where the dependent variable is \texttt{occupation} and the covariates are the same as above.
+
+Before doing this, clean the data to remove rows where \texttt{occupation} is missing. We also need to aggregate some of the occupation categories or else we won't be able to estimate our multinomial logit model:
+
+\begin{minted}[bgcolor=bg]{julia}
+using FreqTables
+freqtable(df, :occupation) # note small number of obs in some occupations
+df = dropmissing(df, :occupation)
+df[df.occupation.==8 ,:occupation] .= 7
+df[df.occupation.==9 ,:occupation] .= 7
+df[df.occupation.==10,:occupation] .= 7
+df[df.occupation.==11,:occupation] .= 7
+df[df.occupation.==12,:occupation] .= 7
+df[df.occupation.==13,:occupation] .= 7
+freqtable(df, :occupation) # problem solved
+\end{minted}
+
+Since we changed the number of rows of \texttt{df}, we also need to re-define our \texttt{X} and \texttt{y} objects:
+\begin{minted}[bgcolor=bg]{julia}
+X = [ones(size(df,1),1) df.age df.race.==1 df.collgrad.==1]
+y = df.occupation
+\end{minted}
+
+\textbf{Hints:} 
+\begin{itemize}
+    \item With 7 choice alternatives, you will have $K\cdot 6$ coefficients, where $K$ is the number of covariates in $X$. It may help to transform the parameter vector into a $K\times6$ matrix (to more easily reference the $\alpha_j$'s for each $j$)
+    \item You should reset the tolerance of the gradient (\texttt{g\_tol}) to be $10^-5$. This will help the estimation converge more quickly, without losing too much precision
+    \item You may need to try different sets of starting values. Some candidates to consider are:
+        \begin{itemize} 
+        \item a vector of 0s
+        \item a vector of $U[0,1]$ random numbers
+        \item a vector of $U[-1,1]$ random numbers
+        \item the estimated values from Stata or R (see below)
+        \end{itemize}
+\end{itemize}
+
+\textbf{Notes:} 
+\begin{itemize}
+    \item If you have access to Stata, you can check your answers with the following code:
+    \begin{minted}[bgcolor=bg]{stata}
+    webuse nlsw88
+    drop if mi(occupation)
+    recode occupation (8 9 10 11 12 13 = 7)
+    gen white = race==1
+    mlogit occupation age white collgrad, base(7)
+    \end{minted}
+    \item In general it is a good strategy to run your model(s) through a more user-friendly interface like Stata or R before trying to implement them in Julia. But you might ask, ``Why don't we just use Stata or R, then?'' The reason is because the models we will get to later in the course are much more difficult to implement in those languages, because they aren't ready to take off the shelf.
+\end{itemize}
+
+
+\item Wrap all of your code above into a function and then call that function at the very bottom of your script. Make sure you add \texttt{println()} statements after obtaining each set of estimates so that you can 
+\end{enumerate}
+\end{document}
