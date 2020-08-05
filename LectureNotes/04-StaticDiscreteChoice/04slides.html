@@ -105,9 +105,9 @@ These slides also follow Chapters 1-3 of Train (2009)
 
 # Notation
 
-Let `\(d_i\)` indicate the choice individual `\(i\)` makes where `\(d_i\in\{1,\ldots, J\}\)`.
+- Let `\(d_i\)` indicate the choice individual `\(i\)` makes where `\(d_i\in\{1,\ldots, J\}\)`.
 
-Individuals choose `\(d\)` to maximize their utility, `\(U\)`, which generally is written as:
+- Individuals choose `\(d\)` to maximize their utility, `\(U\)`, which generally is written as:
 `\begin{align}
 U_{ij}&amp;=u_{ij}+\epsilon_{ij}
 \end{align}`
@@ -122,7 +122,7 @@ d_{ij}&amp;=1 \text{  if  } u_{ij}+\epsilon_{ij}&gt;u_{ij'}+\epsilon_{ij'}\text{
 ---
 
 # Probabilities
-With the `\(\epsilon\)`'s unobserved, the probability of individual `\(i\)` making choice `\(j\)` is given by:
+- With the `\(\epsilon\)`'s unobserved, the probability of `\(i\)` making choice `\(j\)` is given by:
 `\begin{align*}
 P_{ij}&amp;=\Pr(u_{ij}+\epsilon_{ij}&gt;u_{ij'}+\epsilon_{ij'}\,\,\forall\,\, j'\neq j)\\
 &amp;=\Pr(\epsilon_{ij'}-\epsilon_{ij}&lt;u_{ij}-u_{ij'}\,\,\forall\,\, j'\neq j)\\
@@ -130,7 +130,7 @@ P_{ij}&amp;=\Pr(u_{ij}+\epsilon_{ij}&gt;u_{ij'}+\epsilon_{ij'}\,\,\forall\,\, j'
 \end{align*}`
 
 
-Note that, regardless of what distributional assumptions are made on the `\(\epsilon\)`'s, the probability of choosing a particular option does not change when we:
+- Note that, regardless of what distributional assumptions are made on the `\(\epsilon\)`'s, the probability of choosing a particular option does not change when we:
 
 1. Add a constant to the utility of all options (i.e. .hi[only differences in utility matter])
 
@@ -140,76 +140,95 @@ Note that, regardless of what distributional assumptions are made on the `\(\eps
 
 # Variables
 
-Suppose we have:
+- Suppose we have:
 `\begin{eqnarray*}
 u_{i1}=\alpha Male_i+\beta_1 X_i + \gamma Z_1\\
 u_{i2}=\alpha Male_i+\beta_2 X_i+\gamma Z_2\\
 \end{eqnarray*}`
 
-Since only differences in utility matter:
+- Since only differences in utility matter:
 `\begin{align*}
 u_{i1}-u_{i2}&amp;=(\beta_1-\beta_2)X_i+\gamma (Z_1-Z_2)
 \end{align*}`
 
-Can't tell whether men are happier than women, but can tell whether they more strongly prefer one option
+- We can't tell whether men are happier than women, but can tell whether they more strongly prefer one option
 
-Can only obtain differenced coefficient estimates on `\(X\)`'s
+- We can only obtain differenced coefficient estimates on `\(X\)`'s
 
-Can only obtain an estimate of a coefficient that is constant across choices if its corresponding variable varies by choice
+- We can only obtain an estimate of a coefficient that is constant across choices if its corresponding variable varies by choice
 
 
 ---
 
 # Number of Error Terms
 
-Similar to the `\(X\)`'s, there are restrictions on the number of error terms
+- Similar to the `\(X\)`'s, there are restrictions on the number of error terms
 
-This is because only differences in utility matter
+- This is because only differences in utility matter
 
-
-Recall that he probability `\(i\)` will choose `\(j\)` is given by:
+- Recall that he probability `\(i\)` will choose `\(j\)` is given by:
 `\begin{align}
 P_{ij}&amp;=\Pr(u_{ij}+\epsilon_{ij}&gt;u_{ij'}+\epsilon_{ij'}\,\,\forall\,\, j'\neq j)\nonumber\\
 &amp;=\Pr(\epsilon_{ij'}-\epsilon_{ij}&lt;u_{ij}-u_{ij'}\,\,\forall\,\, j'\neq j)\label{eq:intprob}\\
 &amp;=\int_{\epsilon}I(\epsilon_{ij'}-\epsilon_{ij}&lt;u_{ij}-u_{ij'}\,\,\forall\,\, j'\neq j)f(\epsilon)d\epsilon\nonumber
 \end{align}`
-where the integral is `\(J\)`-dimensional.
+where the integral is `\(J\)`-dimensional
 
 
 ---
 
 # Number of Error Terms
 
-Can rewrite the last line of \eqref{eq:intprob} as a `\(J-1\)` dimensional integral over the differenced `\(\epsilon\)`'s:
+- Rewriting the last line of \eqref{eq:intprob} as a `\(J-1\)` dimensional integral over the differenced `\(\epsilon\)`'s:
 `\begin{align}
 P_{ij}&amp;=\int_{\tilde{\epsilon}}I(\tilde{\epsilon}_{ij'}&lt;\tilde{u}_{ij'} \,\,\forall\,\, j'\neq j)g(\tilde{\epsilon})d\tilde{\epsilon}
 \end{align}`
 
-This means one dimension of `\(f(\epsilon)\)` is not identified and must therefore be normalized
+- This means one dimension of `\(f(\epsilon)\)` is not identified and must therefore be normalized
 
-Arises from only differences in utility mattering (.hi[location normalization])
+- Arises from only differences in utility mattering (.hi[location normalization])
 
-The scale of utility also doesn't matter (.hi[scale normalization])
+- The scale of utility also doesn't matter (.hi[scale normalization])
 
-- The scale normalization implies we must place restrictions on the variance of `\(\epsilon\)`'s
+    - The scale normalization implies we must place restrictions on the variance of `\(\epsilon\)`'s
+
+
+
+---
+
+# More on the scale normalization
+
+- The need to normalize scale means that we can never estimate the variance of `\(F\left(\tilde{\epsilon}\right)\)`
+
+- This contrasts with linear regression models, where we can easily estimate MSE
+
+- The scale normalization means our `\(\beta\)`'s and `\(\gamma\)`'s are implicitly divided by an unknown variance term:
+
+`\begin{align*}
+u_{i1}-u_{i2}&amp;=(\beta_1-\beta_2)X_i+\gamma (Z_1-Z_2)\\
+             &amp;=\tilde{\beta}X_i + \gamma \tilde{Z} \\
+             &amp;=\frac{\beta^*}{\sigma}X_i + \frac{\gamma^*}{\sigma}\tilde{Z}
+\end{align*}`
+
+- `\(\tilde{\beta}\)` is what we estimate, but we will never know `\(\beta^*\)` because utility is scale-invariant
 
 ---
 
 # Where does the logit formula come from?
-Consider the case when the choice set is `\(\{1,2\}\)`.  The Type 1 extreme value CDF for `\(\epsilon_2\)` is:
+- Consider a binary choice set `\(\{1,2\}\)`. The Type 1 extreme value CDF for `\(\epsilon_2\)` is:
 `\begin{align*}
 F(\epsilon_2)&amp;=e^{-e^{(-\epsilon_2)}}
 \end{align*}`
 
-To get the probability of choosing `\(1\)`, substitute in for `\(\epsilon_2\)` with `\(\epsilon_1+u_1-u_2\)`:
+- To get the probability of choosing `\(1\)`, substitute in for `\(\epsilon_2\)` with `\(\epsilon_1+u_1-u_2\)`:
 `\begin{align}
 \Pr(d_1=1|\epsilon_1)&amp;=e^{-e^{-(\epsilon_1+u_1-u_2)}}
 \end{align}`
-But `\(\epsilon_1\)` is unobserved so we need to integrate it out
+- But `\(\epsilon_1\)` is unobserved so we need to integrate it out
 
 ---
 # Logit derivation
-Taking the integral over what is random `\((\epsilon_1)\)`:
+- Taking the integral over what is random `\((\epsilon_1)\)`:
 
 `\begin{align*}
 \Pr(d_1=1)&amp;=\int_{-\infty}^{\infty}\left(e^{-e^{-(\epsilon_1+u_1-u_2)}}\right)f(\epsilon_1)d\epsilon_1\\
@@ -218,15 +237,15 @@ Taking the integral over what is random `\((\epsilon_1)\)`:
 &amp;=\int_{-\infty}^{\infty}\exp\left(-e^{-\epsilon_1}\left[1+e^{u_2-u_1}\right]\right)e^{-\epsilon_1}d\epsilon_1
 \end{align*}`
 
-We can simplify by U-substitution where `\(t=\exp(-\epsilon_1)\)` and `\(dt=-\exp(-\epsilon_1)d\epsilon_1\)`
+- We can simplify by U-substitution where `\(t=\exp(-\epsilon_1)\)` and `\(dt=-\exp(-\epsilon_1)d\epsilon_1\)`
 
-And adjusting the bounds of integration accordingly, `\(\exp(-\infty)=0\)` and `\(\exp(\infty)=\infty\)`
+- And adjusting the bounds of integration accordingly, `\(\exp(-\infty)=0\)` and `\(\exp(\infty)=\infty\)`
 
 ---
 
 # Logit Derivation
  
-Substituting in then yields:
+- Substituting in then yields:
 
 `\begin{align*}
 \Pr(d_1=1)&amp;=\int_{\infty}^0\exp\left(-t\left[1+e^{(u_2-u_1)}\right]\right)(-dt)\\
@@ -239,29 +258,29 @@ Substituting in then yields:
 ---
 
 # Logit Estimation
-Consider our model from before:
+- Consider our model from before:
 `\begin{align*}
 u_{i1}-u_{i2}=&amp;(\beta_1-\beta_2)X_i+\gamma (Z_1-Z_2)
 \end{align*}`
 
-We observe `\(X_i\)`, `\(Z_1\)`, `\(Z_2\)`, and `\(d_i\)`
+- We observe `\(X_i\)`, `\(Z_1\)`, `\(Z_2\)`, and `\(d_i\)`
 
-Assuming `\(\epsilon_1,\epsilon_2 \overset{iid}{\sim} T1EV\)` gives the likelihood of choosing `\(1\)` and `\(2\)` respectively as:
+- Assuming `\(\epsilon_1,\epsilon_2 \overset{iid}{\sim} T1EV\)` gives the likelihood of choosing `\(1\)` and `\(2\)` respectively as:
 `\begin{align*}
 P_{i1}=&amp;\frac{\exp(u_{i1}-u_{i2})}{1+\exp(u_{i1}-u_{i2})}\\
 P_{i2}=&amp;\frac{1}{1+\exp(u_{i1}-u_{i2})}
 \end{align*}`
 
-Note: if `\(\epsilon_1,\epsilon_2 \overset{iid}{\sim} T1EV\)` then  `\(\tilde{\epsilon}_1 \sim Logistic\)`, where `\(\tilde{\epsilon}_1 := \epsilon_1-\epsilon_2\)`
+- Note: if `\(\epsilon_1,\epsilon_2 \overset{iid}{\sim} T1EV\)` then  `\(\tilde{\epsilon}_1 \sim Logistic\)`, where `\(\tilde{\epsilon}_1 := \epsilon_1-\epsilon_2\)`
 
 ---
 
 # Likelihood function
-We can view the event `\(d_i = j\)` as a weighted coin flip
+- We can view the event `\(d_i = j\)` as a weighted coin flip
 
-This gives us a random variable that follows the Bernoulli distribution
+- This gives us a random variable that follows the Bernoulli distribution
 
-Supposing our sample is of size `\(N\)`, the likelihood function would then be
+- Supposing our sample is of size `\(N\)`, the likelihood function would then be
 `\begin{align}
 \mathcal{L}\left(X,Z;\beta,\gamma\right)=&amp;\prod_{i=1}^N P_{i1}^{d_{i1}} P_{i2}^{d_{i2}} \nonumber\\
 =&amp;\prod_{i=1}^N P_{i1}^{d_{i1}}\left[1-P_{i1}\right]^{(1-d_{i1})}\label{eq:logitlike}
@@ -273,9 +292,9 @@ where `\(P_{i1}\)` and `\(P_{i2}\)` are both functions of `\(X,Z,\beta,\gamma\)`
 
 # Log likelihood function
 
-For many reasons, it's better to maximize the log likelihood function
+- For many reasons, it's better to maximize the log likelihood function
 
-Taking the log of \eqref{eq:logitlike} gives
+- Taking the log of \eqref{eq:logitlike} gives
 
 `\begin{align}
 \ell\left(X,Z;\beta,\gamma\right)=&amp;\sum_{i=1}^N d_{i1}\log P_{i1} + (1-d_{i1}) \log \left(1-P_{i1}\right)\nonumber\\
@@ -288,19 +307,21 @@ Taking the log of \eqref{eq:logitlike} gives
 ---
 
 # Multinomial Logit Estimation
-.small[Adding more choices with i.i.d. Type I extreme value errors yields the .hi[multinomial logit]
+.small[
 
-Normalizing with respect to alternative `\(J\)` we have (for `\(j\in\{1,\ldots,J-1\}\)`)
+- Adding more choices with i.i.d. Type I extreme value errors yields the .hi[multinomial logit]
+
+- Normalizing with respect to alternative `\(J\)` we have (for `\(j\in\{1,\ldots,J-1\}\)`)
 `\begin{align}
 u_{ij}-u_{iJ}=&amp;(\beta_j-\beta_J)X_i+\gamma (Z_j-Z_{J})
 \end{align}`
 
-We observe `\(X_i, Z_1, \ldots, Z_J\)`, and `\(d_i\)`. The likelihood of choosing `\(j\)` and `\(J\)` respectively is:
+- We observe `\(X_i, Z_1, \ldots, Z_J\)`, and `\(d_i\)`. The likelihood of choosing `\(j\)` and `\(J\)` respectively is:
 `\begin{align}
 P_{ij}&amp;=\frac{\exp(u_{ij}-u_{iJ})}{1+\sum_{j'=1}^{J-1}\exp(u_{ij'}-u_{iJ})},&amp;P_{iJ}=\frac{1}{1+\sum_{j'=1}^{J-1}\exp(u_{ij'}-u_J)}
 \end{align}`
 
-The log likelihood function we maximize is then:
+- The log likelihood function we maximize is then:
 `\begin{align}
 \ell(X,Z;\beta,\gamma)=&amp;\sum_{i=1}^N\left[\sum_{j=1}^{J-1}(d_{ij}=1)(u_{ij}-u_{iJ})\right]-\ln\left(1+\sum_{j'=1}^{J-1}\exp(u_{ij'}-u_{iJ})\right)
 \end{align}`
@@ -323,13 +344,13 @@ The log likelihood function we maximize is then:
 
 # Advantage of IIA
 
-IIA can simplify estimation. Instead of using as our likelihood
+- IIA can simplify estimation. Instead of using as our likelihood
 `\begin{align}
 P_{ij}=&amp;\frac{\exp(u_{ij})}{\sum_{j'}^J\exp(u_{ij'})},
 \end{align}`
 we can use the _conditional likelihood_ `\(P_i(j|j\in K)\)` where `\(K&lt;J\)`.  
 
-The log likelihood function is then  (Begg and Gray, 1984):
+- The log likelihood function is then  (Begg and Gray, 1984):
 `\begin{align*}
 L(\beta,\gamma|d_i\in K)&amp;=\sum_{i=1}^N\left[\sum_{j=1}^{K-1}(d_{ij}=1)(u_{ij}-u_{iK})\right]\\
 &amp;-\ln\left(1+\sum_{j'=1}^K\exp(u_{ij'}-u_{iK})\right)
@@ -374,7 +395,7 @@ where the expectation is over all possible values of `\(\epsilon _{ij}\)`
 
 # Expected Utility
 
-For the multinomial logit, this has a closed form:
+- For the multinomial logit, this has a closed form:
 `\begin{align}
 V_i&amp;=\ln\left(\sum_{j=1}^J\exp{u_{ij}}\right)+C
 \end{align}`
@@ -386,14 +407,14 @@ where `\(C\)` is Euler's constant (a.k.a. Euler-Mascheroni constant)
 
 # Alternative expression for expected utility
 
-Note that we can also express `\(V_i\)` as:
+- Note that we can also express `\(V_i\)` as:
 `\begin{align*}
 V_i&amp;=\ln\left(\sum_{j=1}^J\frac{\exp(u_{iJ})\exp(u_{ij})}{\exp(u_{iJ})}\right)+C\\
 &amp;=\ln\left(\sum_{j=1}^J\exp(u_{ij}-u_{iJ})\right)+u_{iJ}+C\\
 &amp;=\ln\left(1+\sum_{j=1}^{J-1}\exp(u_{ij}-u_{iJ})\right)+u_{iJ}+C
 \end{align*}`
 
-This representation will become useful later in the course
+- This representation will become useful later in the course
 
 
 
@@ -402,17 +423,17 @@ This representation will become useful later in the course
 ---
 
 # From Expected Utility to Consumer Surplus
-We may want to transform utility into dollars to get consumer surplus  
+- We may want to transform utility into dollars to get consumer surplus  
 
-We need something in the utility function (such as price) that is measured in dollars
+- We need something in the utility function (such as price) that is measured in dollars
 
-Suppose `\(u_{ij}=\beta_jX_i+\gamma Z_j-\delta p_j\)`
+- Suppose `\(u_{ij}=\beta_jX_i+\gamma Z_j-\delta p_j\)`
 
-The coefficient on price, `\(\delta\)` then gives the utils-to-dollars conversion:
+- The coefficient on price, `\(\delta\)` then gives the utils-to-dollars conversion:
 `\begin{align}
 E(CS_i)=&amp;\frac{1}{\delta}\left[\ln\left(\sum_{j=1}^J\exp{u_{ij}}\right)+C\right]
 \end{align}`
-We can calculate the change in consumer surplus after a policy change as `\(E(CS_{i2})-E(CS_{i1})\)` where the `\(C\)`'s cancel out
+- We can calculate the change in consumer surplus after a policy change as `\(E(CS_{i2})-E(CS_{i1})\)` where the `\(C\)`'s cancel out
 
 ---
 
