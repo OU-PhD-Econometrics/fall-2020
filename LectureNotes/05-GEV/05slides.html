@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Lecture 5</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Tyler Ransom" />
+    <link href="05slides_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="05slides_files/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="05slides_files/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <script src="05slides_files/htmlwidgets-1.5.1/htmlwidgets.js"></script>
+    <script src="05slides_files/d3-3.3.8/d3.min.js"></script>
+    <script src="05slides_files/dagre-0.4.0/dagre-d3.min.js"></script>
+    <link href="05slides_files/mermaid-0.3.0/dist/mermaid.css" rel="stylesheet" />
+    <script src="05slides_files/mermaid-0.3.0/dist/mermaid.slim.min.js"></script>
+    <link href="05slides_files/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
+    <script src="05slides_files/chromatography-0.1/chromatography.js"></script>
+    <script src="05slides_files/DiagrammeR-binding-1.0.6.1/DiagrammeR.js"></script>
+    <script src="05slides_files/pymjs-1.3.2/pym.v1.min.js"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            TeX: { equationNumbers: { autoNumber: "AMS" } },
+        });
+    </script>
+        <style>
+        .mjx-mrow a {
+            color: black;
+            pointer-events: none;
+            cursor: default;
+        }
+    </style>
+    <link rel="stylesheet" href="ou-colors.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Lecture 5
+## GEV
+### Tyler Ransom
+### ECON 6343, University of Oklahoma
+
+---
+
+
+
+
+# Attribution
+
+Many of these slides are based on slides written by Peter Arcidiacono. I use them with his permission.
+
+These slides also heavily follow Chapter 4 of Train (2009)
+
+---
+# Plan for the day
+
+1. Nested Logit
+
+    - two-step estimation
+    
+2. Generalized Extreme Value Distributions
+
+    - multinomial logit and nested logit as special cases
+    
+3. Bresnahan, Stern, and Trajtenberg (1997)
+
+    - allows for correlations across multiple nests
+
+---
+# Red bus / blue bus choice set
+
+- As we discussed last time, adding another bus results in odd substitution patterns
+
+- This is because of the IIA property of multinomial logit models
+
+&lt;center&gt;
+<div id="htmlwidget-012f320e3a4035f03b97" style="width:504px;height:504px;" class="DiagrammeR html-widget"></div>
+<script>HTMLWidgets.pymChild = new pym.Child();HTMLWidgets.addPostRenderHandler(function(){
+                                setTimeout(function(){HTMLWidgets.pymChild.sendHeight();},100);
+                            });</script>
+<script type="application/json" data-for="htmlwidget-012f320e3a4035f03b97">{"x":{"diagram":"\ngraph TD;\nA(Commute Method) --> B(Car);\nA-->C(Red Bus);\nA-->D(Blue Bus);\n"},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+---
+# Nesting the choice set
+
+- One way to get around IIA is to .hi[nest] the choice set
+
+- Nesting explicitly introduces correlation across certain alternatives
+
+&lt;center&gt;
+<div id="htmlwidget-a00cea66d83c95284dee" style="width:504px;height:504px;" class="DiagrammeR html-widget"></div>
+<script>HTMLWidgets.pymChild = new pym.Child();HTMLWidgets.addPostRenderHandler(function(){
+                                setTimeout(function(){HTMLWidgets.pymChild.sendHeight();},100);
+                            });</script>
+<script type="application/json" data-for="htmlwidget-a00cea66d83c95284dee">{"x":{"diagram":"\ngraph TD;\nA(Commute Method) --> B(Car);\nA-->C(Bus);\nC-->D(Red Bus);\nC-->E(Blue Bus);\n"},"evals":[],"jsHooks":[]}</script>
+&lt;/center&gt;
+
+---
+# Other cases where nesting is useful
+
+- Red bus / blue bus came from the transportation economics literature
+
+- But nesting is used in all fields of economics
+
+- Elections
+
+    - Suppose we have two candidates, A and B
+    - If we introduce C, whose platform resembles B, what will new vote shares be?
+    - (Primary elections are a kind of nesting)
+
+- Product markets
+
+    - Nesting "branded" and "generic" products (e.g. branded vs. micro-brewed beer)
+    - But some consumers won't purchase either type of the product
+    - Ignoring non-buyers, will give misleading price elasticities of demand
+
+
+---
+# Nested Logit
+- Coming back to the red bus/blue bus problem, we would like some way for the errors for the red bus to be correlated with the errors for the blue bus
+
+
+- The .hi[nested logit] allows a nest-specific error:
+
+.small[
+`\begin{align*}
+U_{i,RedBus}&amp;=u_{i,RedBus\phantom{e}}+\nu_{i,Bus}+\lambda\epsilon_{i,RedBus}\\
+U_{i,BlueBus}&amp;=u_{i,BlueBus}+\nu_{i,Bus}+\lambda\epsilon_{i,BlueBus}\\
+U_{i,Car}&amp;=u_{i,Car\phantom{eBus}}+\nu_{i,Car}+\lambda\epsilon_{i,Car}
+\end{align*}`
+]
+
+where:
+
+1. `\(\nu_{ik}+\lambda\epsilon_{ij}\)` is distributed Type I Extreme Value
+2. The `\(\nu\)`'s and the `\(\epsilon\)`'s are independent
+3. `\(\epsilon_{ij}\)` is distributed Type I extreme value
+4. Distribution of `\(\nu_k\)`'s is derived in Theorem 2.1 of Cardell (1997)
+
+
+---
+# Nested Logit 2
+
+- Composite error term for car is independent from either the red bus error or the blue bus error  
+
+- If we added a yellow bus, all errors in the bus nest would be independent conditional on choosing to take a bus (i.e. .hi[IIA within nest])
+
+- Note: adding two extreme value errors does .hi[not] give back an extreme value error
+    - But the difference between two T1EV errors is distributed logistic
+
+---
+# Nested Logit 3
+- More important than the exact error distribution is the choice probabilities:
+`\begin{align*}
+P_{iC}&amp;=\frac{\exp(u_{iC})}{\left[\exp\left(\frac{u_{iRB}}{\lambda}\right)+\exp\left(\frac{u_{iBB}}{\lambda}\right)\right]^{\lambda}+\exp(u_{iC})}\\
+P_{iRB}&amp;=\frac{\exp\left(\frac{u_{iRB}}{\lambda}\right)\left[\exp\left(\frac{u_{iRB}}{\lambda}\right)+\exp\left(\frac{u_{iBB}}{\lambda}\right)\right]^{\lambda-1}}{\left[\exp\left(\frac{u_{iRB}}{\lambda}\right)+\exp\left(\frac{u_{iBB}}{\lambda}\right)\right]^{\lambda}+\exp(u_{iC})}
+\end{align*}`
+
+
+- Not particularly intuitive, but can break it down into parts `\(P(B)P(RB|B)\)`:
+`\begin{align}
+P_{iRB}&amp;=\left(\frac{\left[\exp\left(\frac{u_{iRB}}{\lambda}\right)+\exp\left(\frac{u_{iBB}}{\lambda}\right)\right]^{\lambda}}{\left[\exp\left(\frac{u_{iRB}}{\lambda}\right)+\exp\left(\frac{u_{iBB}}{\lambda}\right)\right]^{\lambda}+\exp(u_{iC})}\right)\times\label{eq:pbus}\\
+&amp;\phantom{\times\times}\left(\frac{\exp\left(\frac{u_{iRB}}{\lambda}\right)}{\exp\left(\frac{u_{iRB}}{\lambda}\right)+\exp\left(\frac{u_{iBB}}{\lambda}\right)}\right)\nonumber
+\end{align}`
+
+
+---
+# Nested Logit Estimation
+The log likelihood can then be written as:
+.small[
+`\begin{align*}
+\ell&amp;=\sum_{i=1}^N\sum_{j\in J}(d_{ij}=1)\ln(P_{ij})\\
+&amp;= \sum_{i=1}^N\left[(d_{iC}=1)\ln(P_{iC})+\sum_{j\in J_B}(d_{ij}=1)\ln(P_{iB}P_{ij|B})\right]\\
+&amp;=\sum_{i=1}^N\left[(d_{iC}=1)\ln(P_{iC})+\sum_{j\in J_B}(d_{ij}=1)(\ln(P_{iB})+\ln(P_{ij|B}))\right]\\
+&amp;=\sum_{i=1}^N\Bigg[(d_{iC}=1)\ln(P_{iC})+(d_{iBB}=1+d_{iRB}=1)\ln(P_{iB})\\
+&amp;\qquad+\left.\sum_{j\in J_B}(d_{ij}=1)\ln(P_{ij|B})\right]
+\end{align*}`
+]
+
+
+---
+# Nested Logit Estimation 2
+- Could estimate a nested logit by straight maximum likelihood.  An alternative follows from decomposing the nests into the product of two probabilities: `\(P(RB|B)P(B)\)`
+
+- In order to do this, however, first decompose `\(u_{RB}\)` into two parts:
+`\begin{align*}
+u_{iRB}&amp;=u_{iB}+u_{iRB|B}
+\end{align*}`
+- We also need to choose normalizations:
+
+    - `\(u_{iC} = 0\)`
+    - `\(u_{iBB|B} = 0\)`
+
+- So we will estimate `\((\beta_{B},\beta_{RB}, \gamma,\lambda)\)` where `\(\gamma\)` corresponds to the `\(Z\)`'s (alt-specific)
+
+
+---
+# Nested Logit Estimation 3
+
+- Note that our normalizations imply the following observable components of utility
+`\begin{align*}
+u_{iC}&amp;=0\\
+u_{iBB}&amp;=\beta_{B}X_{i}+\gamma (Z_{BB}-Z_{C})\\
+u_{iRB}&amp;=(\beta_{B}+\beta_{RB})X_{i}+\gamma (Z_{RB}-Z_{C})
+\end{align*}`
+
+- Now estimate `\(\beta_{RB}\)` and `\(\gamma\)` in a 1st stage using only observations that chose bus, `\(N_B\)`:
+`\begin{align*}
+\ell_1&amp;=\sum_{i=1}^{N_B}(d_{iRB}=1)(u_{iRB|B}/\lambda)+\ln\left(1+\exp(u_{iRB|B}/\lambda)\right)
+\end{align*}`
+
+- The `\(1\)` in the `\(\ln()\)` operator corresponds to `\(\exp(u_{iBB|B}/\lambda)\)` since `\(u_{iBB|B} = 0\)`
+
+
+---
+# Nested Logit Estimation 4
+- Now consider the term in the numerator of `\(P(B)\)` in \eqref{eq:pbus}.  We can rewrite this as:
+`\begin{align*}
+\left[\exp\left(\frac{u_{iRB}}{\lambda}\right)+\exp\left(\frac{u_{iBB}}{\lambda}\right)\right]^{\lambda}&amp;=
+\exp(u_{iBB})\left[\exp\left(\frac{u_{iRB|B}}{\lambda}\right)+1\right]^{\lambda}\\
+&amp;=\exp(u_{iBB}+\lambda I_{iB})
+\end{align*}`
+
+where `\(I_{iB}\)` is called the .hi[inclusive value] and is given by:
+`\begin{align*}
+I_{iB}&amp;=\ln\left(\exp\left(\frac{u_{iRB|B}}{\lambda}\right)+1\right)
+\end{align*}`
+
+Note: looks like `\(E\left(\text{utility}\right)\)` associated with a particular nest (minus Euler's constant)
+
+
+
+---
+# Nested Logit Estimation 5
+
+- Taking the estimates of `\(u_{iRB|B}\)` as given and calculating the inclusive value, we now estimate a second logit to get `\(\beta_B\)`:
+`\begin{align*}
+\ell_2&amp;=\sum_i(d_{iB}=1)(u_{iBB}+\lambda I_{iB}-u_{iC})+\ln(1+\exp(u_{iBB}+\lambda I_{iB}-u_{iC}))
+\end{align*}`
+
+- Could do all this because log of the probabilities was additively separable. Consider the log likelihood 
+contribution of someone who chose red bus:
+`\begin{align*}
+\ln(P_{iB}(\beta_{B},\beta_{RB},\gamma,\lambda))&amp;+\ln(P_{iRB|B}(\beta_{RB},\gamma))
+\end{align*}`
+
+- We get estimates of `\(\beta_{RB}\)` and `\(\gamma\)` only from the second part of log likelihood
+
+- Then we take these as given when estimating `\(\beta_{B}\)` and `\(\lambda\)`
+
+
+---
+# The Nested Logit as a Dynamic Discrete Choice Model
+- Instead of having individuals know their full error, consider the case where the error is revealed in stages
+
+- First individuals choose whether or not to ride the bus and there is an extreme value error associated with both the bus and the car option
+
+- Individuals take into account that if they choose the bus option they will get to make a choice about which bus in the next period (option value)
+
+- With the errors in the second choice also distributed Type I extreme value, independent from each other, and independent from the errors in the first period, the expectation on the value of the second period decision is `\(\lambda I_{iB}\)` plus Euler's constant.
+
+
+---
+# Proposition 1 (McFadden, 1978)
+Let `\(Y_{j}=e^{u_{j}}\)`. Suppose we have a function `\(G(Y_{1},...,Y_{{J}})\)` that maps from `\(R^{{J}}\)` into `\(R^1\)`
+
+If `\(G\)` satisfies:
+
+1. `\(G\geq 0\)`
+2. `\(G\)` is homogeneous of some degree `\(k\)`.
+3. `\(G\rightarrow \infty\)` as `\(Y_{j}\rightarrow \infty\)` for any `\(j\)`
+4. Cross partial derivatives weakly alternate in sign, beginning with `\(G_{i}\geq 0\)`
+
+---
+# Proposition 1 (Continued)
+
+
+then:
+`\begin{align*}
+F(u_1,...,u_\mathcal{J})&amp;=\exp\left[-G(Y_1,....,Y_{J})\right]
+\end{align*}`
+is the cumulative distribution of a multivariate extreme value function and:
+
+`\begin{align*}
+P_{i}&amp;=\frac{Y_{i}G_{i}}{G}
+\end{align*}`
+where `\(G_i\)` denotes the derivative of `\(G\)` with respect to `\(Y_i\)`
+
+
+---
+# Logit from GEV
+- Another way of thinking about the last statement is that:
+`\begin{align*}
+P_i&amp;=\frac{\partial \ln(G)}{\partial u_i}
+\end{align*}`
+
+- For the multinomial logit case, the `\(G\)` function is:
+`\begin{align*}
+G&amp;=\sum_{j=1}^{{J}}\exp(u_j)
+\end{align*}`
+with the derivative of the log of this giving multinomial logit probabilities
+
+- But `\(\ln(G)\)` (plus Euler's constant) is .hi[also] expected utility
+
+- In fact, for all GEV models `\(\ln(G)\)` is expected utility!
+
+
+---
+# Nested Logit from GEV
+
+- Suppose a nested logit model with two nests `\((F,NF)\)` and a no-purchase option `\(N\)`
+
+- The `\(G\)` function is then:
+`\begin{align*}
+G&amp;=\left(\sum_{j\in F}\exp(u_j/\lambda_F)\right)^{\lambda_F}+\left(\sum_{j\in NF}\exp(u_j/\lambda_{NF})\right)^{\lambda_{NF}}+\exp(u_N)
+\end{align*}`
+
+- Differentiating `\(\ln(G)\)` (the expected utility function) with respect to `\(u_j\)` where `\(k\in F\)` yields the probability `\(k\)` is chosen:
+
+`\begin{align*}
+P_k&amp;=\frac{\exp(u_k/\lambda_F)\left(\sum_{j\in F}\exp(u_j/\lambda_F)\right)^{\lambda_F-1}}{\left(\sum_{j\in F}\exp(u_j/\lambda_F)\right)^{\lambda_F}+\left(\sum_{j\in NF}\exp(u_j/\lambda_{NF})\right)^{\lambda_{NF}}+\exp(u_N)}
+\end{align*}`
+
+
+---
+# Overlapping nests (Bresnahan et al., 1997)
+
+- We can also come up with more general nesting structures
+
+- Bresnahan, Stern, and Trajtenberg (1997) model 4 overlapping nests for computers:
+
+1. Branded but not Frontier `\(\{B,NF\}\)`
+2. Generic but Frontier  `\(\{NB,F\}\)`
+3. Branded and Frontier  `\(\{B,F\}\)`
+4. Generic but not Frontier  `\(\{NB,NF\}\)`
+
+- Use the model to understand market power in PC sector in late 1980s
+
+- Overlapping nests explain coexistence of imitative entry and innovative investment
+
+---
+
+# References
+.smallest[
+Bresnahan, T. F, S. Stern, and M. Trajtenberg (1997). "Market
+Segmentation and the Sources of Rents from Innovation: Personal
+Computers in the Late 1980s". In: _The RAND Journal of Economics_ 28.0,
+pp. S17-S44. DOI: [10.2307/3087454](https://doi.org/10.2307%2F3087454).
+
+Cardell, N. S. (1997). "Variance Components Structures for the
+Extreme-Value and Logistic Distributions with Application to Models of
+Heterogeneity". In: _Econometric Theory_ 13.2, pp. 185-213. URL:
+[https://www.jstor.org/stable/3532724](https://www.jstor.org/stable/3532724).
+
+McFadden, D. (1978). "Modelling the Choice of Residential Location".
+In: _Spatial Interaction Theory and Planning Models_. Ed. by A.
+Karlqvist, L. Lundqvist, F. Snickers and J. W. Weibull. Amsterdam:
+North Holland, pp. 75-96.
+
+Train, K. (2009). _Discrete Choice Methods with Simulation_. 2nd ed.
+Cambridge; New York: Cambridge University Press. ISBN: 9780521766555.
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
