@@ -201,10 +201,10 @@ y = df.occupation
     gen white = race==1
     mlogit occupation age white collgrad, base(7)
     \end{minted}
-    \item In general it is a good strategy to run your model(s) through a more user-friendly interface like Stata or R before trying to implement them in Julia. But you might ask, ``Why don't we just use Stata or R, then?'' The reason is because the models we will get to later in the course are much more difficult to implement in those languages, because they aren't ready to take off the shelf.
+    \item In general it is a good strategy to run your model(s) through a more user-friendly interface like Stata or R before trying to implement them in Julia. But you might ask, ``Why don't we just use Stata or R, then?'' The reason is because the models we will get to later in the course are much more difficult to implement in those languages, because they can't just be taken off the shelf.
 \end{itemize}
 
 
-\item Wrap all of your code above into a function and then call that function at the very bottom of your script. Make sure you add \texttt{println()} statements after obtaining each set of estimates so that you can 
+\item Wrap all of your code above into a function and then call that function at the very bottom of your script. Make sure you add \texttt{println()} statements after obtaining each set of estimates so that you can read them.
 \end{enumerate}
 \end{document}
