@@ -1,0 +1,130 @@
+\documentclass[12pt,english]{article}
+\usepackage{mathptmx}
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+\usepackage{geometry}
+\usepackage{xcolor}
+\geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\usepackage{amsmath}
+\usepackage[authoryear]{natbib}
+\usepackage{minted}
+\definecolor{bg}{rgb}{0.95,0.95,0.95}
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+ breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false]
+ {hyperref}
+\usepackage{breakurl}
+
+\begin{document}
+
+\title{Problem Set 3}
+\author{ECON 6343: Econometrics III\\
+Prof. Tyler Ransom\\
+University of Oklahoma}
+\date{Due: September 15, 9:00 AM}
+
+\maketitle
+Directions: Answer all questions. Each student must turn in their own copy, but you may work in groups. Clearly label all answers. Show all of your code. Turn in jl-file(s), output files and writeup via GitHub. Your writeup may simply consist of comments in jl-file(s). If applicable, put the names of all group members at the top of your writeup or jl-file.
+
+You will need to load the following packages:
+\begin{itemize}
+    \item[~] \texttt{Optim} 
+    \item[~] \texttt{HTTP} 
+    \item[~] \texttt{GLM} 
+    \item[~] \texttt{LinearAlgebra} 
+    \item[~] \texttt{Random} 
+    \item[~] \texttt{Statistics} 
+    \item[~] \texttt{DataFrames} 
+    \item[~] \texttt{CSV} 
+    \item[~] \texttt{FreqTables}
+\end{itemize}
+
+On Github there is a file called \texttt{PS2\_starter.jl} that has the code blocks below already created.
+
+\begin{enumerate}
+\item Estimate a multinomial logit (with alternative-specific covariates $Z$) on the following data set:
+
+\begin{minted}[bgcolor=bg]{julia}
+using DataFrames
+using CSV
+using HTTP
+url = "https://raw.githubusercontent.com/OU-PhD-Econometrics/fall-2020/
+master/ProblemSets/PS3-gev/nlsw88w.csv"
+df = CSV.read(HTTP.get(url).body)
+X = [df.age df.white df.collgrad]
+Z = hcat(df.elnwage1, df.elnwage2, df.elnwage3, df.elnwage4, 
+         df.elnwage5, df.elnwage6, df.elnwage7, df.elnwage8)
+y = df.occupation
+\end{minted}
+
+The choice set represents possible occupations and is structured  as follows.
+
+\begin{enumerate}
+    \item[1] Professional/Technical 
+    \item[2] Managers/Administrators
+    \item[3] Sales                  
+    \item[4] Clerical/Unskilled     
+    \item[5] Craftsmen              
+    \item[6] Operatives             
+    \item[7] Transport              
+    \item[8] Other                  
+\end{enumerate}
+
+\textbf{Hints:} 
+\begin{itemize}
+    \item Index the parameter vector so that the coefficient on $Z$ is the last element and the coefficients on $X$ are the first set of elements.
+    \item You will need to difference the $Z$'s in your likelihood function. 
+    \item Normalize $\beta_J = 0$
+    \item The formula for the choice probabilities will thus be
+    \begin{align*}
+        P_{ij} &= \begin{cases} \frac{\exp\left(X_{i}\beta_j + \gamma(Z_{ij}-Z_{iJ})\right)}{1+\sum_{k=1}^{J-1}\exp\left(X_{i}\beta_k + \gamma(Z_{ik}-Z_{iJ})\right)} ,& j=1,\ldots,J-1\\
+         \frac{1}{1+\sum_{k=1}^{J-1}\exp\left(X_{i}\beta_k + \gamma(Z_{ik}-Z_{iJ})\right)} ,& j=J
+         \end{cases}
+    \end{align*}
+\end{itemize}
+
+\item Interpret the estimated coefficient $\hat{\gamma}$.
+
+\item Estimate a nested logit with the following nesting structure:
+\begin{itemize}
+    \item White collar occupations (indexed by $WC$)
+    \begin{itemize}
+    \item[1] Professional/Technical 
+    \item[2] Managers/Administrators
+    \item[3] Sales 
+    \end{itemize}
+    \item Blue collar occupations (indexed by $BC$)
+    \begin{itemize}
+    \item[4] Clerical/Unskilled     
+    \item[5] Craftsmen              
+    \item[6] Operatives             
+    \item[7] Transport              
+    \end{itemize}
+    \item Other occupations (indexed by $\text{Other}$)
+    \begin{itemize}
+    \item[8] Other 
+    \end{itemize}
+\end{itemize}
+
+Specify the parameters such that there are only nest-level (rather than alternative-level) coefficients. That is, estimate a model with the following parameters:
+\begin{itemize}
+    \item $\beta_{WC}$
+    \item $\beta_{BC}$
+    \item $\lambda_{WC}$
+    \item $\lambda_{BC}$
+    \item $\gamma$
+    \item $\beta_{\text{Other}}$ is normalized to 0
+    \item The formula for the choice probabilities will thus be
+    \begin{align*}
+        P_{ij} &= \begin{cases} \frac{\exp\left(\frac{X_{i}\beta_{WC}+\gamma(Z_{ij}-Z_{iJ})}{\lambda_{WC}}\right)\left[\sum_{\ell\in WC}\exp\left(\frac{X_{i}\beta_{WC}+\gamma(Z_{i\ell}-Z_{iJ})}{\lambda_{WC}}\right)\right]^{\lambda_{WC}-1}}{1+\left[\sum_{k\in WC}\exp\left(\frac{X_{i}\beta_{WC}+\gamma(Z_{ik}-Z_{iJ})}{\lambda_{WC}}\right)\right]^{\lambda_{WC}}+\left[\sum_{m\in BC}\exp\left(\frac{X_{i}\beta_{BC}+\gamma(Z_{im}-Z_{iJ})}{\lambda_{BC}}\right)\right]^{\lambda_{BC}}} ,& j\in WC\\
+        \frac{\exp\left(\frac{X_{i}\beta_{BC}+\gamma(Z_{ij}-Z_{iJ})}{\lambda_{BC}}\right)\left[\sum_{\ell\in BC}\exp\left(\frac{X_{i}\beta_{BC}+\gamma(Z_{i\ell}-Z_{iJ})}{\lambda_{BC}}\right)\right]^{\lambda_{BC}-1}}{1+\left[\sum_{k\in WC}\exp\left(\frac{X_{i}\beta_{WC}+\gamma(Z_{ik}-Z_{iJ})}{\lambda_{WC}}\right)\right]^{\lambda_{WC}}+\left[\sum_{m\in BC}\exp\left(\frac{X_{i}\beta_{BC}+\gamma(Z_{im}-Z_{iJ})}{\lambda_{BC}}\right)\right]^{\lambda_{BC}}} ,& j\in BC\\
+         \frac{1}{1+\left[\sum_{k\in WC}\exp\left(\frac{X_{i}\beta_{WC}+\gamma(Z_{ik}-Z_{iJ})}{\lambda_{WC}}\right)\right]^{\lambda_{WC}}+\left[\sum_{m\in BC}\exp\left(\frac{X_{i}\beta_{BC}+\gamma(Z_{im}-Z_{iJ})}{\lambda_{BC}}\right)\right]^{\lambda_{BC}}} ,& j=J
+         \end{cases}
+    \end{align*}
+
+\end{itemize}
+
+
+\item Wrap all of your code above into a function and then call that function at the very bottom of your script. Make sure you add \texttt{println()} statements after obtaining each set of estimates so that you can read them.
+\end{enumerate}
+\end{document}
