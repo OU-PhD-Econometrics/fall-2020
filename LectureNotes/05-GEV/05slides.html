@@ -73,11 +73,11 @@ These slides also heavily follow Chapter 4 of Train (2009)
 - This is because of the IIA property of multinomial logit models
 
 &lt;center&gt;
-<div id="htmlwidget-012f320e3a4035f03b97" style="width:504px;height:504px;" class="DiagrammeR html-widget"></div>
+<div id="htmlwidget-4c9aa05829b34740fa7d" style="width:504px;height:504px;" class="DiagrammeR html-widget"></div>
 <script>HTMLWidgets.pymChild = new pym.Child();HTMLWidgets.addPostRenderHandler(function(){
                                 setTimeout(function(){HTMLWidgets.pymChild.sendHeight();},100);
                             });</script>
-<script type="application/json" data-for="htmlwidget-012f320e3a4035f03b97">{"x":{"diagram":"\ngraph TD;\nA(Commute Method) --> B(Car);\nA-->C(Red Bus);\nA-->D(Blue Bus);\n"},"evals":[],"jsHooks":[]}</script>
+<script type="application/json" data-for="htmlwidget-4c9aa05829b34740fa7d">{"x":{"diagram":"\ngraph TD;\nA(Commute Method) --> B(Car);\nA-->C(Red Bus);\nA-->D(Blue Bus);\n"},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 ---
@@ -85,14 +85,14 @@ These slides also heavily follow Chapter 4 of Train (2009)
 
 - One way to get around IIA is to .hi[nest] the choice set
 
-- Nesting explicitly introduces correlation across certain alternatives
+- Nesting explicitly introduces correlation across alternatives within the same nest
 
 &lt;center&gt;
-<div id="htmlwidget-a00cea66d83c95284dee" style="width:504px;height:504px;" class="DiagrammeR html-widget"></div>
+<div id="htmlwidget-f9fb15f7b36beb634e97" style="width:504px;height:504px;" class="DiagrammeR html-widget"></div>
 <script>HTMLWidgets.pymChild = new pym.Child();HTMLWidgets.addPostRenderHandler(function(){
                                 setTimeout(function(){HTMLWidgets.pymChild.sendHeight();},100);
                             });</script>
-<script type="application/json" data-for="htmlwidget-a00cea66d83c95284dee">{"x":{"diagram":"\ngraph TD;\nA(Commute Method) --> B(Car);\nA-->C(Bus);\nC-->D(Red Bus);\nC-->E(Blue Bus);\n"},"evals":[],"jsHooks":[]}</script>
+<script type="application/json" data-for="htmlwidget-f9fb15f7b36beb634e97">{"x":{"diagram":"\ngraph TD;\nA(Commute Method) --> B(Car);\nA-->C(Bus);\nC-->D(Red Bus);\nC-->E(Blue Bus);\n"},"evals":[],"jsHooks":[]}</script>
 &lt;/center&gt;
 
 ---
@@ -144,6 +144,8 @@ where:
 - Composite error term for car is independent from either the red bus error or the blue bus error  
 
 - If we added a yellow bus, all errors in the bus nest would be independent conditional on choosing to take a bus (i.e. .hi[IIA within nest])
+
+- But the bus nest errors are correlated from the viewpoint of the top level (i.e. before conditioning on nest choice)
 
 - Note: adding two extreme value errors does .hi[not] give back an extreme value error
     - But the difference between two T1EV errors is distributed logistic
@@ -267,8 +269,11 @@ Let `\(Y_{j}=e^{u_{j}}\)`. Suppose we have a function `\(G(Y_{1},...,Y_{{J}})\)`
 If `\(G\)` satisfies:
 
 1. `\(G\geq 0\)`
-2. `\(G\)` is homogeneous of some degree `\(k\)`.
+
+2. `\(G\)` is homogeneous of some degree `\(k\)`
+
 3. `\(G\rightarrow \infty\)` as `\(Y_{j}\rightarrow \infty\)` for any `\(j\)`
+
 4. Cross partial derivatives weakly alternate in sign, beginning with `\(G_{i}\geq 0\)`
 
 ---
@@ -341,7 +346,7 @@ P_k&amp;=\frac{\exp(u_k/\lambda_F)\left(\sum_{j\in F}\exp(u_j/\lambda_F)\right)^
 ---
 
 # References
-.smallest[
+.smaller[
 Bresnahan, T. F, S. Stern, and M. Trajtenberg (1997). "Market
 Segmentation and the Sources of Rents from Innovation: Personal
 Computers in the Late 1980s". In: _The RAND Journal of Economics_ 28.0,

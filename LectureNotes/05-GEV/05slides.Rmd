@@ -77,7 +77,7 @@ widgetframe::frameableWidget(l)
 
 - One way to get around IIA is to .hi[nest] the choice set
 
-- Nesting explicitly introduces correlation across certain alternatives
+- Nesting explicitly introduces correlation across alternatives within the same nest
 
 <center>
 ```{r, fig.retina=3, echo = FALSE, message = FALSE, warning = FALSE}
@@ -142,6 +142,8 @@ where:
 - Composite error term for car is independent from either the red bus error or the blue bus error  
 
 - If we added a yellow bus, all errors in the bus nest would be independent conditional on choosing to take a bus (i.e. .hi[IIA within nest])
+
+- But the bus nest errors are correlated from the viewpoint of the top level (i.e. before conditioning on nest choice)
 
 - Note: adding two extreme value errors does .hi[not] give back an extreme value error
     - But the difference between two T1EV errors is distributed logistic
@@ -265,8 +267,11 @@ Let $Y_{j}=e^{u_{j}}$. Suppose we have a function $G(Y_{1},...,Y_{{J}})$ that ma
 If $G$ satisfies:
 
 1. $G\geq 0$
-2. $G$ is homogeneous of some degree $k$.
+
+2. $G$ is homogeneous of some degree $k$
+
 3. $G\rightarrow \infty$ as $Y_{j}\rightarrow \infty$ for any $j$
+
 4. Cross partial derivatives weakly alternate in sign, beginning with $G_{i}\geq 0$
 
 ---
@@ -339,7 +344,7 @@ P_k&=\frac{\exp(u_k/\lambda_F)\left(\sum_{j\in F}\exp(u_j/\lambda_F)\right)^{\la
 ---
 
 # References
-.smallest[
+.smaller[
 ```{r refs, echo=FALSE, results="asis"}
 #PrintBibliography(biblio, start = 1, end = 2)
 PrintBibliography(biblio)
