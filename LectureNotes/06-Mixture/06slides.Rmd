@@ -1,0 +1,320 @@
+---
+title: "Lecture 6"
+subtitle: "Preference Heterogeneity with Mixture Distributions"
+author: Tyler Ransom
+date: ECON 6343, University of Oklahoma
+output:
+  xaringan::moon_reader:
+    includes:
+        in_header: "06slides_files/mathjax-equation-numbers.html"
+    css: ['default', 'metropolis', 'metropolis-fonts', 'ou-colors.css']
+    # self_contained: true
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: '16:9'
+
+---
+
+```{r, load_refs, include=FALSE, cache=FALSE}
+library(RefManageR)
+BibOptions(check.entries = FALSE,
+           bib.style = "authoryear",
+           style = "markdown",
+           hyperlink = FALSE,
+           dashed = TRUE)
+biblio <- ReadBib("../../References/References.bib", check = FALSE)
+#biblio <- ReadBib(system.file("Bib", "biblatexExamples.bib", package = "RefManageR"))
+```
+
+# Attribution
+
+Many of these slides are based on slides written by Peter Arcidiacono. I use them with his permission.
+
+These slides also heavily follow Chapters 6 and 14 of `r Citet(biblio,"train2009")`
+
+---
+# Plan for the day
+
+1. Preference Heterogeneity
+
+2. Mixed Logit
+
+3. Finite Mixture Models
+
+4. The EM algorithm
+
+---
+# Preference Heterogeneity
+
+- So far, we have only looked at models where all agents have identical preferences
+
+- Mathematically, $\beta_{RedBus}$ does not vary across agents
+    - Implies everyone has same price elasticity, etc.
+
+- But in real life, we know people have different values, interests, and preferences
+
+- Failure to account for this heterogeneity will result in a misleading model
+
+- e.g. lowering a product's price likely won't induce purchasing from some customers
+
+
+
+---
+# Observable preference heterogeneity
+
+- One solution to the homogeneity problem is to add interaction terms
+
+- Suppose we have a 2-option transportation model:
+\begin{align*}
+u_{i,bus}&=\beta_1 X_i + \gamma Z_1\\
+u_{i,car}&=\beta_2 X_i + \gamma Z_2
+\end{align*}
+
+- We could introduce heterogeneity in $\gamma$ by interacting $Z_j$ with $X_i$:
+\begin{align*}
+u_{i,bus}&=\beta_1 X_i + \widetilde{\gamma} Z_1 X_i\\
+u_{i,car}&=\beta_2 X_i + \widetilde{\gamma} Z_2 X_i
+\end{align*}
+
+- Now a change in $Z_j$ will have a heterogeneous impact on utility depending on $X_i$
+
+- e.g. those w/diff. income $(X_i)$ may be more/less sensitive to changes in price $(Z_j)$
+
+
+
+
+---
+# Unobservable preference heterogeneity
+
+- Observable preference heterogeneity can be useful
+
+- But many dimensions of preferences are likely unobserved
+
+- In this case, we need to "interact" $Z$ with something unobserved
+
+- One way to do this is to assume that $\beta$ or $\gamma$ varies across people
+
+- Assume some distribution (e.g. Normal), called the .hi[mixing distribution]
+
+- Then integrate this out of the likelihood function
+
+
+---
+# Mixed Logit likelihood function
+
+- Assume, e.g. $\gamma_i \sim F$ with pdf $f$ and distributional parameters $\mu$ and $\sigma$
+
+- Then the logit choice probabilities become
+\begin{align*}
+P_{ij}\left(X,Z;\beta,\gamma\right)&= \int\frac{\exp\left(X_{i}\left(\beta_{j}-\beta_{J}\right)+\gamma\left(Z_{ij}-Z_{iJ}\right)\right)}{\sum_k \exp\left(X_{i}\left(\beta_{k}-\beta_{J}\right)+\gamma\left(Z_{ik}-Z_{iJ}\right)\right)}f\left(\gamma;\mu,\sigma\right)d\gamma
+\end{align*}
+
+- Annoyance: the log likelihood now has an integral inside the log!
+.smaller[
+\begin{align*}
+\ell\left(X,Z;\beta,\gamma,\mu,\sigma\right)&=\sum_{i=1}^N \log\left\{\int\prod_{j}\left[\frac{\exp\left(X_{i}\left(\beta_{j}-\beta_{J}\right)+\gamma\left(Z_{ij}-Z_{iJ}\right)\right)}{\sum_k \exp\left(X_{i}\left(\beta_{k}-\beta_{J}\right)+\gamma\left(Z_{ik}-Z_{iJ}\right)\right)}\right]^{d_{ij}}f\left(\gamma;\mu,\sigma\right)d\gamma\right\}
+\end{align*}
+]
+
+
+---
+# Common mixing distributions
+
+- Normal
+
+- Log-normal
+
+- Uniform
+
+- Triangular
+
+- Can also go crazy and specify a multivariate normal
+
+    - This would allow, e.g. heterogeneity in $\gamma$ to be correlated with $\beta$
+
+
+
+
+
+---
+# Mixed Logit estimation
+
+- With the integral inside the log, estimation of the mixed logit is intensive
+
+- To estimate the likelihood function, need to numerically approximate the integral
+
+- The most common way of doing this is .hi[quadrature]
+
+- Another common way of doing this is by .hi[simulation] (Monte Carlo integration)
+
+- I'll walk you through how to do this in this week's problem set
+
+---
+
+# Finite Mixture Distributions
+
+- Another option to mixed logit is to assume the mixing distribution is discrete
+
+- We assume we have missing variable that has finite support and is independent from the other variables 
+
+- Let $\pi_s$ denote the probability of being in the $s$th unobserved group
+
+- Integrating out over the unobserved groups then yields the following log likelihood:
+\begin{align*}
+\ell\left(X,Z;\beta,\gamma,\pi\right)=&\sum_{i=1}^N \log\left\{\sum_{s}\prod_{j}\left[\frac{\exp\left(X_{i}\left(\beta_{j}-\beta_{J}\right)+\gamma_{s}\left(Z_{ij}-Z_{iJ}\right)\right)}{\sum_k \exp\left(X_{i}\left(\beta_{k}-\beta_{J}\right)+\gamma_{s}\left(Z_{ik}-Z_{iJ}\right)\right)}\right]^{d_{ij}}\right\}\\
+\end{align*}
+
+---
+
+# Mixture Distributions and Panel Data
+
+- With panel data, mixture dist. allows for .hi[permanent unobserved heterogeneity]
+
+- Here the unobs. variable is fixed over time and indep. of the covariates at $t=1$
+
+- The log likelihood function for the finite mixture case is then:
+\begin{align*}
+\ell\left(X,Z;\beta,\gamma,\pi\right)=&\sum_{i=1}^N \log\left\{\sum_{s}\prod_{t}\prod_{j}\left[\frac{\exp\left(X_{it}\left(\beta_{j}-\beta_{J}\right)+\gamma_{s}\left(Z_{ijt}-Z_{iJt}\right)\right)}{\sum_k \exp\left(X_{it}\left(\beta_{k}-\beta_{J}\right)+\gamma_{s}\left(Z_{ikt}-Z_{iJt}\right)\right)}\right]^{d_{ijt}}\right\}
+\end{align*}
+
+- And for the mixed logit case is:
+.smaller[
+\begin{align*}
+\ell\left(X,Z;\beta,\gamma,\mu,\sigma\right)=&\sum_{i=1}^N \log\left\{\int\prod_{t}\prod_{j}\left[\frac{\exp\left(X_{it}\left(\beta_{j}-\beta_{J}\right)+\gamma\left(Z_{ijt}-Z_{iJt}\right)\right)}{\sum_k \exp\left(X_{it}\left(\beta_{k}-\beta_{J}\right)+\gamma\left(Z_{ikt}-Z_{iJt}\right)\right)}\right]^{d_{ijt}}f\left(\gamma;\mu,\sigma\right)d\gamma\right\}\\
+\end{align*}
+]
+
+---
+
+# Dynamic Selection
+
+- Often, we want to link the choices to other outcomes:
+    - labor force participation and earnings
+
+    - market entry and profits
+
+- If individuals choose to participate in the labor market based upon unobserved wages, our estimates of the returns to participating will be biased  
+
+- Mixture distributions provide an alternative way of controlling for selection
+
+- .hi[Assumption:] no selection problem once we control for the unobserved variable
+
+---
+
+# Dynamic Selection
+
+- Let $Y_{1t}$ denote the choice and $Y_{2t}$ denote the outcome
+
+-  The assumption on the previous slide means the joint likelihood is separable:
+\begin{align*}
+\mathcal{L}(Y_{1t},Y_{2t}|X_{1t},X_{2t},\alpha_1,\alpha_2,s)&=\mathcal{L}(Y_{1t}|Y_{2t},X_{1t},\alpha_1,s)\mathcal{L}(Y_{2t}|X_{2t},\alpha_2,s)\\
+&=\mathcal{L}(Y_{1t}|X_{1t},\alpha_1,s)\mathcal{L}(Y_{2t}|X_{2t},\alpha_2,s)
+\end{align*}
+where $s$ is the unobserved type
+
+---
+
+# Estimation in Stages
+
+- Suppose $s$ was observed  
+
+- There'd be no selection problem as long as we could condition on $s$ and $X_{1t}$  
+
+- The log likelihood function is:
+\begin{align*}
+\ell=&\sum_{i}\sum_t \ell_1(Y_{1t}|X_{1t},\alpha_1,s)+\ell_2(Y_{2t}|X_{2t},\alpha_2,s)
+\end{align*}
+
+- Estimation could proceed in stages:
+
+1. Estimate $\alpha_2$ using only $\ell_2$
+2. Taking the estimate of $\alpha_2$ as given, estimate $\alpha_1$ using $\ell_1$
+
+---
+
+# Non-separable means no stages
+
+- When $s$ is unobserved, however, the log likelihood function is not additively separable:
+\begin{align*}
+\ell=&\sum_i\log\left(\sum_s\pi_s\prod_t\mathcal{L}(Y_{1t}|X_{1t},\alpha_1,s)\mathcal{L}(Y_{2t}|X_{2t},\alpha_2,s)\right)
+\end{align*}
+where $\mathcal{L}$ is a likelihood function
+
+- Makes sense: if there is a selection problem, we can't estimate one part of the problem without considering what is happening in the other part
+
+---
+
+# The EM Algorithm
+
+- We can get additive separability of the finite mixture model with the .hi[EM algorithm]
+
+- EM stands for "Expectation-Maximization"
+
+- The algorithm iterates on two steps:
+   - E-step: estimate parameters having to do with the mixing distribution (i.e. the $\pi$'s)
+   
+   - M-step: pretend you observe the unobserved variable and estimate
+
+- The EM algorithm is used in other applications to fill in missing data
+
+- In this case, the missing data is the permanent unobserved heterogeneity
+
+---
+
+# The EM Algorithm (Continued)
+
+- With the EM algorithm, the non-separable likelihood function
+\begin{align*}
+\ell=&\sum_i\log\left(\sum_s\pi_s\prod_t\mathcal{L}(Y_{1t}|X_{1t},\alpha_1,s)\mathcal{L}(Y_{2t}|X_{2t},\alpha_2,s)\right)
+\end{align*}
+can be written in a form that is separable:
+\begin{align*}
+\ell=&\sum_i\sum_s q_{is}\sum_t\ell_1\left(Y_{1t}|X_{1t},\alpha_1,s\right)+\ell_2\left(Y_{2t}|X_{2t},\alpha_2,s)\right)
+\end{align*}
+where $q_{is}$ is the probability that $i$ belongs to group $s$
+
+- $q_{is}$ satisfies $\pi_s = \frac{1}{N}\sum_{i}q_{is}$
+
+---
+
+# Estimation in stages again
+
+- We can now estimate the model in stages because of the restoration of separability
+
+- The only twist is that we need to .hi[weight] by the $q$'s in each estimation stage
+
+- Stage 1 of M-step: estimate $\ell(Y_{1t}|X_{1t},\alpha_1,s)$ weighting by the $q$'s
+
+- Stage 2 of M-step: estimate $\ell(Y_{2t}|X_{1t},\alpha_1,s)$ weighting by the $q$'s
+
+- E-step: update the $q$'s by calculating
+\begin{align*}
+q_{is}=&\frac{\pi_s\prod_t\mathcal{L}(Y_{1t}|X_{1t},\alpha_1,s)\mathcal{L}(Y_{2t}|X_{2t},\alpha_2,s)}{\sum_m\pi_m\prod_t\mathcal{L}(Y_{1t}|X_{1t},\alpha_1,m)\mathcal{L}(Y_{2t}|X_{2t},\alpha_2,m)}
+\end{align*}
+
+- Iterate on E and M steps until the $q$'s converge `r Citep(biblio,"arcidiaconoJones2002")`
+
+
+---
+
+# To Recap
+
+- Why are we doing all of this difficult work?
+
+- Because preference heterogeneity allows for a more credible structural model
+
+- Introducing preference heterogeneity can make the model intractible
+
+- Discretizing the distribution of heterogeneity and using the EM algorithm can help
+
+---
+
+# References
+.smaller[
+```{r refs, echo=FALSE, results="asis"}
+#PrintBibliography(biblio, start = 1, end = 2)
+PrintBibliography(biblio)
+```
+]

@@ -10,5 +10,7 @@ ProblemSets/PS1-julia-intro/firstmatrix.jld
 ProblemSets/PS1-julia-intro/matrixpractice.jld
 ProblemSets/PS1-julia-intro/nlsw88.jld
 ProblemSets/PS2-optimization-intro/PS2solutions.jl
+ProblemSets/PS3-gev/PS3solutions.jl
+ProblemSets/PS3-gev/stata_nlogit.do
 References/*.pdf
 References/TrainTextbook/*.pdf

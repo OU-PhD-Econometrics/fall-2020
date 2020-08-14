@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Lecture 6</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Tyler Ransom" />
+    <link href="06slides_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="06slides_files/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="06slides_files/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            TeX: { equationNumbers: { autoNumber: "AMS" } },
+        });
+    </script>
+        <style>
+        .mjx-mrow a {
+            color: black;
+            pointer-events: none;
+            cursor: default;
+        }
+    </style>
+    <link rel="stylesheet" href="ou-colors.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Lecture 6
+## Preference Heterogeneity with Mixture Distributions
+### Tyler Ransom
+### ECON 6343, University of Oklahoma
+
+---
+
+
+
+
+# Attribution
+
+Many of these slides are based on slides written by Peter Arcidiacono. I use them with his permission.
+
+These slides also heavily follow Chapters 6 and 14 of Train (2009)
+
+---
+# Plan for the day
+
+1. Preference Heterogeneity
+
+2. Mixed Logit
+
+3. Finite Mixture Models
+
+4. The EM algorithm
+
+---
+# Preference Heterogeneity
+
+- So far, we have only looked at models where all agents have identical preferences
+
+- Mathematically, `\(\beta_{RedBus}\)` does not vary across agents
+    - Implies everyone has same price elasticity, etc.
+
+- But in real life, we know people have different values, interests, and preferences
+
+- Failure to account for this heterogeneity will result in a misleading model
+
+- e.g. lowering a product's price likely won't induce purchasing from some customers
+
+
+
+---
+# Observable preference heterogeneity
+
+- One solution to the homogeneity problem is to add interaction terms
+
+- Suppose we have a 2-option transportation model:
+`\begin{align*}
+u_{i,bus}&amp;=\beta_1 X_i + \gamma Z_1\\
+u_{i,car}&amp;=\beta_2 X_i + \gamma Z_2
+\end{align*}`
+
+- We could introduce heterogeneity in `\(\gamma\)` by interacting `\(Z_j\)` with `\(X_i\)`:
+`\begin{align*}
+u_{i,bus}&amp;=\beta_1 X_i + \widetilde{\gamma} Z_1 X_i\\
+u_{i,car}&amp;=\beta_2 X_i + \widetilde{\gamma} Z_2 X_i
+\end{align*}`
+
+- Now a change in `\(Z_j\)` will have a heterogeneous impact on utility depending on `\(X_i\)`
+
+- e.g. those w/diff. income `\((X_i)\)` may be more/less sensitive to changes in price `\((Z_j)\)`
+
+
+
+
+---
+# Unobservable preference heterogeneity
+
+- Observable preference heterogeneity can be useful
+
+- But many dimensions of preferences are likely unobserved
+
+- In this case, we need to "interact" `\(Z\)` with something unobserved
+
+- One way to do this is to assume that `\(\beta\)` or `\(\gamma\)` varies across people
+
+- Assume some distribution (e.g. Normal), called the .hi[mixing distribution]
+
+- Then integrate this out of the likelihood function
+
+
+---
+# Mixed Logit likelihood function
+
+- Assume, e.g. `\(\gamma_i \sim F\)` with pdf `\(f\)` and distributional parameters `\(\mu\)` and `\(\sigma\)`
+
+- Then the logit choice probabilities become
+`\begin{align*}
+P_{ij}\left(X,Z;\beta,\gamma\right)&amp;= \int\frac{\exp\left(X_{i}\left(\beta_{j}-\beta_{J}\right)+\gamma\left(Z_{ij}-Z_{iJ}\right)\right)}{\sum_k \exp\left(X_{i}\left(\beta_{k}-\beta_{J}\right)+\gamma\left(Z_{ik}-Z_{iJ}\right)\right)}f\left(\gamma;\mu,\sigma\right)d\gamma
+\end{align*}`
+
+- Annoyance: the log likelihood now has an integral inside the log!
+.smaller[
+`\begin{align*}
+\ell\left(X,Z;\beta,\gamma,\mu,\sigma\right)&amp;=\sum_{i=1}^N \log\left\{\int\prod_{j}\left[\frac{\exp\left(X_{i}\left(\beta_{j}-\beta_{J}\right)+\gamma\left(Z_{ij}-Z_{iJ}\right)\right)}{\sum_k \exp\left(X_{i}\left(\beta_{k}-\beta_{J}\right)+\gamma\left(Z_{ik}-Z_{iJ}\right)\right)}\right]^{d_{ij}}f\left(\gamma;\mu,\sigma\right)d\gamma\right\}
+\end{align*}`
+]
+
+
+---
+# Common mixing distributions
+
+- Normal
+
+- Log-normal
+
+- Uniform
+
+- Triangular
+
+- Can also go crazy and specify a multivariate normal
+
+    - This would allow, e.g. heterogeneity in `\(\gamma\)` to be correlated with `\(\beta\)`
+
+
+
+
+
+---
+# Mixed Logit estimation
+
+- With the integral inside the log, estimation of the mixed logit is intensive
+
+- To estimate the likelihood function, need to numerically approximate the integral
+
+- The most common way of doing this is .hi[quadrature]
+
+- Another common way of doing this is by .hi[simulation] (Monte Carlo integration)
+
+- I'll walk you through how to do this in this week's problem set
+
+---
+
+# Finite Mixture Distributions
+
+- Another option to mixed logit is to assume the mixing distribution is discrete
+
+- We assume we have missing variable that has finite support and is independent from the other variables 
+
+- Let `\(\pi_s\)` denote the probability of being in the `\(s\)`th unobserved group
+
+- Integrating out over the unobserved groups then yields the following log likelihood:
+`\begin{align*}
+\ell\left(X,Z;\beta,\gamma,\pi\right)=&amp;\sum_{i=1}^N \log\left\{\sum_{s}\prod_{j}\left[\frac{\exp\left(X_{i}\left(\beta_{j}-\beta_{J}\right)+\gamma_{s}\left(Z_{ij}-Z_{iJ}\right)\right)}{\sum_k \exp\left(X_{i}\left(\beta_{k}-\beta_{J}\right)+\gamma_{s}\left(Z_{ik}-Z_{iJ}\right)\right)}\right]^{d_{ij}}\right\}\\
+\end{align*}`
+
+---
+
+# Mixture Distributions and Panel Data
+
+- With panel data, mixture dist. allows for .hi[permanent unobserved heterogeneity]
+
+- Here the unobs. variable is fixed over time and indep. of the covariates at `\(t=1\)`
+
+- The log likelihood function for the finite mixture case is then:
+`\begin{align*}
+\ell\left(X,Z;\beta,\gamma,\pi\right)=&amp;\sum_{i=1}^N \log\left\{\sum_{s}\prod_{t}\prod_{j}\left[\frac{\exp\left(X_{it}\left(\beta_{j}-\beta_{J}\right)+\gamma_{s}\left(Z_{ijt}-Z_{iJt}\right)\right)}{\sum_k \exp\left(X_{it}\left(\beta_{k}-\beta_{J}\right)+\gamma_{s}\left(Z_{ikt}-Z_{iJt}\right)\right)}\right]^{d_{ijt}}\right\}
+\end{align*}`
+
+- And for the mixed logit case is:
+.smaller[
+`\begin{align*}
+\ell\left(X,Z;\beta,\gamma,\mu,\sigma\right)=&amp;\sum_{i=1}^N \log\left\{\int\prod_{t}\prod_{j}\left[\frac{\exp\left(X_{it}\left(\beta_{j}-\beta_{J}\right)+\gamma\left(Z_{ijt}-Z_{iJt}\right)\right)}{\sum_k \exp\left(X_{it}\left(\beta_{k}-\beta_{J}\right)+\gamma\left(Z_{ikt}-Z_{iJt}\right)\right)}\right]^{d_{ijt}}f\left(\gamma;\mu,\sigma\right)d\gamma\right\}\\
+\end{align*}`
+]
+
+---
+
+# Dynamic Selection
+
+- Often, we want to link the choices to other outcomes:
+    - labor force participation and earnings
+
+    - market entry and profits
+
+- If individuals choose to participate in the labor market based upon unobserved wages, our estimates of the returns to participating will be biased  
+
+- Mixture distributions provide an alternative way of controlling for selection
+
+- .hi[Assumption:] no selection problem once we control for the unobserved variable
+
+---
+
+# Dynamic Selection
+
+- Let `\(Y_{1t}\)` denote the choice and `\(Y_{2t}\)` denote the outcome
+
+-  The assumption on the previous slide means the joint likelihood is separable:
+`\begin{align*}
+\mathcal{L}(Y_{1t},Y_{2t}|X_{1t},X_{2t},\alpha_1,\alpha_2,s)&amp;=\mathcal{L}(Y_{1t}|Y_{2t},X_{1t},\alpha_1,s)\mathcal{L}(Y_{2t}|X_{2t},\alpha_2,s)\\
+&amp;=\mathcal{L}(Y_{1t}|X_{1t},\alpha_1,s)\mathcal{L}(Y_{2t}|X_{2t},\alpha_2,s)
+\end{align*}`
+where `\(s\)` is the unobserved type
+
+---
+
+# Estimation in Stages
+
+- Suppose `\(s\)` was observed  
+
+- There'd be no selection problem as long as we could condition on `\(s\)` and `\(X_{1t}\)`  
+
+- The log likelihood function is:
+`\begin{align*}
+\ell=&amp;\sum_{i}\sum_t \ell_1(Y_{1t}|X_{1t},\alpha_1,s)+\ell_2(Y_{2t}|X_{2t},\alpha_2,s)
+\end{align*}`
+
+- Estimation could proceed in stages:
+
+1. Estimate `\(\alpha_2\)` using only `\(\ell_2\)`
+2. Taking the estimate of `\(\alpha_2\)` as given, estimate `\(\alpha_1\)` using `\(\ell_1\)`
+
+---
+
+# Non-separable means no stages
+
+- When `\(s\)` is unobserved, however, the log likelihood function is not additively separable:
+`\begin{align*}
+\ell=&amp;\sum_i\log\left(\sum_s\pi_s\prod_t\mathcal{L}(Y_{1t}|X_{1t},\alpha_1,s)\mathcal{L}(Y_{2t}|X_{2t},\alpha_2,s)\right)
+\end{align*}`
+where `\(\mathcal{L}\)` is a likelihood function
+
+- Makes sense: if there is a selection problem, we can't estimate one part of the problem without considering what is happening in the other part
+
+---
+
+# The EM Algorithm
+
+- We can get additive separability of the finite mixture model with the .hi[EM algorithm]
+
+- EM stands for "Expectation-Maximization"
+
+- The algorithm iterates on two steps:
+   - E-step: estimate parameters having to do with the mixing distribution (i.e. the `\(\pi\)`'s)
+   
+   - M-step: pretend you observe the unobserved variable and estimate
+
+- The EM algorithm is used in other applications to fill in missing data
+
+- In this case, the missing data is the permanent unobserved heterogeneity
+
+---
+
+# The EM Algorithm (Continued)
+
+- With the EM algorithm, the non-separable likelihood function
+`\begin{align*}
+\ell=&amp;\sum_i\log\left(\sum_s\pi_s\prod_t\mathcal{L}(Y_{1t}|X_{1t},\alpha_1,s)\mathcal{L}(Y_{2t}|X_{2t},\alpha_2,s)\right)
+\end{align*}`
+can be written in a form that is separable:
+`\begin{align*}
+\ell=&amp;\sum_i\sum_s q_{is}\sum_t\ell_1\left(Y_{1t}|X_{1t},\alpha_1,s\right)+\ell_2\left(Y_{2t}|X_{2t},\alpha_2,s)\right)
+\end{align*}`
+where `\(q_{is}\)` is the probability that `\(i\)` belongs to group `\(s\)`
+
+- `\(q_{is}\)` satisfies `\(\pi_s = \frac{1}{N}\sum_{i}q_{is}\)`
+
+---
+
+# Estimation in stages again
+
+- We can now estimate the model in stages because of the restoration of separability
+
+- The only twist is that we need to .hi[weight] by the `\(q\)`'s in each estimation stage
+
+- Stage 1 of M-step: estimate `\(\ell(Y_{1t}|X_{1t},\alpha_1,s)\)` weighting by the `\(q\)`'s
+
+- Stage 2 of M-step: estimate `\(\ell(Y_{2t}|X_{1t},\alpha_1,s)\)` weighting by the `\(q\)`'s
+
+- E-step: update the `\(q\)`'s by calculating
+`\begin{align*}
+q_{is}=&amp;\frac{\pi_s\prod_t\mathcal{L}(Y_{1t}|X_{1t},\alpha_1,s)\mathcal{L}(Y_{2t}|X_{2t},\alpha_2,s)}{\sum_m\pi_m\prod_t\mathcal{L}(Y_{1t}|X_{1t},\alpha_1,m)\mathcal{L}(Y_{2t}|X_{2t},\alpha_2,m)}
+\end{align*}`
+
+- Iterate on E and M steps until the `\(q\)`'s converge (Arcidiacono and Jones, 2003)
+
+
+---
+
+# To Recap
+
+- Why are we doing all of this difficult work?
+
+- Because preference heterogeneity allows for a more credible structural model
+
+- Introducing preference heterogeneity can make the model intractible
+
+- Discretizing the distribution of heterogeneity and using the EM algorithm can help
+
+---
+
+# References
+.smaller[
+Arcidiacono, P. and J. B. Jones (2003). "Finite Mixture Distributions,
+Sequential Likelihood and the EM Algorithm". In: _Econometrica_ 71.3,
+pp. 933-946. DOI:
+[10.1111/1468-0262.00431](https://doi.org/10.1111%2F1468-0262.00431).
+
+Train, K. (2009). _Discrete Choice Methods with Simulation_. 2nd ed.
+Cambridge; New York: Cambridge University Press. ISBN: 9780521766555.
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
