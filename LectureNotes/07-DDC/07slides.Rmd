@@ -1,0 +1,344 @@
+---
+title: "Lecture 7"
+subtitle: "Dynamic Discrete Choice Models"
+author: Tyler Ransom
+date: ECON 6343, University of Oklahoma
+output:
+  xaringan::moon_reader:
+    includes:
+        in_header: "07slides_files/mathjax-equation-numbers.html"
+    css: ['default', 'metropolis', 'metropolis-fonts', 'ou-colors.css']
+    # self_contained: true
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: '16:9'
+
+---
+
+```{r, load_refs, include=FALSE, cache=FALSE}
+library(RefManageR)
+BibOptions(check.entries = FALSE,
+           bib.style = "authoryear",
+           style = "markdown",
+           hyperlink = FALSE,
+           dashed = TRUE)
+biblio <- ReadBib("../../References/References.bib", check = FALSE)
+#biblio <- ReadBib(system.file("Bib", "biblatexExamples.bib", package = "RefManageR"))
+```
+
+# Attribution
+
+Many of these slides are based on slides written by Peter Arcidiacono. I use them with his permission.
+
+---
+# Plan for the day
+
+1. Optimal Stopping Problems
+
+2. Finite Horizon Problems
+    - backwards recursion
+    - expectations over how the observed states transition
+    - calculation of expected future utility
+
+3. Infinite Horizon Problems
+    - Solving a fixed-point problem
+    - `r Citet(biblio,"rust1987")` bus engine problem
+
+---
+# Optimal stopping
+
+- Today we'll get back to the dynamic models we discussed a few weeks ago
+
+- To start with, let's discuss the theory of .hi[optimal stopping]
+
+- Gives mathematical context for maximizing rewards or minimizing costs
+
+- Optimal stopping problems are by definition dynamic
+
+
+
+---
+# Examples of optimal stopping problems
+
+- Many economic problems involve some sort of optimal stopping:
+
+    - The Secretary Problem (when to hire from a sequence of job candidates)
+    
+    - Seach theory more generally (job search, spousal search, house search, ...)
+    
+    - "Buy/sell/hold" problems (e.g. stock/options trading)
+
+    - Replacement problems (e.g. infrastructure)
+
+- Optimal stopping problems inherently have a tension between costs and benefits:
+
+    - It is costly to interview job candidates
+    
+    - But it is also costly to miss out on the best candidate
+
+
+---
+# Mathematics of optimal stopping
+
+- In a discrete choice setting, .hi[dynamic programming] is the best solution method
+
+- Within a discrete choice setting, time can be either continuous or discrete
+
+    - If continuous time, use Hamiltonians and Differential Equations
+    
+    - If discrete time, use recursive methods
+    
+- Solution method also depends on the time horizon
+
+    - If the time horizon is finite, then we can use dynamic programming
+    
+    - If the time horizon is infinite, then need to (also) solve for a fixed point
+    
+- We will discuss these details today
+
+---
+# Finite horizon problems
+
+- Individual $i$'s .hi[flow utility] for option $j$ at time $t$ is:
+\begin{align*}
+U_{ijt}&=u_{ijt}+\epsilon_{ijt}\\
+&=X_{it}\alpha_j+\epsilon_{ijt}
+\end{align*}
+- $i$ chooses $d_{it}$ to maximize her .hi[expected lifetime utility]
+\begin{align*}
+\max \mathbb{E}\sum_{\tau=t}^T\sum_{j}\beta^{\tau-t}1\left[d_{it}=j\right]U_{ijt}\left(X_{it},\epsilon_{ijt}\right)
+\end{align*}
+
+---
+# Expectations and assumptions
+
+- $i$ takes expectations over $X$'s (future states) and $\epsilon$'s (future errors)
+
+- $\epsilon$'s are assumed to be iid over time
+
+- Future states are not affected by $\epsilon$'s except through choices:
+ 
+\begin{align*}
+\mathbb{E}(X_{t+1}|d_t,...,d_1,\epsilon_t,...,\epsilon_{1})&=\mathbb{E}(X_{t+1}|d_t,...,d_1)
+\end{align*}
+
+
+---
+# Two-period example
+
+- Consider the utility of choice $j$ in the last period:
+\begin{align*}
+U_{ijT}&=u_{ijT}+\epsilon_{ijT}\\
+&=X_{iT}\alpha_j+\epsilon_{ijT}
+\end{align*}
+
+- Define the .hi[conditional valuation function] for choice $j$ as the flow utility of $j$ minus the associated $\epsilon$ plus the expected value of future utility conditional on $j$:
+\begin{align*}
+v_{ijT-1}&=u_{ijT-1}+\beta \mathbb{E}\max_{k\in J}\left\{u_{ikT}+\epsilon_{ikT}|d_{iT-1}=j\right\}
+\end{align*}
+where $\beta$ is the discount factor
+- Suppose $X_{iT}$ was deterministic given $X_{iT-1}$ and $d_{iT-1}$ and the $\epsilon$'s are T1EV
+- What would the $\mathbb{E}\max$ expression be?
+
+
+---
+# When Dynamics Don't Matter
+- As in static models, we need to normalize with respect to some alternative
+
+- Suppose we normalize with respect to $j'$:
+\begin{align*}
+v_{ijT-1}-v_{ij'T-1}&=u_{ijT-1}+\beta \mathbb{E}\max_{k\in J}\left\{u_{ikT}+\epsilon_{ikT}|d_{iT-1}=j\right\}-\\
+&\phantom{\text{-}-}u_{ij'T-1}-\beta \mathbb{E}\max_{k\in J}\left\{u_{ikT}+\epsilon_{ikT}|d_{iT-1}=j'\right\}
+\end{align*}
+
+- If the two expected future value terms are equal, we get a cancellation
+
+$\implies$ choices have to (at least probabilistically) affect the future states
+
+- The simplest way to satisfy this condition is to have switching costs in the model
+
+- Intuition: switching costs make one think carefully about changing course
+
+---
+
+# Finite Horizon Dynamics
+In period $T-1$ we have:
+\begin{align*}
+v_{ijT-1}=u_{ijT-1}+\beta \mathbb{E}\max_{k\in J}\left\{u_{ikT}+\epsilon_{ikT}|d_{iT-1}=j\right\}
+\end{align*}
+Rolling back one more period,
+\begin{align*}
+v_{ijT-2}=u_{ijt}+\beta \mathbb{E}\max_{k\in J}\left\{v_{ikT-1}+\epsilon_{ikT-1}|d_{iT-2}=j\right\}
+\end{align*}
+Keep going back and the $\mathbb{E}\max$ operator can always be expressed as functions of the next period conditional value functions:
+\begin{align*}
+v_{ijt}=u_{ijT-2}+\beta \mathbb{E}\max_{k\in J}\left\{v_{ikt+1}+\epsilon_{ikt+1}|d_{it}=j\right\}
+\end{align*}
+
+Another name for $\max_{k\in J}\left\{v_{ikt+1}+\epsilon_{ikt+1}\right\}$ is....
+
+---
+
+# Stochastic $X$'s
+- Let $f_{jt}(X_{it+1}|X_{it})$ be the pdf associated with moving from $X_{it}$ to $X_{it+1}$ given choice $j$ at time $t$ 
+
+.hi[Example:] suppose we were interested in Covid on OU's campus. The choice set is {close campus, open campus but online classes, in-person classes}. The transitions on the $X$'s would be the Covid case (or fatality) counts associated with each of the choices. 
+
+Since these Covid case probabilities do not depend on the $\epsilon$'s, it is convenient to integrate them out of the future utility term
+
+The conditional value function is then:
+\begin{align*}
+v_{jt}(X_{it})&=u_{jt}(X_{it})+\beta \int_{X_{it+1}}\mathbb{E}_{\epsilon}\left\{\max_{k\in J} v_{kt+1}(X_{it+1})+\epsilon_{ikt+1}\right\}dF_{jt}(X_{it+1}|X_{it})
+\end{align*}
+
+
+---
+
+# Stochastic $X$'s 2
+If the $\epsilon$'s are distributed Type 1 extreme value, what is the expression for the conditional value function?
+
+
+What about the general GEV case?
+
+
+We can then start at the last period and work our way backwards to obtain all of the relevant conditional value functions
+
+---
+
+# Choice Probabilities
+
+- The choice probabilities are then calculated in the same way as in the static case
+
+- The only difference is now we use $v$'s instead of $u$'s
+
+- In the multinomial logit case we have:
+
+\begin{align*}
+p_{jt}(X_{it})&=\frac{\exp(v_{jt}(X_{it}))}{\sum_{k\in J}\exp(v_{kt}(X_{it}))}
+\end{align*}
+
+---
+
+
+# Estimation
+
+- The likelihood of the data is:
+
+\begin{align*}
+\mathcal{L}(\alpha,\beta,\gamma)&=\prod_i\prod_t\prod_j\left[p_{jt}(X_{it},\alpha,\beta,\gamma)f_{jt}(X_{it+1}|X_it,\gamma)\right]^{d_{it}=j}
+\end{align*}
+where $\gamma$ governs the transitions of the $X$'s
+
+- The log likelihood is then given by:
+\begin{align*}
+\ell(\alpha,\beta,\gamma)&=\sum_i\sum_t\sum_j (d_{it}=j)\left\{\ln[p_{jt}(X_{it},\alpha,\beta,\gamma)]+\ln[f_{jt}(X_{it+1}|X_it,\gamma)]\right\}
+\end{align*}
+
+Since the log likelihood function is additively separable, we can estimate $\gamma$ in a first stage
+
+
+---
+
+# Infinite Horizon
+\begin{align*}
+v_{j}(X_{i})&=u_{j}(X_{i})+\beta \int_{X'}V(X')dF_{j}(X'|X_{i})\\
+&=u_{j}(X_{i})+\beta \int_{X'}E_{\epsilon'}\left(\max_{k\in J} v_{k}(X')+\epsilon'_{ik}\right)dF_{j}(X'|X_{i})\\
+\end{align*}
+which in the Type 1 extreme value case for the $\epsilon$'s yields:
+
+\begin{align*}
+v_j(X_i)=u_j(X_i)+\beta\int_{X'}\ln\left(\sum_{k\in J}\exp[v_{k}(X')]\right)dF_j(X'|X_i)+\beta c
+\end{align*}
+
+Now, stack the conditional value functions for each possible state and choice. Because the $v$'s are on both sides of the stacked equations, we need to solve for a fixed point
+
+(This works because it is a contraction mapping)
+
+---
+
+# Infinite Horizon 2
+Let $\mathcal{X}$ denote the number of states $X$ can take on
+
+The stacked equations are then:
+.smallest[
+\begin{align*}
+\left[\begin{array}{c}v_1(X_1)\\
+v_1(X_2)\\
+\vdots \\ 
+v_1(X_{\mathcal{X}})\\
+\vdots\\
+ v_{J}(X_{\mathcal{X}})\end{array}\right]=
+\left[\begin{array}{c}u_1(X_1)+\beta\int_{X'}\ln\left(\sum_{k\in J}\exp[v_{k}(X')]\right)dF_1(X'|X_1)+\beta c\\
+u_1(X_2)+\beta\int_{X'}\ln\left(\sum_{k\in J}\exp[v_{k}(X')]\right)dF_1(X'|X_2)+\beta c\\
+\vdots\\
+u_1(X_{\mathcal{X}})+\beta\int_{X'}\ln\left(\sum_{k\in J}\exp[v_{k}(X')]\right)dF_1(X'|X_{\mathcal{X}})+\beta c\\
+\vdots\\
+u_J(X_{\mathcal{X}})+\beta\int_{X'}\ln\left(\sum_{k\in J}\exp[v_{k}(X')]\right)dF_J(X'|X_{\mathcal{X}})+\beta c\\
+\end{array}\right]
+\end{align*}
+]
+
+- Plug in values for the parameters and take a guess at the $v$'s
+- Substitute in for the $v$'s on the right hand side which gives us a new set of $v$'s
+- Repeat until convergence
+
+---
+
+# Optimal stopping in `r Citet(biblio,"rust1987")`
+
+- Rust analyzes the decision to replace a bus engine $(d=1)$ or not $(d=0)$
+
+- How is this an optimal stopping problem?
+
+    - The maintenance superintendent ([Harold Zurcher](https://twitter.com/haroldzurcher87)) wants to minimize costs
+
+    - But he also doesn't want buses to break down while in service
+
+    - Premature replacement can be very costly, but so is in-service breakdown
+
+    - The goal is then to figure out when to optimally replace engines
+
+    - Especially when some buses might happen to get driven more than others
+
+---
+
+# `r Citet(biblio,"rust1987")`
+
+- Replacement decision depends upon the mileage on the engine, $x$, the cost of replacing the engine $\overline{P}$ and the scrap value of the current engine $\underline{P}$ 
+
+- The payoffs net of the error term are given by:
+\begin{align*}
+u_0(x_i,\theta)&=-c(x_i,\theta)\\
+u_1(x_i,\theta)&=-[\overline{P}-\underline{P}+c(0,\theta)]
+\end{align*}
+
+- Mileage is discrete and transitions according to some process $f(x_{t+1}|x_t)$
+
+- Example: some probability of staying at the current mileage, some probability of moving up one mileage state and some probability of moving up two mileage states
+
+---
+
+# Estimation
+
+1.  Calculate the mileage transitions (get  $f(x_{t+1}|x_t)$)
+
+2.  Maximize the log likelihood of the choices:
+\begin{align*}
+\ell(\theta)=\sum_i\sum_t \sum_j (d_{it}=j)\ln(p_{jt}(x_{it},\theta)
+\end{align*}
+
+3.  Within the maximization routine, solve a fixed point problem in the $v$'s each time the log likelihood function is evaluated
+
+- For your problem set, I'll walk you through how to estimate a model similar to Rust's
+
+---
+
+# References
+.smaller[
+```{r refs, echo=FALSE, results="asis"}
+#PrintBibliography(biblio, start = 1, end = 2)
+PrintBibliography(biblio)
+```
+]
