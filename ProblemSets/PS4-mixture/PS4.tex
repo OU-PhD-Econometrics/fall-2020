@@ -1,0 +1,183 @@
+\documentclass[12pt,english]{article}
+\usepackage{mathptmx}
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+\usepackage{geometry}
+\usepackage{xcolor}
+\geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\usepackage{amsmath}
+\usepackage[authoryear]{natbib}
+\usepackage{minted}
+\usepackage{mathtools}
+\definecolor{bg}{rgb}{0.95,0.95,0.95}
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+ breaklinks=false,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=false]
+ {hyperref}
+\usepackage{breakurl}
+
+\begin{document}
+
+\title{Problem Set 4}
+\author{ECON 6343: Econometrics III\\
+Prof. Tyler Ransom\\
+University of Oklahoma}
+\date{Due: September 22, 9:00 AM}
+
+\maketitle
+Directions: Answer all questions. Each student must turn in their own copy, but you may work in groups. Clearly label all answers. Show all of your code. Turn in jl-file(s), output files and writeup via GitHub. Your writeup may simply consist of comments in jl-file(s). If applicable, put the names of all group members at the top of your writeup or jl-file.
+
+You may need to install the following package:
+\begin{itemize}
+    \item[~] \texttt{Distributions}
+\end{itemize}
+
+You will need to load the following packages:
+\begin{itemize}
+    \item[~] \texttt{Optim} 
+    \item[~] \texttt{HTTP} 
+    \item[~] \texttt{GLM} 
+    \item[~] \texttt{LinearAlgebra} 
+    \item[~] \texttt{Random} 
+    \item[~] \texttt{Statistics} 
+    \item[~] \texttt{DataFrames} 
+    \item[~] \texttt{CSV} 
+    \item[~] \texttt{FreqTables}
+\end{itemize}
+
+\begin{enumerate}
+\item Estimate a multinomial logit (with alternative-specific covariates $Z$) on the following data set, which is a panel form of the same data as Problem Set 3. You should be able to simply re-use your code from Problem Set 3. However, I would ask that you use automatic differentiation to speed up your estimation, and to obtain the standard errors of your estimates.
+
+\textbf{Note:} this took my machine about 30 minutes to estimate using random starting values. You might consider using the estimated values from Question 1 of PS3.
+
+\begin{minted}[bgcolor=bg]{julia}
+using DataFrames
+using CSV
+using HTTP
+url = "https://raw.githubusercontent.com/OU-PhD-Econometrics/fall-2020/
+master/ProblemSets/PS4-mixture/nlsw88t.csv"
+df = CSV.read(HTTP.get(url).body)
+X = [df.age df.white df.collgrad]
+Z = hcat(df.elnwage1, df.elnwage2, df.elnwage3, df.elnwage4, 
+         df.elnwage5, df.elnwage6, df.elnwage7, df.elnwage8)
+y = df.occ_code
+\end{minted}
+
+The choice set is identical to that of Problem Set 3 and represents possible occupations and is structured  as follows.
+
+\begin{enumerate}
+    \item[1] Professional/Technical 
+    \item[2] Managers/Administrators
+    \item[3] Sales                  
+    \item[4] Clerical/Unskilled     
+    \item[5] Craftsmen              
+    \item[6] Operatives             
+    \item[7] Transport              
+    \item[8] Other                  
+\end{enumerate}
+
+\item Does the estimated coefficient $\hat{\gamma}$ make more sense now than in Problem Set 3?
+
+\item Now we will estimate the mixed logit version of the model in Question 1, where $\gamma$ is distributed $N\left(\tilde{\gamma},\sigma^2_{\gamma}\right)$. Following the notes, the  formula for the choice probabilities will be
+    \begin{align*}
+        P_{ijt} &= \begin{dcases} \int\frac{\exp\left(X_{it}\beta_j + \tilde{\gamma}(Z_{itj}-Z_{itJ})\right)}{1+\sum_{k=1}^{J-1}\exp\left(X_{it}\beta_k + \tilde{\gamma}(Z_{itk}-Z_{itJ})\right)}f\left(\tilde{\gamma}\right)d\tilde{\gamma} ,& j=1,\ldots,J-1\\
+         \int\frac{1}{1+\sum_{k=1}^{J-1}\exp\left(X_{it}\beta_k + \tilde{\gamma}(Z_{itk}-Z_{itJ})\right)}f\left(\tilde{\gamma}\right)d\tilde{\gamma} ,& j=J
+         \end{dcases}
+    \end{align*}
+and the log likelihood function will be
+\begin{align}
+\label{eq:intlike}
+\ell\left(X,Z;\beta,\mu_{\gamma},\sigma_{\gamma}\right)&=\sum_{i=1}^N\sum_{t=1}^T \log\left\{\int\prod_{j}\left[\frac{\exp\left(X_{it}\left(\beta_{j}-\beta_{J}\right)+\tilde{\gamma}\left(Z_{itj}-Z_{itJ}\right)\right)}{\sum_k \exp\left(X_{it}\left(\beta_{k}-\beta_{J}\right)+\tilde{\gamma}\left(Z_{itk}-Z_{itJ}\right)\right)}\right]^{d_{itj}}f\left(\tilde{\gamma}\right)d\tilde{\gamma}\right\}
+\end{align}
+
+While this looks daunting, we can slightly modify the objective function from Question 1. 
+
+The first step is to recognize that we will need to \textit{approximate} the integral in \eqref{eq:intlike}. There are many ways of doing this, but we will use something called Gauss-Legendre quadrature.\footnote{Another popular method of approximating the integral is by simulation.} We can rewrite the integral in \eqref{eq:intlike} as a (weighted) discrete summation:
+\begin{align}
+\label{eq:quadlike}
+\ell\left(X,Z;\beta,\mu_{\gamma},\sigma_{\gamma}\right)&=\sum_{i=1}^N\sum_{t=1}^T \log\left\{\sum_{k}\omega_{r}\prod_{j}\left[\frac{\exp\left(X_{it}\left(\beta_{j}-\beta_{J}\right)+\xi_r\left(Z_{itj}-Z_{itJ}\right)\right)}{\sum_k \exp\left(X_{it}\left(\beta_{k}-\beta_{J}\right)+\xi_r\left(Z_{itk}-Z_{itJ}\right)\right)}\right]^{d_{itj}}f\left(\xi_r\right)\right\}
+\end{align}
+where $\omega_r$ are the quadrature weights and $\xi_r$ are the quadrature points. $\tilde{\gamma}$ and $\sigma_{\gamma}$ are parameters of the distribution function $f\left(\cdot\right)$.
+
+\begin{enumerate}
+    \item Before we dive in, let's learn how to use quadrature. In the folder where this problem set is posted on GitHub, there is a file called \texttt{lgwt.jl}. This is a function that returns the $\omega$'s and $\xi$'s for a given choice of $K$ (number of quadrature points) and bounds of integration $[a,b]$.
+    
+    Let's practice doing quadrature using the density of the Normal distribution.
+    
+    \begin{minted}[bgcolor=bg]{julia}
+    using Distributions
+    include("lgwt.jl") # make sure the function gets read in
+    
+    # define distribution
+    d = Normal(0,1) # mean=0, standard deviation=1
+    \end{minted}
+
+    Once we have the distribution defined, we can do things like evaluate its density or probability, take draws from it, etc.
+    
+    We want to verify that $\int \phi(x)dx$ is equal to 1 (i.e. integrating over the density of the support equals 1). We also want to verify that $\int x\phi(x)dx$ is equal to $\mu$ (which for the distribution above is 0).
+    
+    When using quadrature, we should try to pick a number of points and bounds that will minimize computational resources, but still give us a good approximation to the integral. For Normal distributions, $\pm 4\sigma$ will get us there.
+    
+    \begin{minted}[bgcolor=bg]{julia}
+    # get quadrature nodes and weights for 7 grid points
+    nodes, weights = lgwt(7,-4,4)
+    
+    # now compute the integral over the density and verify it's 1
+    sum(weights.*pdf.(d,nodes))
+    
+    # now compute the expectation and verify it's 0
+    sum(weights.*nodes.*pdf.(d,nodes))
+    \end{minted}
+    
+    \item To get some more practice, I'd like you to use quadrature to compute the following integrals:
+    
+    \begin{itemize}
+        \item $\int_{-5\sigma}^{5\sigma}x^{2}f\left(x\right)dx$ where $f\left(\cdot\right)$ is the pdf of a $N\left(0,2\right)$ distribution using 7 quadrature points
+        \item The same as above, but with 10 quadrature points
+        \item The above integrals are the variance of the distribution $f$. Comment on how well the quadrature approximates the true value.
+    \end{itemize}
+    
+    \item An alternative to quadrature is Monte Carlo integration. Under this approach, we approximate the integral of $f$ by averaging over a function of many random numbers. Formally, we have that
+    
+    \begin{align}
+        \int_a^b f\left(x\right)dx \approx \left(b-a\right)\frac{1}{D}\sum_{i=1}^D f\left(X_{i}\right)
+        \label{eq:MCint}
+    \end{align}
+    where $D$ is the number of random draws and where each $X_i$ is drawn from a $U[a,b]$ interval
+    
+    \begin{itemize}
+        \item With $D=1,000,000$, use the formula in \eqref{eq:MCint} to approximate $\int_{-5\sigma}^{5\sigma}x^{2}f\left(x\right)dx$ where $f\left(\cdot\right)$ is the pdf of a $N\left(0,2\right)$ and verify that it is (very) close to 4
+        \item Do the same for $\int_{-5\sigma}^{5\sigma}xf\left(x\right)dx$ where $f\left(\cdot\right)$ and verify that it is very close to 0
+        \item Do the same for $\int_{-5\sigma}^{5\sigma}f\left(x\right)dx$ and verify that it is very close to 1
+        \item Comment on how well the simulated integral approximates the true value when $D=1,000$ compared to when $D=1,000,000$.
+    \end{itemize}
+    
+    \item Note the similarity between quadrature and Monte Carlo.
+    \bigskip
+    With quadrature, we approximate the integral with
+    \begin{align*}
+        \int_a^b f\left(x\right)dx \approx \omega_{i}\sum_{i=1}^D f\left(\xi_{i}\right)
+    \end{align*}
+    where $\omega_{i}$ is the quadrature weight and $\xi_{i}$ the quadrature node.
+    
+    \bigskip
+    
+    With Monte Carlo, we approximate the integral with
+    \begin{align*}
+        \int_a^b f\left(x\right)dx \approx \frac{\left(b-a\right)}{D}\sum_{i=1}^D f\left(X_{i}\right)
+    \end{align*}
+    
+    So the ``quadrature weight'' in Monte Carlo integration is the same $\frac{\left(b-a\right)}{D}$ at each node, and the ``quadrature node'' is a $U[a,b]$ random number
+\end{enumerate}
+
+\item Try to modify (but not run!) your code from Question 1 to optimize the likelihood function in \eqref{eq:quadlike}
+
+(This took about 4 hours to estimate on my machine, given the multinomial logit starting values. ``Don't try this at home,'' as they say.)
+
+\item Try to modify (but not run!) your code from Question 1 to optimize the likelihood function in \eqref{eq:intlike}, where the integral is approximated by Monte Carlo. Your program will take basically the same form as under Quadrature, but the weights will be slightly different.
+
+(This takes even longer because, instead of 7 quadrature points, we need to use many, many simulation draws.)
+
+\item Wrap all of your code above into a function and then call that function at the very bottom of your script. Make sure you add \texttt{println()} statements after obtaining each set of estimates so that you can read them.
+\end{enumerate}
+\end{document}
