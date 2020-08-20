@@ -1,0 +1,349 @@
+---
+title: "Lecture 8"
+subtitle: "Estimating Dynamic Models Without Solving Value Functions"
+author: Tyler Ransom
+date: ECON 6343, University of Oklahoma
+output:
+  xaringan::moon_reader:
+    includes:
+        in_header: "08slides_files/mathjax-equation-numbers.html"
+    css: ['default', 'metropolis', 'metropolis-fonts', 'ou-colors.css']
+    # self_contained: true
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: '16:9'
+
+---
+
+```{r, load_refs, include=FALSE, cache=FALSE}
+library(RefManageR)
+BibOptions(check.entries = FALSE,
+           bib.style = "authoryear",
+           style = "markdown",
+           hyperlink = FALSE,
+           dashed = TRUE)
+biblio <- ReadBib("../../References/References.bib", check = FALSE)
+#biblio <- ReadBib(system.file("Bib", "biblatexExamples.bib", package = "RefManageR"))
+```
+
+# Attribution
+
+Many of these slides are based on slides written by Peter Arcidiacono. I use them with his permission.
+
+---
+# Plan for the Day
+
+1. Show the relationship between differences in conditional value functions and conditional choice probabilities
+
+2. Show how conditional choice probabilities are helpful in estimating problems with terminal choices
+
+3. Show how to estimate the Rust bus engine problem such that the computational time is less than two minutes
+
+
+---
+# `r Citet(biblio,"hotzMiller1993")`
+
+- Dynamic discrete choice models are complicated to estimate because of the future value terms
+
+- `r Citet(biblio,"hotzMiller1993")` show:
+
+- Differences in conditional value functions $v_j-v_{j'}$ can be mapped into .hi[conditional choice probabilities] ( $p_j$'s )
+
+- We can pull the $p_j$'s from the data in a first stage
+
+- Empirical example: optimal stopping with respect to couples' fertility
+
+---
+# Difference in $v$'s and logit errors
+
+- Consider an individual who faces two choices where the errors are T1EV 
+
+- The probability of choice 1 is:
+\begin{align*}
+p_1&=\frac{\exp(v_1)}{\exp(v_0)+\exp(v_1)}
+\end{align*}
+
+- The ratio of $p_1/p_0$ is then:
+\begin{align*}
+\frac{p_1}{p_0}&=\frac{\exp(v_1)}{\exp(v_0)} = \exp(v_1 - v_0)
+\end{align*}
+implying that:
+\begin{align*}
+\ln(p_1/p_0)&=v_1-v_0
+\end{align*}
+
+`r #solve for v_0-v1 as a function of p_1 and p_0`
+`r #emphasize that we could do this with p_0 as well`
+
+---
+# General structure
+
+- The inversion theorem of Hotz and Miller says that there exists a mapping, $\psi$, from the conditional choice probabilities, the $p$'s, into the differences in the conditional valuation functions, $v_j-v_k$:
+\begin{align*}
+V_{t+1}&=v_{0t+1}+\mathbb{E}\max\{\epsilon_{0t+1},v_{1t+1}+\epsilon_{1t+1}-v_{0t+1},...,\\
+&\phantom{\text{----}}v_{{J}t+1}+\epsilon_{{J}t+1}-v_{0t+1}\}\\
+V_{t+1}&=v_{0t+1}+\mathbb{E}\max\{\epsilon_{0t+1},\psi_0^1(p_{t+1})+\epsilon_{1t+1},...,\psi_0^{{J}}(p_{t+1})+\epsilon_{{J}t+1}\}
+\end{align*}
+
+The $p$'s can be taken from the data.  However:
+
+1. We need the mapping, $\psi$,
+2. We need to be able to calculate the expectations of the $\epsilon$'s
+3. We need to do something with the $v_0$'s
+
+---
+# Terminal choices
+
+Consider the conditional value function $v_{1t}$:
+
+\begin{align*}
+v_{1t}(x_t)&=u_1(x_t)+\beta\sum_{x_{t+1}}V_{t+1}(x_{t+1})f_1(x_{t+1}|x_t)\\
+&=u_1(x_t)+\beta\sum_{x_{t+1}}\Big[v_{0t+1}(x_{t+1})+\\
+&\phantom{\text{----}}\mathbb{E}\max\{\epsilon_{0t+1},\psi_0^1(p_{t+1})+\epsilon_{1t+1}\}\Big]f_1(x_{t+1}|x_t)
+\end{align*}
+
+- If $v_{0t+1}=X_{t+1}\alpha_0$, then .hi[we don't need to solve a backwards recursion problem] 
+
+- ... so long as we can deal with the last line
+
+
+---
+# Terminal choices and logit errors
+
+- When the $\epsilon$'s are Type I extreme value, $V_{t+1}$ is given by:
+\begin{align*}
+V_{t+1}(x_{t+1})&=\ln\left[\exp(v_0(x_{t+1}))+\exp(v_1(x_{t+1}))\right]+c
+\end{align*}
+
+- We can then express the conditional value function as:
+\begin{align*}
+v_{1t}(x_t)&=u_1(x_t)+\beta\sum_{x_{t+1}}\bigg(v_{0t+1}(x_{t+1})+\\
+&\phantom{\text{----}}\ln\left\{1+\exp[v_{1t+1}(x_{t+1})-v_{0t+1}(x_{t+1})]\right\}\bigg)+\beta c
+\end{align*}
+which can now be written as a function of the conditional choice probabilities:
+\begin{align*}
+v_{1t}(x_t)&=u_1(x_t)+\beta\sum_{x_{t+1}}\bigg(v_{0t+1}(x_{t+1})-\ln\left[p_{0t+1}(x_{t+1})\right]\bigg)+\beta c
+\end{align*}
+
+---
+# Terminal choices and logit errors 2
+
+- In general, $v_{0t+1}(x_{t+1})$ will still be recursive: it has $V_{t+2}$ in it
+
+- But if choice 0 is terminal, we'll have something linear for $v_{0t+1}$ (i.e. no $V_{t+2}$)
+
+- We can then use the data to calculate $p_{0t+1}(x_{t+1})$ (e.g. a bin estimator)
+
+- Note that this is similar to getting the $f_j(x_{t+1}|x_t)$'s in a first stage
+
+- Things just about reduce down to a simple logit!
+
+---
+# Derivation
+
+- The key idea is that $V_{t+1} = v_{jt+1} - \ln p_{jt+1} + c$ when the $\epsilon$'s are T1EV
+
+- The derivation trick is to multiply and divide the inside of the log sum by $\exp(v_{jt+1})$:
+.smallest[
+\begin{align*}
+V_{t+1}(x_{t+1})&=\ln\left[\sum_k\exp(v_k(x_{t+1}))\right]+c\\
+&=\ln\left[\frac{\exp(v_j(x_{t+1}))}{\exp(v_j(x_{t+1}))}\sum_k\exp(v_k(x_{t+1}))\right]+c\\
+&=\ln\left[\exp(v_j(x_{t+1}))\frac{\sum_k\exp(v_k(x_{t+1}))}{\exp(v_j(x_{t+1}))}\right]+c\\
+&=\underbrace{\ln\exp(v_j(x_{t+1}))}_{v_j(x_{t+1})}+\ln\left[\underbrace{\frac{\sum_k\exp(v_k(x_{t+1}))}{\exp(v_j(x_{t+1}))}}_{p_j(x_{t+1})^{-1}}\right]+c\\
+&=v_j(x_{t+1}) - \ln p_j(x_{t+1}) + c \,\,\,\, \forall\,\, j\in J
+\end{align*}
+]
+
+
+---
+# Derivation for GEV
+
+- If the $\epsilon$'s are GEV, we can still express $V_{t+1}$ as a closed-form function of $p_{jt+1}$
+
+- But the math gets more complicated because it depends on the form of $G$
+
+- Recall: $V_{t+1} = \ln G$, where $G = \sum_k \exp(\cdot)$ if $\epsilon$'s are T1EV
+
+- For nested logit, the formula will involve the nesting parameters (the $\lambda$'s)
+
+- If the $\epsilon$'s are Normal, there is no closed-form expression for $V_{t+1}$
+
+    - You would need to use simulation to compute the $\mathbb{E}\max$ integral
+
+- The only paper I've seen use CCP's with GEV is `r Citet(biblio,"coateMangum2019")`
+
+---
+# Another way of looking at the problem
+- We can also write $V_{t+1}$ as
+\begin{align*}
+V_{t+1}(x_{t+1})&=v_{0t+1}(x_{t+1})+\\
+&\phantom{\text{----}}\sum_{j=0}^1p_{jt+1}(x_{t+1})\bigg[v_{1t+1}(x_{t+1})-v_{0t+1}(x_{t+1})+\mathbb{E}(\epsilon_{jt+1}|d_{jt+1},x_{t+1})\bigg]\\
+&=v_{0t+1}(x_{t+1})+\\
+&\phantom{\text{----}}\sum_{j=0}^1p_{jt+1}(x_{t+1})\bigg[\ln\left(\frac{p_{1t+1}(x_{t+1})}{p_{0t+1}(x_{t+1})}\right)+\mathbb{E}(\epsilon_{jt+1}|d_{jt+1},x_{t+1})\bigg]
+\end{align*}
+
+- `r Citet(biblio,"hotzMiller1993")` eq. (4.12) shows that
+\begin{align*}
+\mathbb{E}(\epsilon_{jt+1}|d_{jt+1},x_{t+1}) = c - \ln[p_{jt+1}]
+\end{align*}
+
+
+---
+# Another way of looking at the problem
+- So it is possible to write $V_{t+1}$ in terms of $v_0$ and a bunch of probabilities:
+\begin{align*}
+V_{t+1}(x_{t+1})&=v_{0t+1}(x_{t+1})+\\
+&\phantom{\text{----}}\sum_{j=0}^1p_{jt+1}(x_{t+1})\bigg[\ln\left(\frac{p_{1t+1}(x_{t+1})}{p_{0t+1}(x_{t+1})}\right)-\ln\left(p_{jt+1}(x_{t+1})\right)\bigg] + c
+\end{align*}
+
+- This is the preferred notation of `r Citet(biblio,"hotzMiller1993")`
+
+---
+# `r Citet(biblio,"hotzMiller1993")`, p. 505, eq. (4.13)
+
+- $j=1$ means not sterilizing; $j=2$ means sterilizing
+
+- $j=2$ is terminal, meaning that $v_{2t} =$ some number (no more $\epsilon$'s)
+
+- Suppose a couple does not sterilize
+
+- Then there is some probability $\alpha$ of having a child in the next period
+
+- Conditional on having a child, the terms in eq. (4.13) that have CCPs are:
+
+\begin{align*}
+&\phantom{\text{----}}\left\{\sum_{j=1}^2p_j(H_t,1)\left(c-\ln\left[p_j(H_t,1)\right]\right)\right\}+p_1(H_t,1)\ln\left[\frac{p_1(H_t,1)}{p_2(H_t,1)}\right]
+\end{align*}
+
+- Other terms in (4.13) are the $v_{2t}$ formula or integrating over the $f$'s
+
+---
+# Renewal
+
+- An action is termed .hi[renewal] if by, taking the action, the effect of the previous choices on the state are irrelevant
+\begin{align*}
+\sum_{x_{t+1}}f_0(x_{t+2}|x_{t+1})f_j(x_{t+1}|x_{t})&=\sum_{x_{t+1}}f_0(x_{t+2}|x_{t+1})f_{j'}(x_{t+1}|x_{t}) \qquad \textrm{for all } \{j,j'\}
+\end{align*}
+
+---
+# Renewal 2
+
+- Normalizing the future value term relative to the renewal action  for choice 1 yields:
+\begin{align*}
+v_{1t}(x_{t})&=u_1(x_t)+\beta\sum_{x_{t+1}}\left[v_{0t+1}(x_{t+1})-\ln(p_{0t+1}(x_{t+1}))\right]f_1(x_{t+1}|x_t)+\beta c
+\end{align*}
+
+- Now substitute in for $v_{0t+1}(x_{t+1})$ with:
+\begin{align*}
+v_{0t+1}(x_{t+1})&=u_0(x_{t+1})+\beta\sum_{x_{t+2}}V_{t+2}(x_{t+2})f_0(x_{t+2}|x_{t+1})
+\end{align*}
+
+- The term involving $V_{t+2}(x_{t+2})$ is then:
+\begin{align*}
+\beta^2\sum_{x_{t+1}}\sum_{x_{t+2}}V_{t+2}(x_{t+2})f_0(x_{t+2}|x_{t+1})f_1(x_{t+1}|x_t)
+\end{align*}
+
+
+---
+# Renewal 3
+
+- Recall that in estimation we work with _differenced_ conditional value functions 
+
+- Now consider $v_{0t}(x_t)$ and again normalize the FV term relative to choice 0:
+\begin{align*}
+v_{0t}(x_{t})&=u_0(x_t)+\beta\sum_{x_{t+1}}\left[v_{0t+1}(x_{t+1})-\ln(p_{0t+1}(x_{t+1}))\right]f_0(x_{t+1}|x_t)+\\
+&\phantom{\text{----}}\beta^2\sum_{x_{t+1}}\sum_{x_{t+2}}V_{t+2}(x_{t+2})f_0(x_{t+2}|x_{t+1})f_0(x_{t+1}|x_t)+\beta c
+\end{align*}
+
+- The renewal property implies that the $V_{t+2}(x_{t+2})$ terms are the same, and will .hi[cancel out] once we take differences:
+
+.smallest[
+\begin{align*}
+v_{1t}(x_{t})-v_{0t}(x_{t})&=u_1(x_t) - u_0(x_t)+\beta\sum_{x_{t+1}}\left[u_{0t+1}(x_{t+1})-\ln(p_{0t+1}(x_{t+1}))\right]f_1(x_{t+1}|x_t)-\\
+&\phantom{\text{--- --- --- --- --- --- --- -}}\beta\sum_{x_{t+1}}\left[u_{0t+1}(x_{t+1})-\ln(p_{0t+1}(x_{t+1}))\right]f_0(x_{t+1}|x_t)\\
+\end{align*}
+]
+
+---
+# Back to `r Citet(biblio,"rust1987")`
+
+- `r Citet(biblio,"rust1987")` has two choices with the following flow payoffs:
+
+\begin{align*}
+u(x_t,d_t,\theta)=\left\{\begin{array}{ll}-c(x_t,\theta)&\textrm{if }d_t=0\\-[\overline{P}-\underline{P}+c(0,\theta)]&\textrm{if } d_t=1\end{array}\right.
+\end{align*}
+
+- The value of replacing the engine at $t+1$ then does not depend upon whether the engine was replaced at $t$ 
+
+- This implies that we only need the one-period-ahead probability of replacement for the future utility component
+
+
+---
+# `r Citet(biblio,"rust1987")` with CCP's
+
+\begin{align*}
+v_1(x)&=u_1(x)+\beta\left[v_1(0)-\ln(p_1(0))\right]+\beta c\\
+v_0(x)&=u_0(x)+\beta\sum_{x'}\left[v_1(x')-\ln(p_1(x'))\right]f(x'|x)+\beta c
+\end{align*}
+
+- In this case $v_1(0)$ and $v_1(x')$ are the same
+
+- Taking differences yields:
+
+\begin{align*}
+v_1(x)-v_0(x)&=u_1(x)-u_0(x)+\beta\left[\sum_{x'}\left(\ln[p_1(x)]-\ln[p_1(0)]\right)f(x'|x)\right]
+\end{align*}
+
+- Estimation is then as simple as a logit with an adjustment term, with the calculation of the $p_1$'s and $f(x'|x)$ in a first stage
+
+---
+
+# CCP's with finite mixture distributions
+
+- `r Citet(biblio,"arcidiaconoMiller2011")` show how to use CCPs with unobserved heterogeneity
+
+- They show that you can adjust the `r Citet(biblio,"rust1987")` model to incorporate unobservable bus attributes
+
+- The model still estimates quickly due to additive separability in the model components `r Citep(biblio,"arcidiaconoJones2002")` 
+
+
+---
+
+# CCP's with actions that are not terminal or renewal
+
+- `r Citet(biblio,"rust1987")` provides an example of a renewal action
+
+- `r Citet(biblio,"hotzMiller1993")` shows an example of a terminal action
+
+- We can still use CCP's even if no such actions exist in our model
+
+- The main difference is that we will need additional CCPs than just $\ln p_{0t+1}$
+
+- Through a property known as .hi[finite dependence] we can achieve cancellation after at most 3 periods (depending on the model)
+
+
+---
+
+# Counterfactuals and CCP's
+
+- The main rub with CCPs is that they don't simplify counterfactual simulations
+
+- Why? Because we don't observe $\ln p_{0t+1}$ in the counterfactual world
+
+- If we could, we probably wouldn't need a structural model to begin with 
+
+- So we still must do a backwards recursion computation to get counterfactuals
+
+- Or restrict ourselves to short-run counterfactuals
+
+---
+
+# References
+.smaller[
+```{r refs, echo=FALSE, results="asis"}
+#PrintBibliography(biblio, start = 1, end = 2)
+PrintBibliography(biblio)
+```
+]
