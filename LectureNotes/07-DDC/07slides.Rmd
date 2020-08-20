@@ -322,16 +322,29 @@ u_1(x_i,\theta)&=-[\overline{P}-\underline{P}+c(0,\theta)]
 
 # Estimation
 
-1.  Calculate the mileage transitions (get  $f(x_{t+1}|x_t)$)
+1.  Calculate the mileage transitions, i.e. get  $f(x_{t+1}|x_t)$
 
 2.  Maximize the log likelihood of the choices:
 \begin{align*}
-\ell(\theta)=\sum_i\sum_t \sum_j (d_{it}=j)\ln(p_{jt}(x_{it},\theta)
+\ell(\theta)=\sum_i\sum_t \sum_j (d_{it}=j)\ln(p_{jt}(x_{it},\theta))
 \end{align*}
 
 3.  Within the maximization routine, solve a fixed point problem in the $v$'s each time the log likelihood function is evaluated
 
 - For your problem set, I'll walk you through how to estimate a model similar to Rust's
+
+---
+
+# Nested Fixed Point (NFXP) Algorithm
+
+.center[
+```{r img, echo=F, out.width="50%"}
+knitr::include_graphics('https://editorialexpress.com/jrust/nfxp.gif')
+#.center[![NFXP Algorithm]('https://editorialexpress.com/jrust/nfxp.gif')]
+```
+
+Source: https://editorialexpress.com/jrust/nfxp.html
+]
 
 ---
 

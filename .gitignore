@@ -15,5 +15,8 @@ ProblemSets/PS3-gev/stata_nlogit.do
 ProblemSets/PS4-mixture/PS4solutions.jl
 ProblemSets/PS4-mixture/stata_mixlogit.do
 ProblemSets/PS4-mixture/stata_mixlogit.log
+ProblemSets/PS5-ddc/PS5solutions.jl
+ProblemSets/PS5-ddc/an_busdata.do
+ProblemSets/PS5-ddc/an_busdata.log
 References/*.pdf
 References/TrainTextbook/*.pdf
