@@ -1,0 +1,214 @@
+\documentclass[11pt,english]{article}
+\usepackage{mathpazo}
+\renewcommand{\familydefault}{\rmdefault}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{geometry}
+\geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+\definecolor{oucrimson}{RGB}{132.,22.,23.}
+\usepackage[]{threeparttable}
+\usepackage{babel}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[authoryear]{natbib}
+\usepackage[unicode=true,pdfusetitle,bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,breaklinks=true,pdfborder={0 0 0},pdfborderstyle={},backref=false,colorlinks=true]{hyperref}
+\hypersetup{citecolor=oucrimson,filecolor=oucrimson,linkcolor=oucrimson,urlcolor=oucrimson}
+\usepackage{breakurl}
+
+\usepackage{pdflscape}
+
+\begin{document}
+
+\title{Econ 6343: Econometrics III}
+
+\author{University of Oklahoma\\ Fall 2020}
+\date{}
+
+\maketitle
+\section*{\rule[0.5ex]{1\columnwidth}{0.5pt}}
+
+\begin{flushleft}
+\begin{tabular}{rl}
+\textbf{Instructor:}          & Tyler Ransom                                       \\
+\textbf{Office:}              & CCD1 Room 322                                      \\
+\textbf{Email:}               & \href{mailto:ransom@ou.edu}{ransom@ou.edu}         \\
+\textbf{Office Hours:}        & M 9:30am-10:30am, Th 12pm-1pm, and by appointment  \\
+                              &                                                    \\
+\textbf{Class Location:}      & CCD1, Room 338                                     \\
+\textbf{Class Times:}         & Tue/Thu 9:00am - 10:15am                           \\
+                              &                                                    \\
+\textbf{Final Exam Location:} & CCD1, Room 338                                     \\
+\textbf{Final Exam Time:}     & Monday, December 14, 8:00am - 10:00am              \\
+                              &                                                    \\
+\textbf{Teaching Assistant:}  & TBA                                                \\
+\textbf{Office:}              & TBA                                                \\
+\textbf{Email:}               & \href{mailto:tba@ou.edu}{TBA@ou.edu}               \\
+\textbf{Office Hours:}        & TBA                                                \\
+\end{tabular}
+\par\end{flushleft}
+
+\section*{\rule[0.5ex]{1\columnwidth}{0.5pt}}
+
+\section*{Course Description}
+
+This course is designed to help students learn the conceptual and statistical machinery that form the foundation of economic research. The course will also help students develop skills in using computer software to perform data analyses.
+
+\section*{Student Learning Outcomes}
+By the end of the course, students should be able to do the following:
+\begin{enumerate}
+\item Explain what a structural model is
+\item Explain the strengths and weakness of structural modeling relative to other econometric methods
+\item Demonstrate ability to estimate econometric model using the Julia programming language
+\item Explain the relative strengths and weaknesses of well-known structural models
+\item Critically evaluate a structural model on the current research frontier
+\item Propose a novel research idea based on the techniques and tools covered in the course
+\end{enumerate}
+For further detail on course content, see the course schedule at the end of this document. This is a 3-credit-hour course, which means we will have about 3 hours per week of class. You should expect to spend, on average, another 4-6 hours per week outside of class on reading, preparation, homework, and review.\footnote{From OU's ``How to Graduate a Sooner'' webpage: ``On average, you should expect to spend 2-3 hours outside of class studying for each credit hour you are taking.'' (\url{http://www.ou.edu/graduatesooner/resources/graduate_a_sooner.html})}
+
+\subsection*{Prerequisites}
+
+\begin{itemize}
+\item Econ 5213 (Advanced Econometrics) or instructor permission is required
+\item Econ 5243 (Econometrics II) is preferred
+\end{itemize}
+
+\subsection*{Textbook and other materials}
+
+Materials for the course will be assigned from the following sources:
+\begin{enumerate}
+    \item The main textbook for the first part of this course will be \emph{Discrete Choice Methods with Simulation} (2nd ed.), by Kenneth Train. The book is available for free at \url{https://eml.berkeley.edu/books/choice2.html}. You may also purchase a hard copy at any major book outlet, if you prefer. There will be no formal textbook for the remainder of the course.
+    \item Readings not originating from a textbook will come from published academic journal articles.
+\end{enumerate}
+
+\subsection*{Course website}
+
+Class announcements and homework will be posted on the course website on Canvas: \url{https://canvas.ou.edu}. It is your responsibility to check the site regularly\textemdash at least every day class is held. All important announcements will be posted there.
+
+Most course materials will also be publicly posted on GitHub at \url{https://github.com/OU-PhD-Econometrics/fall-2020}.
+
+\section*{\rule[0.5ex]{1\columnwidth}{0.5pt}}
+
+\section*{Grading policies}
+
+Your grade will be determined by the following criteria:
+
+\begin{itemize}
+\item Problem sets (50\%)
+    \begin{itemize}
+        \item 6 problem sets throughout the semester; lowest score will be dropped. Consist of proofs, derivations, and empirical exercises in \texttt{R}. You may work on these in groups but you must turn in an individual copy.
+    \end{itemize}
+\item Class participation / Presentation (15\%)
+    \begin{itemize}
+        \item Based on completion of several reading quizzes, class attendance, and an in-class presentation about an economics paper of your choosing.
+    \end{itemize}
+\item Midterm exam (10\%)
+\item Referee report (10\%)
+    \begin{itemize}
+        \item You will write a referee report on an unpublished paper of your choosing. The paper must use some method we discussed in class. It may be the same paper you presented.
+    \end{itemize}
+\item Research proposal (15\%)
+    \begin{itemize}
+        \item Write a proposal for a research project that interests you.
+        \item The proposal should leverage the skills acquired in this course.
+        \item The proposal should include a discussion of the research idea, relevant literature (with bibliography), data to be used, modeling approach, and expected findings.
+        \item There is no page limit, but the above would be hard to fit in fewer than five pages.
+    \end{itemize}
+%\item An original econometric research paper (25\%); more details on separate document in Canvas
+%    \begin{itemize}
+%    \item Proposal (due during approximately the 5th week of the semester---see assignment schedule at end of this document and on Canvas)
+%    \item Initial R analysis file (due during approximately the 9th week of classes)
+%    \item Polished initial draft (due during approximately the 11th week of classes and distributed to another class member)
+%    \item Reading and commenting on a fellow student's draft
+%    \item 3--5 minute in-class presentation of findings
+%    \item Final draft (due on the last day of class)
+%    \end{itemize}
+\end{itemize}
+
+\paragraph{Exam regrading}
+Exams are graded carefully and original grades are rarely changed. If you believe that a grading mistake was made on your work, you can submit a written request for a regrade to me within one week of its return. This request must contain a detailed explanation of the grading errors. Your entire exam will be regraded and the score may go up or down as a result.
+
+\paragraph{N.B.}
+I do not release end-of-course grades before they are posted by the Registrar. Federal regulations prohibit me from revealing any grade to you by email. Grades will be updated on the course website on Canvas throughout the semester.
+
+\subsection*{\rule[0.5ex]{1\columnwidth}{0.5pt}}
+
+
+\subsection*{Grading scale}
+
+All exams will be out of 138 points. At the end of the course, I will compute a final percentage grade based on component percentages of each grade category using the weights given above. I will then convert this final percentage grade into letter grades according to the following scale (where $g$ indicates your final percentage grade): 
+
+\begin{center}
+\begin{tabular}{cccc}
+90\%$\leq$ & $g$ & $\leq$100\% & A\\
+80\%$\leq$ & $g$ & $<$90\%     & B\\
+70\%$\leq$ & $g$ & $<$80\%     & C\\
+60\%$\leq$ & $g$ & $<$70\%     & D\\
+ 0\%$\leq$ & $g$ & $<$60\%     & F\\
+\end{tabular}
+\par\end{center}
+
+I reserve the right to scale upwards everyone's final percentage grades by a common factor (e.g. 1.06), but the course will not be graded on a curve, and no one's final percentage grade will be lowered.
+
+\section*{\rule[0.5ex]{1\columnwidth}{0.5pt}}
+
+\section*{Classroom etiquette}
+
+I value your presence in my class, and I want your classmates to feel the same way. You are welcome to eat/drink during class as long as food/drink is permitted in the classroom and you do not disrupt or distract others by doing so. Note that smoking is prohibited on all OU property. Please silence your cell phones, pagers, or other electronic devices during class, and do not use them in the classroom. If you need to respond to a text/social media message, or make a phone call, please leave the classroom before doing so. 
+You should bring your laptop to class (if you have one), as we will do in-class exercises almost every class period. Please do not use your laptop for work that is not directly related to what we are doing in class. Doing so has been scientifically proven to reduce your own academic performance, as well as that of your peers.\footnote{See, for example, \href{https://www.nytimes.com/2017/11/22/business/laptops-not-during-lecture-or-meeting.html}{this NYT column}.}
+
+\section*{Contacting me}
+I will always be available during my office hours. Due to Covid, I will only be holding office hours via Zoom. Please sign up to meet with me at a link to be determined.
+
+If you ever need to email me or any other professor at OU, please follow the basic rules contained at the following link: \url{http://www.jamestierney.com/teaching/how-to-email-a-professor/}
+
+I will promise to reply to your email within 48 hours of your sending it. 
+
+\section*{Course Policies}
+
+\subsection*{Make-up Policy}
+
+All work should be turned in on the day it is due. Late work will only be accepted for university-excused absences, illnesses, or other unforeseen emergencies.
+
+\subsection*{Absences}
+
+Absences from class will only be excused for university approved reasons, illnesses, or other unforeseen emergencies.
+
+\subsection*{\rule[0.5ex]{1\columnwidth}{0.5pt}}
+
+\section*{University Policies}
+
+\subsection*{Religious Observance}
+
+It is the policy of the University to excuse the absences of students that result from religious observances and to reschedule examinations and additional required classwork that may fall on religious holidays, without penalty.
+
+\subsection*{Reasonable Accommodation Policy}
+
+If a student requires an accommodation based on disability, the student should meet with me in my office during the first week of the semester. Student responsibility primarily rests with informing faculty at the beginning of the semester and in providing authorized documentation through designated administrative channels. The Disability Resource Center is located in the University Community Center at 730 College Avenue (405-325-3852).
+
+\subsection*{Academic Integrity}
+
+I do not tolerate academic misconduct, and neither does the University of Oklahoma: 
+\begin{quotation}
+``Academic misconduct is cheating. More precisely, it is any action that a student knows (or should know) will lead to the improper evaluation of academic work. If the professor does not detect it, academic misconduct defeats the purpose of academic work because you are pretending to know more or write better than you actually do. ... 
+
+``At OU, acts of plagiarism can receive institutional penalties ranging from a letter of reprimand to required coursework to expulsion. All academic misconduct offenses also receive grade penalties determined by the instructor. Grade penalties are not restricted to the value of the assignment and may be up to an F in the course. Juniors and seniors who plagiarize any significant portion of a paper should expect at least a suspension for a spring or fall semester. Under the right circumstances even freshmen and sophomores may also receive suspensions or even be expelled for plagiarism.'' 
+
+\textemdash \url{http://integrity.ou.edu/files/nine_things_you_should_know.pdf}
+\end{quotation}
+For further information on what constitutes academic misconduct, as well as how such misconduct is punished, please consult the Student Guide to Academic Dishonesty, found at the following link:\\ \url{https://integrity.ou.edu/students.html}\\
+
+I will not hesitate to fail students who do not fully comply with the University's academic misconduct policy. If you find yourself contemplating cheating, plagiarism, or other forms of academic misconduct, please come see me first. Help is available if you are struggling. I want everyone in the class to try their best and to do their own work. Please be advised that I reserve the right to utilize anti-plagiarism resources such as \emph{TurnItIn} when grading assignments.
+
+\subsection*{Title IX Resources and Reporting Requirement}
+
+For any concerns regarding gender-based discrimination, sexual harassment, sexual assault, dating/domestic violence, or stalking, the University offers a variety of resources. To learn more or to report an incident, please contact the Sexual Misconduct Office at (405) 325-2215 (8 to 5, M-F) or \href{mailto:smo@ou.edu}{smo@ou.edu}. Incidents can also be reported confidentially to OU Advocates at (405) 615-0013 (phones are answered 24 hours a day, 7 days a week). Also, please be advised that a professor/GA/TA is required to report instances of sexual harassment, sexual assault, or discrimination to the Sexual Misconduct Office. Inquiries regarding non-discrimination policies may be directed to: Bobby J. Mason, University Equal Opportunity Officer and Title IX Coordinator at (405) 325-3546 or \href{mailto:bjm@ou.edu}{bjm@ou.edu}. For more information, visit \url{http://www.ou.edu/eoo.html}.
+
+\subsection*{Adjustments for Pregnancy/Childbirth Related Issues}
+
+Should you need modifications or adjustments to your course requirements because of documented pregnancy-related or childbirth-related issues, please contact me or the Disability Resource Center at (405) 325-3852 as soon as possible. Also, see \url{http://www.ou.edu/eoo/faqs/pregnancy-faqs.html} for answers to commonly asked questions.
+
+\section*{Class Schedule}
+The course schedule is posted at \url{https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/README.md} and will be updated regularly; please check there for the most recent version.
+\end{document}
