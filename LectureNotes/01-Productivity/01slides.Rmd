@@ -421,7 +421,7 @@ There are four main git operations:
 
 - The power with version control is that it is easy to roll back changes when you inevitably discover a typo, want to look at something different, etc.
 
-- GitHub will not allow you to upload any files larger than 100MB. Thus, Git is not great at tracking large datasets
+- GitHub will not allow you to upload any files larger than 100MB, unless you set up Git Large File Storage (LFS). Thus, Git is not great at tracking large datasets
 
 - My approach is to ensure I have the code to reproduce any datasets, so I can re-generate the data if circumstances require
 
