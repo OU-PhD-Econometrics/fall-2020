@@ -260,6 +260,17 @@ println("β-hat is $(round(bbeta_hat[1],digits=3)) and the true β is $(round(bb
 
 - (Note: package installation in Julia can take quite awhile)
 
+
+---
+
+# More about Julia
+
+- There is a [separate slide deck](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/00-JuliaTips/00slides.html#1) for your reference
+
+- This explains more about how to use Julia
+
+- I would recommend reviewing this before beginning Problem Set 1
+
 ---
 
 # Choosing a text editor
