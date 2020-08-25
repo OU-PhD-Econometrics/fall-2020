@@ -1,5 +1,7 @@
 # Course Schedule
 
+[![Join the chat at https://gitter.im/OU-PhD-Econometrics-Fall-2020/community](https://badges.gitter.im/OU-PhD-Econometrics-Fall-2020/community.svg)](https://gitter.im/OU-PhD-Econometrics-Fall-2020/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 | **Class** | **Date** | **Topics to Cover**                | **Pre-class reading**      | **Due**                |
 |---|---|---|---|---|
 | 1              | Tue Aug 25    | Course Intro/Productivity/Computational Tools | Julia reference slides |         |
