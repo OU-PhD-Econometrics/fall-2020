@@ -5,7 +5,7 @@
 | **Class** | **Date** | **Topics to Cover**                | **Pre-class reading**      | **Due**                |
 |---|---|---|---|---|
 | 1              | Tue Aug 25    | [Course Intro/Productivity/Computational Tools](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/01-Productivity/01slides.html) | Julia reference slides |         |
-| 2              | Thu Aug 27    | [What is structural modeling?](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/02-IntroStructuralModels/02slides.html) | [Lewbel (2019 )](https://doi.org/10.1257/jel.20181361) Sections 1, beginning of Section 5, and 5.1 | Reading Quiz |
+| 2              | Thu Aug 27    | [What is structural modeling?](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/02-IntroStructuralModels/02slides.html) | [Lewbel (2019 )](https://doi.org/10.1257/jel.20181361) Sections 1, beginning of Section 5, and 5.1 | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ1.md) |
 | 3              | Tue Sep  1    | [Structural modeling process](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/03-StructuralWorkflow/03slides.html) | Keane YouTube talk | PS 1 |
 | 4              | Thu Sep  3    | [Random Utility Models & Logit](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/04-StaticDiscreteChoice/04slides.html) |  _Train_,  Ch. 1-2, 3.1-3.3, 3.7-3.8 | Reading Quiz |
 | 5              | Tue Sep  8    | Coding Day - go over PS 2 |  | PS 2 |
