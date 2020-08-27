@@ -194,6 +194,14 @@ h1 {
   font-size: 50%;
 }
 
+.tinier {
+  font-size: 45%;
+}
+
+.tiniest {
+  font-size: 40%;
+}
+
 .minuscule {
   font-size: 30%;
 }
