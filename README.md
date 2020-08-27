@@ -17,7 +17,7 @@
 | 11             | Tue Sep 29    | Coding Day - go over PS 5 | | PS 5 |
 | 12             | Thu Oct  1    | [Estimating dynamic models without solving](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/08-CCP/08slides.html) | [Hotz & Miller (1993)](https://doi.org/10.2307/2298122); [Arcidiacono & Miller (2011)](https://doi.org/10.3982/ECTA7743) | Reading Quiz |
 | 13             | Tue Oct  6    | Coding Day - go over PS 6 | | PS 6  |
-| 14             | Thu Oct  8    | Simulated Method of Moments | TBA | Reading Quiz |
+| 14             | Thu Oct  8    | Simulated Method of Moments | _Train_, 10.1-10.3 | Reading Quiz |
 | 15             | Tue Oct 13    | Coding Day - go over PS 7  |         | PS 7 |
 | 16             | Thu Oct 15    | Model Fit, Counterfactuals, Model validation | TBA | Reading Quiz |
 | 17             | Tue Oct 20    | Midterm Exam   |         |         |
