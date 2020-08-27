@@ -486,7 +486,7 @@ There are four main git operations:
 
 - I have been programming for well over a decade and I still make bone-headed mistakes (just ask my co-authors!)
 
-- Following good programming practices and will make the programming process less painful
+- Following good programming practices will make the programming process less painful
 
 - But always remember that mistakes are how we learn, so don't be scared of making mistakes!
 
