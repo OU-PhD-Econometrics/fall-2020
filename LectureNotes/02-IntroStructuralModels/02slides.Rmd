@@ -32,122 +32,250 @@ biblio <- ReadBib("../../References/References.bib", check = FALSE)
 
     - Examples
 
-- What steps are required to write a paper that uses a structural model?
+- What steps are required to write a research paper that uses a structural model?
 
     - Computational steps
 
 ---
+# Attribution
 
-# What is a structural model?
-
-- A .hi[structural model] is an econometric model that relies heavily on economic theory  `r Citep(biblio,"reissWolak2007")`
-
-- The researcher places "structure" (i.e. assumptions) on the model to make estimating the model feasible
-
-- Structure can come either from economic theory or statistics
-
-    - e.g. agents possess private information (economics)
-    
-    - e.g. wages have a log-normally distributed idiosyncratic component (statistics)
-
-- Structure is needed because data is noisy (either mismeasured or not perfectly in line with the economic model)
-
----
-
-# Structural parameters
-
-- Structural models assume that the parameters of the model are policy-invariant
-
-- Thus the key parameters tend to be so-called .hi[economic fundamentals]:
-    
-    - preferences
-    
-    - production technology
-    
-    - strategic behavior
-    
-    - information and expectations
-    
-    - social interaction (similar to strategic behavior above)
+Some of today's material is based on [these excellent slides](http://www.econ.yale.edu/~pah29/intro.pdf) by Phil Haile (Yale)
 
 ---
 
 # Causality: the goal of econometrics
 
-- As with any econometric endeavor, the goal is to uncover causal relationships
+- In any econometric endeavor, the goal is to uncover causal relationships
 
 - Causality is crucial because it's the only way to know the effects of a policy
 
     - e.g. what is the effect of reading to my child on her cognitive development?
 
-    - we can't answer this by simply looking at $Corr(read\,to\,child, cog.\,test\,score)$
+    - we can't answer this by simply looking at $Corr(\text{read to child}, \text{cog. test score})$
 
     - this correlation is contaminated by omitted variable bias:
 
-    - parents who regularly read to their children likely also regularly do other things favorable to child development
+        - parents who regularly read to their children likely also regularly do other things favorable to child development
 
 ---
 
-# Causality: the goal of econometrics
+# Causality requires a counterfactual
 
-- Causality requires knowing a .hi[counterfactual]
-    
+- Causality is defined in terms of a .hi[counterfactual]
+   
     - what would've been the outcome if everything were the same except the policy?
-    
+   
     - this is the notion of _ceteris paribus_ in principles of economics
-    
+   
     - theory says quantity demanded will decrease if price increases, _ceteris paribus_
-    
+   
     - what is child's test score if everything were the same _except_ regular reading time?
 
+- .hi["Causal effect":] difference between reality and the most plausible counterfactual
+
+- There are many ways to estimate a causal effect
+
 ---
 
-# Ways of estimating causal relationships
+# Two types of empirical work in econ `r Citep(biblio,"haile2019")`
 
-- .hi[Average Treatment Effect (ATE)] is how we typically quantify a causal effect
+1. .hi[Descriptive]
+   
+    - Document facts about observable quantities
+    - These facts sometimes suggest a causal relationship
+    - e.g. raw earnings difference between college graduates and HS graduates
+  
+2. .hi[Structural]
 
-- .hi[Non-structural ways:] randomized and quasi-random experiments (RCT, IV, DID, RD)
+    - Estimate parameters of a _data generating process_ (DGP) which are assumed to be invariant to policy changes or other counterfactuals
+    - Once we know the DGP, we can make causal inferences
+    - e.g. estimate a DGP that specifies how cognitive ability and family background relate to the decision to enroll in college and to post-graduation earnings
 
-    * the treatment group and control group are identical except for the policy variable
+---
+
+# Brief history of the term "structural"
+
+- Dates back to `r Citet(biblio,"hurwicz1950")` and  `r Citet(biblio,"koopmansReiersol1950")`
+
+- A .hi[structure] is a data generating process
+
+- i.e. a set of functional or probabilistic relationships between observable and latent variables which implies a joint distribution of the observables
+
+- The goal of structural estimation, then, is to estimate the parameters of the DGP
+
+- This allows us to make counterfactual comparisons, i.e. perform causal inference
+
+- Note that "structural" here refers to basically all of modern econometrics
+
+---
+
+# Brief history of the term "reduced form"
+
+- The term .hi[reduced form] refers to solving a structural model
+
+- The structural model may have endogenous variables on both sides of the equation
+
+- But the reduced form puts all endogenous variables on the left hand side
+
+- All exogenous variables and error terms are on the right hand side
+
+- Classic example: supply and demand
+
+    - Two equations, two endogenous variables (price, quantity)
+  
+    - In equilibrium, reduced form has $P$ and $Q$ as respective LHS variables
     
-    * thus, $ATE = \overline{y}_{treatment} - \overline{y}_{control}$ where $y$ is the outcome of interest 
-    
-- .hi[Structural way:] estimate the Data Generating Process (DGP) 
+    - RHS contains observable and unobservable determinants of S and D
 
-    * once the DGP is known, use it to simulate data in a counterfactual scenario
-    
-    * $ATE = \overline{y}_{counterfactual} - \overline{y}_{status\,quo}$ 
+---
+# How these terms tend to be used today
 
-- These two ways are not mutually exclusive! In fact, they are mutually improving
+- Reduced form tends to refer to linear models estimated by RCT, IV, DID, RDD, etc.
+
+    - Methods that try to exploit randomization (or quasi-randomization)
+    - Synonymous with the phrase "identification strategy"
+
+- Structural tends to refer to non-linear models that are more difficult to estimate
+
+    - Methods that make explicit the (typically large) set of maintained assumptions
+    - Methods that focus on settings where RCTs would be infeasible
+
+- Both of these terms are misnomers, but this is how they are used today
+
+- For the rest of these slides, I'm going to misuse them (like most others today)
+
+- See `r Citet(biblio,"haile2019")` for more semantic details
+
+---
+
+# Structural vs. Reduced Form Methods
+
+- There is a lot of animosity between structural and reduced-form practitioners
+
+- `r Citet(biblio,"keane2010")` calls reduced-form methods "atheoretic"
+
+    - others refer to reduced-form or behavioral approaches as "cuteonomics"
+
+- `r Citet(biblio,"harmless2009")` titled their book _Mostly Harmless Econometrics_
+
+    - implying that structural methods include "harmful" econometrics `r Citep(biblio,"lewbel2019zoo")`
+
+- In fact, .hi[we need both] methodological approaches to answer policy questions
+
+---
+
+# Structural vs. Reduced Form Methods
+
+- `r Citet(biblio,"blundell2010")` outlines three broad concerns determining what method to use:
+
+1. The nature of the question to be answered
+
+2. The type and quality of data available
+
+3. The mechanism by which individuals are allocated or receive the policy
+
+    - i.e. random assignment or obeying rules of economic theory (like utility max.)
+
+"Just as an experiment needs to be carefully designed, the identification of a structural economic model needs to be carefully argued."
+
+"Poorly designed quasi-experiments have little to offer, but so too do poorly focused structural estimations."
+
+---
+
+# Structural vs. Reduced Form Methods
+
+- As an observation, our profession under-invests in structural methods
+
+- I believe this is mainly because their implementation can be difficult
+
+- For every structural paper produced, 5 or 6 RF papers could be produced
+
+- This matters for publishing, tenure, and training the next generation
+
+- Nonetheless, structural methods can be immensely useful
+
+- But they take longer, so their science progresses relatively more slowly
+
+---
+
+# RCT as structural estimation
+
+- All causal inference is structural in nature (as correctly defined)
+
+- Structural estimation need not be difficult; models need not be complex
+
+- An RCT is a structural model that can be evaluated _descriptively_ 
+
+    - No fancy econometrics needed: just compute $\overline{y}_{\text{Treatment}} - \overline{y}_{\text{Control}}$
+
+- This is because great effort was expended at the randomization step
+
+- The experimenters had a (structural) model in mind when defining treatment
+
+
+---
+# Not every DGP can be evaluated by RCT
+
+- Some  causal questions of interest can't be answered with an RCT
+
+- For a variety of reasons, experimentation may be too costly, unethical, etc.
+
+    - e.g. can't randomize a merger of two large firms, or a person's height
+
+- Without randomization, we have to rely on observational data
+
+- This requires more complex econometric methods to estimate the DGP
+
+    - Need to explicitly specify how unobservables relate to other parts of model
+
+---
+
+# Key parameters of any economic model
+
+- As mentioned above, we assume that DGP parameters are policy-invariant
+
+- These parameters tend to be related to .hi[economic fundamentals]:
+   
+    - commodities
+   
+    - demographics
+   
+    - preferences
+   
+    - production technology
+   
+    - information and expectations
+   
+    - space (includes networks & social interactions)
 
 ---
 
 # Reading-to-Children Example: Reduced-form example
 
-- A non-structural (i.e. .hi[reduced-form]) approach would look like the following:
+- A .hi[reduced-form] (as misused today) approach would look like the following:
 
-    1. recruit a group of parents to participate in a reading study
-    
+    1. recruit a group of families to participate in a reading study
+   
     2. randomize into "no-read" and "read" groups
-    
-    3. after some period of time, give the children a cognitive test
-    
+   
+    3. after some period of time, give their children a cognitive test
+   
     4. compare the average scores of children across each of the groups
 
 ---
 
 # Reading-to-Children Example: Structural approach
-    
-- A structural approach would look like the following:
+   
+- A .hi[structural] (as misused today) approach would look like the following:
 
     1. write a model of child skill formation `r Citep(biblio,"cunha_al2010")`
-    
+   
     2. gather data on parental and child time use and child test scores
-    
+   
     3. estimate the parameters of the child skill formation model
-    
-    4. use model to simulate counterfactual data (e.g. where reading time is set to 0)
-    
+   
+    4. use model to simulate counterfactual policies (e.g. where reading is set to 0)
+   
     5. compare average scores in counterfactual and status quo
 
 ---
@@ -157,50 +285,16 @@ biblio <- ReadBib("../../References/References.bib", check = FALSE)
 - A hybrid approach would do the following:
 
     1. estimate the skill formation parameters
-    
+   
     2. leverage randomization to better estimate/validate the model
-    
+   
         - e.g. by allowing for identification of a parameter previously not identifiable
-    
+   
         - e.g. recover randomization-implied ATE using structural parameter estimates
-    
+   
     4. use the validated structural model to explore other counterfactuals
 
-- A great example of this approach is `r Citet(biblio,"delavandeZafar2019")`
-
----
-
-# Structural vs. Reduced Form Methods
-
-- There is a lot of animosity between structural and reduced-form practitioners
-
-- `r Citet(biblio,"keane2010")` calls reduced-form methods as "atheoretic"
-
-    - others refer to reduced-form or behavioral approaches as "cuteonomics"
-
-- `r Citet(biblio,"harmless2009")` titled their book _Mostly Harmless Econometrics_
-
-    - implying that structural methods include "harmful" econometrics `r Citet(biblio,"lewbel2019zoo")` 
-
-- In fact, .hi[we need both] methodological approaches to answer policy questions
-
----
-
-# Structural vs. Reduced Form Methods
-
-- `r Citet(biblio,"blundell2010")` outlines three broad concerns determining what method to use: 
-
-1. The nature of the question to be answered
-
-2. The type and quality of data available 
-
-3. The mechanism by which individuals are allocated or receive the policy
-
-    - i.e. random assignment or obeying rules of economic theory (like utility max.)
-
-"Just as an experiment needs to be carefully designed, the identification of a structural economic model needs to be carefully argued."
-
-"Poorly designed quasi-experiments have little to offer, but so to do poorly focused structural estimations."
+- A great example of this hybrid approach is `r Citet(biblio,"delavandeZafar2019")`
 
 
 ---
@@ -225,13 +319,13 @@ biblio <- ReadBib("../../References/References.bib", check = FALSE)
 
 # More formal definition `r Citep(biblio,"lewbel2019zoo")`
 
-- Let $\theta$ denote a set of unknown parameters that we would like to learn about, and ideally, estimate 
+- Let $\theta$ denote a set of unknown parameters that we would like to learn about, and ideally, estimate
 
-- e.g. regressor coefficients, average treatment effects, or error distributions 
+- e.g. regressor coefficients, average treatment effects, or error distributions
 
 - identification asks what could be learned about parameters $\theta$ from observable data
 
-- if we knew the population that data are drawn from, would $\theta$ be known? 
+- if we knew the population that data are drawn from, would $\theta$ be known?
 
 - if not, what could be learned about $\theta$?
 
@@ -239,7 +333,7 @@ biblio <- ReadBib("../../References/References.bib", check = FALSE)
 
 # Why is identification important? `r Citep(biblio,"lewbel2019zoo")`
 
-- The study of identification logically precedes estimation, inference, and testing 
+- The study of identification logically precedes estimation, inference, and testing
 
 - For $\theta$ to be identified, alternative values of $\theta$ must imply different distributions of the observable data
 
@@ -253,18 +347,18 @@ biblio <- ReadBib("../../References/References.bib", check = FALSE)
 
 - How is "identification" used differently in reduced-form vs. structural econometrics?
 
-- In reduced-form econometrics (a.k.a. causal modeling): 
+- In reduced-form econometrics (a.k.a. causal modeling):
 
     - Typically talk of an "identification strategy" (i.e. randomization setup)
-    
-    - Focus is on estimation of treatment effects, not deep parameters
-    
+   
+    - Focus is on estimation of treatment effects, not "deep parameters"
+   
     - Relies on randomization from some kind of randomized or natural experiment
-    
+   
 - In structural econometrics:
 
     - Typically talk of "establishing identification" (i.e. sufficient variation in data)
-    
+   
     - In complex models, can be difficult to do without imposing more assumptions
 
 ---
@@ -302,6 +396,10 @@ biblio <- ReadBib("../../References/References.bib", check = FALSE)
 
 - These are almost exclusively estimated using linear econometric models
 
+- Credibility is proportional to the "cleanliness" of randomization
+
+    - You'll often hear about whether something is "cleanly" identified
+
 ---
 
 # Credible Structural Models
@@ -315,7 +413,7 @@ biblio <- ReadBib("../../References/References.bib", check = FALSE)
 - Results should also "make sense" (i.e. conform to economic theory)
 
     - e.g. An upward-sloping demand curve would violate this criterion
-    
+   
     - or a result that says agents prefer lower income or fewer profits
 
 - Typically requires modeling heterogeneity in preferences or productivity
@@ -335,12 +433,12 @@ biblio <- ReadBib("../../References/References.bib", check = FALSE)
 - Structural methods overwhelmingly require use of non-linear econometric models
 
     - e.g. discrete choice models, fixed point mappings for equilibrium models, etc.
-    
+   
 - Structural models are typically estimated by GMM or Maximum Likelihood
 
 - Computational know-how helps speed up the process of estimating these models
 
-- These questions will be the focus of this class
+- These topics will be the focus of this class
 
 
 ---
@@ -365,7 +463,7 @@ biblio <- ReadBib("../../References/References.bib", check = FALSE)
 
 # Internal and External Validity
 
-- .hi[Internal validty] refers to how causal an estimated parameter is
+- .hi[Internal validity] refers to "how causal" an estimated parameter is
 
     - "This approach is internally valid" $\Rightarrow$ no selection bias
 
@@ -376,6 +474,27 @@ biblio <- ReadBib("../../References/References.bib", check = FALSE)
 - On the other hand, if economic agents behave similarly across contexts, structural models can be externally valid
 
 - RF and structural methods used together can improve both internal and external validity
+
+
+---
+
+# Example: Internal vs. External Validity
+
+- Suppose we want to measure earth's gravitational force, $g$
+
+- We can measure $g$ by timing how long it takes various objects to fall some distance
+
+- We can do this with objects of varying mass and of varying fall distances
+
+    - Using this data, we can estimate earth's $g$
+    
+- But what about the $g$ on Mars? Or some other planet?
+
+- For this we need a model of what exactly determines $g$
+
+    - (A planet's mass and proximity to other large objects)
+
+- This model will tell us what $g$ is on planets we haven't yet visited
 
 ---
 
@@ -427,7 +546,7 @@ biblio <- ReadBib("../../References/References.bib", check = FALSE)
 ---
 
 # References
-.tiny[
+.tinier[
 ```{r refs, echo=FALSE, results="asis"}
 #PrintBibliography(biblio, start = 1, end = 2)
 PrintBibliography(biblio)
