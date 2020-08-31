@@ -6,7 +6,7 @@
 |---|---|---|---|---|
 | 1              | Tue Aug 25    | [Course Intro/Productivity/Computational Tools](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/01-Productivity/01slides.html) | Julia reference slides |         |
 | 2              | Thu Aug 27    | [What is structural modeling?](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/02-IntroStructuralModels/02slides.html) | [Lewbel (2019 )](https://doi.org/10.1257/jel.20181361) Sections 1, beginning of Section 5, and 5.1 | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ1.md) |
-| 3              | Tue Sep  1    | [Structural modeling process](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/03-StructuralWorkflow/03slides.html) | Keane YouTube talk | PS 1 |
+| 3              | Tue Sep  1    | [Structural modeling process](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/03-StructuralWorkflow/03slides.html) | [Keane YouTube talk](https://www.youtube.com/watch?v=0hazaPBAYWE) | PS 1 |
 | 4              | Thu Sep  3    | [Random Utility Models & Logit](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/04-StaticDiscreteChoice/04slides.html) |  _Train_,  Ch. 1-2, 3.1-3.3, 3.7-3.8 | Reading Quiz |
 | 5              | Tue Sep  8    | Coding Day - go over PS 2 |  | PS 2 |
 | 6              | Thu Sep 10    | [GEV](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/05-GEV/05slides.html) | _Train_, 4.1-4.2 | Reading Quiz |
@@ -17,7 +17,7 @@
 | 11             | Tue Sep 29    | Coding Day - go over PS 5 | | PS 5 |
 | 12             | Thu Oct  1    | [Estimating dynamic models without solving](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/08-CCP/08slides.html) | [Hotz & Miller (1993)](https://doi.org/10.2307/2298122); [Arcidiacono & Miller (2011)](https://doi.org/10.3982/ECTA7743) | Reading Quiz |
 | 13             | Tue Oct  6    | Coding Day - go over PS 6 | | PS 6  |
-| 14             | Thu Oct  8    | Simulated Method of Moments | TBA | Reading Quiz |
+| 14             | Thu Oct  8    | Simulated Method of Moments | _Train_, 10.1-10.3 | Reading Quiz |
 | 15             | Tue Oct 13    | Coding Day - go over PS 7  |         | PS 7 |
 | 16             | Thu Oct 15    | Model Fit, Counterfactuals, Model validation | TBA | Reading Quiz |
 | 17             | Tue Oct 20    | Midterm Exam   |         |         |
