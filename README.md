@@ -11,15 +11,15 @@
 | 5              | Tue Sep  8    | Coding Day - go over PS 2 |  | [PS 2](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ProblemSets/PS2-optimization-intro/PS2.pdf) |
 | 6              | Thu Sep 10    | [GEV](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/05-GEV/05slides.html) | _Train_, 4.1-4.2 | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ3.md) |
 | 7              | Tue Sep 15    | Coding Day - go over PS 3 |  | [PS 3](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ProblemSets/PS3-gev/PS3.pdf) |
-| 8              | Thu Sep 17    | [Mixed Logit, Finite mixture models, EM algorithm](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/06-Mixture/06slides.html) | _Train_, 6.1-6.3, Ch. 14 | Reading Quiz |
+| 8              | Thu Sep 17    | [Mixed Logit, Finite mixture models, EM algorithm](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/06-Mixture/06slides.html) | _Train_, 6.1-6.3, Ch. 14 | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ4.md) |
 | 9              | Tue Sep 22    | Coding Day - go over PS 4 | | [PS 4](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ProblemSets/PS4-mixture/PS4.pdf) |
-| 10             | Thu Sep 24    | [Dynamic choice models](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/07-DDC/07slides.html) | [Rust (1987)](http://www.jstor.org/stable/1911259) | Reading Quiz |
+| 10             | Thu Sep 24    | [Dynamic choice models](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/07-DDC/07slides.html) | [Rust (1987)](http://www.jstor.org/stable/1911259) | [Reading Quiz]((https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ5.md)) |
 | 11             | Tue Sep 29    | Coding Day - go over PS 5 | | PS 5 |
-| 12             | Thu Oct  1    | [Estimating dynamic models without solving](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/08-CCP/08slides.html) | [Hotz & Miller (1993)](https://doi.org/10.2307/2298122); [Arcidiacono & Miller (2011)](https://doi.org/10.3982/ECTA7743) | Reading Quiz |
+| 12             | Thu Oct  1    | [Estimating dynamic models without solving](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/08-CCP/08slides.html) | [Hotz & Miller (1993)](https://doi.org/10.2307/2298122); [Arcidiacono & Miller (2011)](https://doi.org/10.3982/ECTA7743) | [Reading Quiz]((https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ6.md)) |
 | 13             | Tue Oct  6    | Coding Day - go over PS 6 | | PS 6  |
-| 14             | Thu Oct  8    | Simulated Method of Moments | _Train_, 10.1-10.3 | Reading Quiz |
+| 14             | Thu Oct  8    | Simulated Method of Moments | _Train_, 10.1-10.3 | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ7.md) |
 | 15             | Tue Oct 13    | Coding Day - go over PS 7  |         | PS 7 |
-| 16             | Thu Oct 15    | Model Fit, Counterfactuals, Model validation | TBA | Reading Quiz |
+| 16             | Thu Oct 15    | Model Fit, Counterfactuals, Model validation | TBA | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ8.md) |
 | 17             | Tue Oct 20    | Midterm Exam   |         |         |
 | 18             | Thu Oct 22    | Causal Modeling: DAGs and Potential Outcomes | Mixtape |         |               
 | 19             | Tue Oct 27    | Overview of Reduced-form Causal Inference Techniques | Mixtape | Reading Quiz |  
