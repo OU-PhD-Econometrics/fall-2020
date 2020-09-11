@@ -18,5 +18,7 @@ ProblemSets/PS4-mixture/stata_mixlogit.log
 ProblemSets/PS5-ddc/PS5solutions.jl
 ProblemSets/PS5-ddc/an_busdata.do
 ProblemSets/PS5-ddc/an_busdata.log
+ProblemSets/PS5-ddc/rustbusdata.csv
+ProblemSets/PS5-ddc/AM2011replication
 References/*.pdf
 References/TrainTextbook/*.pdf

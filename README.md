@@ -14,7 +14,7 @@
 | 8              | Thu Sep 17    | [Mixed Logit, Finite mixture models, EM algorithm](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/06-Mixture/06slides.html) | _Train_, 6.1-6.3, Ch. 14 | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ4.md) |
 | 9              | Tue Sep 22    | Coding Day - go over PS 4 | | [PS 4](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ProblemSets/PS4-mixture/PS4.pdf) |
 | 10             | Thu Sep 24    | [Dynamic choice models](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/07-DDC/07slides.html) | [Rust (1987)](http://www.jstor.org/stable/1911259) | [Reading Quiz]((https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ5.md)) |
-| 11             | Tue Sep 29    | Coding Day - go over PS 5 | | PS 5 |
+| 11             | Tue Sep 29    | Coding Day - go over PS 5 | | [PS 5](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ProblemSets/PS4-ddc/PS5.pdf) |
 | 12             | Thu Oct  1    | [Estimating dynamic models without solving](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/08-CCP/08slides.html) | [Hotz & Miller (1993)](https://doi.org/10.2307/2298122); [Arcidiacono & Miller (2011)](https://doi.org/10.3982/ECTA7743) | [Reading Quiz]((https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ6.md)) |
 | 13             | Tue Oct  6    | Coding Day - go over PS 6 | | PS 6  |
 | 14             | Thu Oct  8    | Simulated Method of Moments | _Train_, 10.1-10.3 | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ7.md) |
