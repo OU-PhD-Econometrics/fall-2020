@@ -20,15 +20,15 @@
 | 14             | Thu Oct  8    | Simulated Method of Moments | _Train_, 10.1-10.3 | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ7.md) |
 | 15             | Tue Oct 13    | Coding Day - go over PS 7  |         | PS 7 |
 | 16             | Thu Oct 15    | Model Fit, Counterfactuals, Model validation | TBA | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ8.md) |
-| 17             | Tue Oct 20    | Midterm Exam   |         |         |
-| 18             | Thu Oct 22    | Causal Modeling: DAGs and Potential Outcomes | Mixtape |         |               
-| 19             | Tue Oct 27    | Overview of Reduced-form Causal Inference Techniques | Mixtape | Reading Quiz |  
-| 20             | Thu Oct 29    | Measurement Error & Factor Models | [Heckman, Stixrud and Urzua (2006)](https://jenni.uchicago.edu/papers/Heckman-Stixrud-Urzua_JOLE_v24n3_2006.pdf) | Reading Quiz |
-| 21             | Tue Nov  3    | Coding Day - go over PS 8 |         | PS 8 |
-| 22             | Thu Nov  5    | Regression and Partial identification | [Krauth (2016)](https://www.degruyter.com/view/journals/jem/5/1/article-p117.xml), [Oster (2019)](https://www.tandfonline.com/doi/full/10.1080/07350015.2016.1227711) | PS 9 |
-| 23             | Tue Nov 10    | ATE, LATE, MTE              |         |         |
-| 24             | Thu Nov 12    | ATE, LATE, MTE              |         |  |
-| 25             | Tue Nov 17    | Treatment Effect Heterogeneity |         |         |
+| 17             | Tue Oct 20    | Subjective Expectations, Stated Preference and Choice Experiments | _Train_, 7.2-7.6; [Blass, Lach and Manski (2010)](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1468-2354.2010.00586.x) | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ9.md) |
+| 18             | Thu Oct 22    | Midterm Exam (in class)  |         |         |
+| 19             | Tue Oct 27    | Causal Modeling: DAGs and Potential Outcomes | Mixtape |         |               
+| 20             | Thu Oct 29    | Overview of Reduced-form Causal Inference Techniques | Mixtape | Reading Quiz |  
+| 21             | Tue Nov  3    | Measurement Error & Factor Models | [Heckman, Stixrud and Urzua (2006)](https://jenni.uchicago.edu/papers/Heckman-Stixrud-Urzua_JOLE_v24n3_2006.pdf) | Reading Quiz |
+| 22             | Thu Nov  5    | Coding Day - go over PS 8 |         | PS 8 |
+| 23             | Tue Nov 10    | Regression and Partial identification | [Krauth (2016)](https://www.degruyter.com/view/journals/jem/5/1/article-p117.xml), [Oster (2019)](https://www.tandfonline.com/doi/full/10.1080/07350015.2016.1227711) | PS 9 |
+| 24             | Thu Nov 12    | ATE, LATE, MTE              |         |         |
+| 25             | Tue Nov 17    | ATE, LATE, MTE              |         |  |
 | 26             | Thu Nov 19    | Treatment Effect Heterogeneity |         |  |
 | 27             | Tue Nov 24    | Machine Learning for Causal Modeling |         |         |
 | ---            | Thu Nov 26    | **No class** (Thanksgiving) |         |         |
