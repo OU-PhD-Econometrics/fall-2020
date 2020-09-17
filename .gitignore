@@ -12,6 +12,7 @@ ProblemSets/PS1-julia-intro/nlsw88.jld
 ProblemSets/PS2-optimization-intro/PS2solutions.jl
 ProblemSets/PS3-gev/PS3solutions.jl
 ProblemSets/PS3-gev/stata_nlogit.do
+ProblemSets/PS3-gev/stata_nlogit.log
 ProblemSets/PS4-mixture/PS4solutions.jl
 ProblemSets/PS4-mixture/stata_mixlogit.do
 ProblemSets/PS4-mixture/stata_mixlogit.log
