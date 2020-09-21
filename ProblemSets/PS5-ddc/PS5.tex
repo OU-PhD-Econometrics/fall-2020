@@ -66,7 +66,7 @@ df = CSV.read(HTTP.get(url).body)
 \item Reshape the data into ``long'' panel format, calling your long dataset \texttt{df\_long}. I have included code on how to do this in the \texttt{PS5starter.jl} file that accompanies this problem set.
 
 \item The model we would like to estimate is Harold Zurcher's decision to run buses in his fleet. Zurcher's flow utility of running (i.e. not replacing) a bus is
-\begin{align}
+\begin{align}\label{eq:flowutil}
     u_{1}\left(x_{1t},b\right) &= \theta_0 + \theta_1 x_{1t} + \theta_2 b
 \end{align}
 where $x_{1t}$ is the mileage on the bus's odometer (in 10,000s of miles) and $b$ is a dummy variable indicating whether the bus is branded (meaning its manufacturer is high-end). The choice set is $\{0,1\}$ where $0$ denotes replacing the engine.
@@ -109,7 +109,7 @@ Finally, we can simplify \eqref{eq:condv2} since we know that $V_{t+1} = \log\le
 \begin{align}\label{eq:condv3}
 \begin{split}
     v_{1t}\left(x_{t},b\right)-v_{0t}\left(x_{t},b\right) &= \theta_0 + \theta_1 x_{1t} + \theta_2 b + \\
-    &\phantom{\text{===}}\beta \sum_{x_{1,t+1}} \log\left\{1+\exp\left(v_{1,t+1}\left(x_{t+1},b\right)-v_{0,t+1}\left(x_{t+1},b\right)\right)\right\}\times\\
+    &\phantom{\text{===}}\beta \sum_{x_{1,t+1}} \log\left\{\exp\left(v_{0,t+1}\left(x_{t+1},b\right)\right)+\exp\left(v_{1,t+1}\left(x_{t+1},b\right)\right)\right\}\times\\
     &\phantom{\text{===}}\left[f_{1}\left(x_{1,t+1}\vert x_{1,t},x_{2}\right) - f_{0}\left(x_{1,t+1}\vert x_{1,t},x_{2}\right)\right]
     \end{split}
 \end{align}
@@ -161,13 +161,19 @@ zval,zbin,xval,xbin,xtran = create_grids()
                 \item Create an object that marks the row of the transition matrix that we need to be looking at (based on the loop values of the two gridded state variables). This will be \texttt{x + (z-1)*xbin} (where \texttt{x} indexes the mileage bin and \texttt{z} indexes the route usage bin), given how the \texttt{xtran} matrix was constructed in the \texttt{create\_grids()} function.
                 \item Create the conditional value function for driving the bus ($v_{1t}$) based on the values of the state variables in the loop (not the values observed in the data). For example, for the mileage ($x_{1t}$), you should plug in \texttt{xval[x]} rather than \texttt{:Odo}.
                 
-                The difficult part of the conditional value function is the discrete summation over the state transitions. For this, you need to grab the appropriate row (and all columns) of the \texttt{xtran} matrix, and then take the dot product with that and the all possible $x_{1t}$ rows of the FV matrix.
+                \medskip
+                
+                The first component of $v_{1t}$ should be the flow utility, which is listed in \eqref{eq:flowutil}.
+                
+                \medskip
+                
+                The difficult part of $v_{1t}$ is the discrete summation over the state transitions. For this, you need to grab the appropriate row (and all columns) of the \texttt{xtran} matrix, and then take the dot product of that with all possible $x_{1t}$ rows of the FV matrix for the given value of $x_{2}$.
                 
                 You should end up with something like
                 \begin{minted}[bgcolor=bg]{julia}
 xtran[row,:]'*FV[(z-1)*xbin+1:z*xbin,b+1,t+1]
                 \end{minted}
-                where \texttt{b} indexes the branded dummy and \texttt{t} indexes time periods.
+                where \texttt{b} indexes the branded dummy and \texttt{t} indexes time periods.\footnote{We need to index by \texttt{b+1} because \texttt{b} takes on values 0 or 1, but in Julia it is illegal to reference the 0th element of an array, so element 1 of the index corresponds to \texttt{b=0} while element 2 of the index corresponds to \texttt{b=1}.}
                 \item Now create the conditional value function for replacing the engine ($v_{0t}$). For this, we repeat the same process as with $v_{1t}$ except the $\theta$'s are normalized to be 0. The code for the expected future value is the same as for $v_{1t}$ with the exception that mileage resets to 0 after replacement, so instead of grabbing \texttt{xtran[row,:]} we want \texttt{xtran[1+(z-1)*xbin,:]}.
                 \item Finally, update the future value array in period $t$ by storing $\beta\log\left(\exp\left(v_{0t}\right)+\exp\left(v_{1t}\right)\right)$ in the $t$th slice of the 3rd dimension of the array. This will be the new future value term for period $t-1$. Remember to set $\beta=0.9$
             \end{itemize}
