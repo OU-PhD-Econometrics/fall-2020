@@ -34,6 +34,7 @@ Before starting, you will need to install and load the following packages:
     \item[~] \texttt{CSV} 
     \item[~] \texttt{DataFrames} 
     \item[~] \texttt{FreqTables} 
+    \item[~] \texttt{Distributions} 
 \end{itemize}
 
 
@@ -81,7 +82,10 @@ Before starting, you will need to install and load the following packages:
 \item a dummy variable that is 1 with probability .75$*\left(6-t\right)/5$
 \item a continuous variable distributed normal with mean $15+t-1$ and standard deviation $5\left(t-1\right)$
 \item a continuous variable distributed normal with mean $\pi\left(6-t\right)/3$ and standard deviation $1/e$
-\item a discrete variable distributed ``discrete normal'' with mean 12 and standard deviation 2.19\footnote{A discrete normal random variable is properly called a binomial random variable. The distribution described above can be implemented by choosing binomial parameters $n$ and $p$ where $n=20$ and $p=0.6$. Use Julia's \texttt{binornd} command to generate this vector of $X$. }
+\item a discrete variable distributed ``discrete normal'' with mean 12 and standard deviation 2.19. (A discrete normal random variable is properly called a binomial random variable. The distribution described above can be implemented by choosing binomial parameters $n$ and $p$ where $n=20$ and $p=0.6$. Use the following code (after loading Julia's \texttt{Distributions} package) to generate this vector of $X$:
+
+\texttt{rand(Binomial(20,0.6),N)}, where $N$ is the length of the vector
+
 \item a discrete variable distributed binomial with $n=20$ and $p=0.5$\\
 \\
 i.e., let columns 1, 5 and 6 remain stationary over time. 
@@ -97,7 +101,7 @@ i.e., let columns 1, 5 and 6 remain stationary over time.
 \item $t/3$
 \end{itemize}
 \item Use comprehensions to create a matrix $Y$ which is $N\times T$ defined by $Y_{t}=X_{t}\beta_{t}+\varepsilon_{t}$, where $\varepsilon_{t}\overset{iid}{\sim}N\left(0,\sigma=.36\right)$
-\item Wrap a function definition around all of the code for question 2. Call the function \texttt{q2()}. The function should have take as inputs the arrays $A$, $B$ and $C$. It should return nothing. At the very bottom of your script you should add the code \texttt{q2(A,B,C,D)}. Make sure \texttt{q2()} gets called after \texttt{q1()}!
+\item Wrap a function definition around all of the code for question 2. Call the function \texttt{q2()}. The function should have take as inputs the arrays $A$, $B$ and $C$. It should return nothing. At the very bottom of your script you should add the code \texttt{q2(A,B,C)}. Make sure \texttt{q2()} gets called after \texttt{q1()}!
 \end{enumerate}
 \item Reading in Data and calculating summary statistics
 

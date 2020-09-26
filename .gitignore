@@ -12,11 +12,15 @@ ProblemSets/PS1-julia-intro/nlsw88.jld
 ProblemSets/PS2-optimization-intro/PS2solutions.jl
 ProblemSets/PS3-gev/PS3solutions.jl
 ProblemSets/PS3-gev/stata_nlogit.do
+ProblemSets/PS3-gev/stata_nlogit.log
 ProblemSets/PS4-mixture/PS4solutions.jl
 ProblemSets/PS4-mixture/stata_mixlogit.do
 ProblemSets/PS4-mixture/stata_mixlogit.log
 ProblemSets/PS5-ddc/PS5solutions.jl
 ProblemSets/PS5-ddc/an_busdata.do
 ProblemSets/PS5-ddc/an_busdata.log
+ProblemSets/PS5-ddc/rustbusdata.csv
+ProblemSets/PS5-ddc/AM2011replication
+ProblemSets/PS6-ccp/PS6solutions.jl
 References/*.pdf
 References/TrainTextbook/*.pdf

@@ -1,0 +1,205 @@
+\documentclass[12pt,english]{article}
+\usepackage{mathptmx}
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+\usepackage{geometry}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+\definecolor{byublue}     {RGB}{0.  ,30. ,76. }
+\definecolor{darkblue}    {RGB}{0.  ,0.  ,139.}
+\definecolor{dukeblue}    {RGB}{0.  ,0.  ,156.}
+\geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\usepackage{amsmath}
+\usepackage[authoryear]{natbib}
+\usepackage{minted}
+\usepackage{mathtools}
+\definecolor{bg}{rgb}{0.95,0.95,0.95}
+\usepackage[backref=page]{hyperref}                                              % Always add hyperref (almost) last
+\hypersetup{unicode=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=3,
+ breaklinks=true,pdfborder={0 0 0},colorlinks,citecolor=darkblue,filecolor=darkblue,linkcolor=darkblue,urlcolor=darkblue,pagebackref=true}
+\usepackage[all]{hypcap}                                            % Links point to top of image, builds on hyperref
+\usepackage{breakurl}
+
+\begin{document}
+
+\title{Problem Set 5}
+\author{ECON 6343: Econometrics III\\
+Prof. Tyler Ransom\\
+University of Oklahoma}
+\date{Due: September 29, 9:00 AM}
+
+\maketitle
+Directions: Answer all questions. Each student must turn in their own copy, but you may work in groups. Clearly label all answers. Show all of your code. Turn in jl-file(s), output files and writeup via GitHub. Your writeup may simply consist of comments in jl-file(s). If applicable, put the names of all group members at the top of your writeup or jl-file.
+
+You may need to install and load the following package:
+\begin{itemize}
+    \item[~] \texttt{DataFramesMeta}
+\end{itemize}
+
+You will also need to load the following previously installed packages:
+\begin{itemize}
+    \item[~] \texttt{Optim} 
+    \item[~] \texttt{HTTP} 
+    \item[~] \texttt{GLM} 
+    \item[~] \texttt{LinearAlgebra} 
+    \item[~] \texttt{Random} 
+    \item[~] \texttt{Statistics} 
+    \item[~] \texttt{DataFrames} 
+    \item[~] \texttt{CSV} 
+\end{itemize}
+\pagebreak
+In this problem set, we will explore a simplified version of the Rust (1987, \textit{Econometrica}) bus engine replacement model. Let's start by reading in the data.
+
+\begin{minted}[bgcolor=bg]{julia}
+using DataFrames
+using CSV
+using HTTP
+url = "https://raw.githubusercontent.com/OU-PhD-Econometrics/fall-2020/
+master/ProblemSets/PS5-ddc/busdataBeta0.csv"
+df = CSV.read(HTTP.get(url).body)
+\end{minted}
+
+
+\subsubsection*{Static estimation}
+
+\begin{enumerate}
+\item Reshape the data into ``long'' panel format, calling your long dataset \texttt{df\_long}. I have included code on how to do this in the \texttt{PS5starter.jl} file that accompanies this problem set.
+
+\item The model we would like to estimate is Harold Zurcher's decision to run buses in his fleet. Zurcher's flow utility of running (i.e. not replacing) a bus is
+\begin{align}\label{eq:flowutil}
+    u_{1}\left(x_{1t},b\right) &= \theta_0 + \theta_1 x_{1t} + \theta_2 b
+\end{align}
+where $x_{1t}$ is the mileage on the bus's odometer (in 10,000s of miles) and $b$ is a dummy variable indicating whether the bus is branded (meaning its manufacturer is high-end). The choice set is $\{0,1\}$ where $0$ denotes replacing the engine.
+
+Estimate the $\theta$ parameters assuming Zurcher is completely myopic. This amounts to estimating a simple binary logit model. (\textbf{Note:} you may estimate this any way you wish. I would recommend using the \texttt{GLM} package, but you may also use \texttt{Optim} with your own log likelihood function.)
+\end{enumerate}
+
+
+\subsubsection*{Dynamic estimation}
+
+Now I will walk you through how to estimate the dynamic version of this model using backwards recursion. With discount factor $\beta$, the differenced conditional value function for running the bus (relative to replacing it) is
+\begin{align}\label{eq:condv}
+    v_{1t}\left(x_{t},b\right)-v_{0t}\left(x_{t},b\right) &= \theta_0 + \theta_1 x_{1t} + \theta_2 b + \beta \int V_{t+1}\left(x_{t+1},b\right) \mathrm{d}F\left(x_{t+1}\vert x_{t}\right)
+\end{align}
+where $V_{t+1}$ is the value function and the integral is over transitions in the mileage states $x_{t}$.
+
+We will approximate the integral with a summation, which means that we will specify a discrete mass function for $f\left(x_{t+1}\vert x_{t}\right)$. This probability mass function depends on the current odometer reading ($x_{1t}$), whether the engine is newly replaced (i.e. $d_{t-1} = 0$), and on the value of another state variable $x_2$ which measures the usage intensity of the bus's route (i.e. high values of $x_2$ imply a low usage intensity and vice versa).  
+
+We discretize the mileage transitions into 1,250-mile bins (i.e. 0.125 units of $x_{1t}$). We specify $x_2$ as a discrete uniform distribution ranging from 0.25 to 1.25 with 0.01 unit increments.
+
+Formally, we are discretely (but not discreetly!) approximating an exponential distribution: 
+\begin{align}\label{eq:trans}
+f_{j}\left(x_{1,t+1}\vert x_{1,t},x_{2}\right) &= \begin{cases}
+e^{-x_2(x_{1,t+1}-x_{1t})}-e^{-x_2(x_{1,t+1}+0.125-x_{1t})} & \textrm{  if  } j=1 \textrm{  and  } x_{1,t+1}\geq x_{1,t} \\
+e^{-x_2(x_{1,t+1})}-e^{-x_2(x_{1,t+1}+0.125)} & \textrm{  if  } j=0 \textrm{  and  } x_{1,t+1}\geq 0 \\
+0 & \textrm{ otherwise} \end{cases}
+\end{align}
+You will not need to program \eqref{eq:trans}; I will provide code for this part.
+
+Under this formulation, \eqref{eq:condv} can be written as
+\begin{align}\label{eq:condv2}
+\begin{split}
+    v_{1t}\left(x_{t},b\right)-v_{0t}\left(x_{t},b\right) &= \theta_0 + \theta_1 x_{1t} + \theta_2 b + \\
+    &\phantom{\text{===}}\beta \sum_{x_{1,t+1}} V_{t+1}\left(x_{t+1},b\right)\left[f_{1}\left(x_{1,t+1}\vert x_{1,t},x_{2}\right) - f_{0}\left(x_{1,t+1}\vert x_{1,t},x_{2}\right)\right]
+    \end{split}
+\end{align}
+
+Finally, we can simplify \eqref{eq:condv2} since we know that $V_{t+1} = \log\left(\sum_{k} \exp\left(v_{k,t+1}\right)\right)$ when we assume that unobserved utility is drawn from a T1EV distribution (as we do here):
+
+\begin{align}\label{eq:condv3}
+\begin{split}
+    v_{1t}\left(x_{t},b\right)-v_{0t}\left(x_{t},b\right) &= \theta_0 + \theta_1 x_{1t} + \theta_2 b + \\
+    &\phantom{\text{===}}\beta \sum_{x_{1,t+1}} \log\left\{\exp\left(v_{0,t+1}\left(x_{t+1},b\right)\right)+\exp\left(v_{1,t+1}\left(x_{t+1},b\right)\right)\right\}\times\\
+    &\phantom{\text{===}}\left[f_{1}\left(x_{1,t+1}\vert x_{1,t},x_{2}\right) - f_{0}\left(x_{1,t+1}\vert x_{1,t},x_{2}\right)\right]
+    \end{split}
+\end{align}
+
+Estimation of our dynamic model now requires two steps:
+
+\paragraph{Solving the model} First, we need to solve the value functions for a given value of our parameters $\theta$. The way we do this is by backwards recursion. We know that $V_{t+1} = 0$ in our final period (i.e. when $t=T$). Then we work backwards to obtain the future value at every possible state in our model. This will include many states that do not actually show up in our data.
+
+\paragraph{Estimating the model} Second, once we've solved the value functions, we use maximum likelihood to estimate the parameters $\theta$. The log likelihood function in this case is simply
+\begin{align}\label{eq:loglike}
+    \ell &= \sum_{i=1}^N\sum_{j=0}^1\sum_{t=1}^Td_{ijt}\log P_{ijt}
+\end{align}
+where
+\begin{align}\label{eq:ps}
+\begin{split}
+    P_{i1t} &= \frac{\exp\left( v_{1t}-v_{0t}\right)}{1+\exp\left(v_{1t}-v_{0t}\right)} \\
+    P_{i0t} &= 1-P_{i1t}
+\end{split}
+\end{align}
+
+\begin{enumerate}
+\setcounter{enumi}{2}
+\item Now estimate the $\theta$'s assuming that Zurcher discounts the future with discount factor $\beta = 0.9$. I will walk you through specific steps for how to do this:
+    \begin{enumerate}
+        \item \textbf{Read in the data} for the dynamic model. This can be found at the same URL as listed at the top of p. 2, but remove the \texttt{"Beta0"} from the CSV filename.
+        
+        Rather than reshaping the data to ``long'' format as in question 1, we want to keep the data in ``wide'' format. Thus, columns \texttt{:Y1} through \text{:Y20} should be converted to an array labeled \texttt{Y} which has dimension $1000 \times 20$ where $N = 1000$ and $T = 20$. And similarly for columns starting with \texttt{:Odo} and \texttt{:Xst}. Variables \texttt{:Xst*} and \texttt{:Zst} keep track of which discrete bin of the $f_j$'s the given observation falls into.
+        
+        \item \textbf{Construct the state transition matrices}, which are the $f_j$'s in \eqref{eq:trans}. To do so, simply run the following code:
+        
+        \begin{minted}[bgcolor=bg]{julia}
+zval,zbin,xval,xbin,xtran = create_grids()
+        \end{minted}
+        
+        \texttt{zval} and \texttt{xval} are the grids defined at the bottom of p. 2, which respectively correspond to the route usage and odometer reading. \texttt{zbin} and \texttt{xbin} are the number of bins in \texttt{zval} and \texttt{xval}, respectively. \texttt{xtran} is a (\texttt{zbin*xbin})$\times$\texttt{xbin} Markov transition matrix\footnote{A Markov transition matrix is a matrix where each row sums to 1 and moving from e.g. column 1 to column 4 within a row gives the probability of moving from state 1 to state 4. Check out the Wikipedia page for more information} that gives the probability of falling into each $x_{1,t+1}$ bin given values of $x_{1,t}$ and $x_2$, according to the formula in \eqref{eq:trans}.
+        
+        \item \textbf{Compute the future value terms} for all possible states of the model. 
+        \begin{itemize}
+            \item First, initialize the future value array, which should be a 3-dimensional array of zeros. The size of the first dimension should be the total number of grid points (i.e. the number of rows of \texttt{xtran}). The second dimension should be 2, which is the possible outcomes of \texttt{:Branded}. The third dimension should be $T+1$.
+            \item Now write four nested \texttt{for} loops over each of the possible states:
+            \begin{itemize}
+                \item Loop backwards over \texttt{t} from $T+1$ to 1
+                \item Loop over the two possible brand states $\{0,1\}$
+                \item Loop over the possible permanent route usage states (i.e. from 1 to \texttt{zbin})
+                \item Loop over the possible odometer states (i.e. from 1 to \texttt{xbin})
+            \end{itemize}
+            \item Inside all of the for loops, make the following calculations
+            \begin{itemize}
+                \item Create an object that marks the row of the transition matrix that we need to be looking at (based on the loop values of the two gridded state variables). This will be \texttt{x + (z-1)*xbin} (where \texttt{x} indexes the mileage bin and \texttt{z} indexes the route usage bin), given how the \texttt{xtran} matrix was constructed in the \texttt{create\_grids()} function.
+                \item Create the conditional value function for driving the bus ($v_{1t}$) based on the values of the state variables in the loop (not the values observed in the data). For example, for the mileage ($x_{1t}$), you should plug in \texttt{xval[x]} rather than \texttt{:Odo}.
+                
+                \medskip
+                
+                The first component of $v_{1t}$ should be the flow utility, which is listed in \eqref{eq:flowutil}.
+                
+                \medskip
+                
+                The difficult part of $v_{1t}$ is the discrete summation over the state transitions. For this, you need to grab the appropriate row (and all columns) of the \texttt{xtran} matrix, and then take the dot product of that with all possible $x_{1t}$ rows of the FV matrix for the given value of $x_{2}$.
+                
+                You should end up with something like
+                \begin{minted}[bgcolor=bg]{julia}
+xtran[row,:]'*FV[(z-1)*xbin+1:z*xbin,b+1,t+1]
+                \end{minted}
+                where \texttt{b} indexes the branded dummy and \texttt{t} indexes time periods.\footnote{We need to index by \texttt{b+1} because \texttt{b} takes on values 0 or 1, but in Julia it is illegal to reference the 0th element of an array, so element 1 of the index corresponds to \texttt{b=0} while element 2 of the index corresponds to \texttt{b=1}.}
+                \item Now create the conditional value function for replacing the engine ($v_{0t}$). For this, we repeat the same process as with $v_{1t}$ except the $\theta$'s are normalized to be 0. The code for the expected future value is the same as for $v_{1t}$ with the exception that mileage resets to 0 after replacement, so instead of grabbing \texttt{xtran[row,:]} we want \texttt{xtran[1+(z-1)*xbin,:]}.
+                \item Finally, update the future value array in period $t$ by storing $\beta\log\left(\exp\left(v_{0t}\right)+\exp\left(v_{1t}\right)\right)$ in the $t$th slice of the 3rd dimension of the array. This will be the new future value term for period $t-1$. Remember to set $\beta=0.9$
+            \end{itemize}
+        \end{itemize}
+        
+        \item \textbf{Construct the log likelihood} using the future value terms from the previous step and only using the observed states in the data. This will entail a \texttt{for} loop over buses and time periods.
+        \begin{itemize}
+            \item Initialize the log likelihood value to be 0. (We will iteratively add to it as we loop over observations in the data)
+            \item Create a variable that indexes the state transition matrix rows for the case where the bus has been replaced. This will be the same \texttt{1+(z-1)*xbin} as in the conditional value function $v_{0t}$ above. However, we need to plug in \texttt{:Zst} from the data rather than a hypothetical value \texttt{z}.
+            \item Create a variable that indexes the state transition matrix rows for the case where the bus has not been replaced. This will be the same \texttt{x + (z-1)*xbin} as in $v_{1t}$ above, except we substitute \texttt{:Xst} and \texttt{:Zst} for \texttt{x} and \texttt{z}.
+            \item Now create the flow utility component of $v_{1t}-v_{0t}$ using the actual observed data on mileage and branding.
+            \item Next, we need to add the appropriate discounted future value to round out our calculation of $v_{1t}-v_{0t}$. Here, we can difference the $f_j$'s as in \eqref{eq:condv3}. You should get something like
+                \begin{minted}[bgcolor=bg]{julia}
+(xtran[row1,:].-xtran[row0,:])'*FV[row0:row0+xbin-1,B[i]+1,t+1]
+                \end{minted}
+            \item Finally, create the choice probabilities for choosing each option as written in \eqref{eq:ps} and then create the log likelihood according to the summation in \eqref{eq:loglike}.
+        \end{itemize}
+    \item Wrap all of the code you wrote in (c) and (d) into a function and set up the function so that it can be passed to \texttt{Optim}. For example, you will need to return the negative of the log likelihood and you will need to have the first argument be the $\theta$ vector that we are trying to estimate
+    \item On the same line as the function, prepend the function declaration with the macros so that your code says \texttt{@views @inbounds function myfun()} rather than \texttt{function myfun()}. This will give you more performant code. On my machine, it cut the computation time in half.
+    \item Wrap all of your code in an empty function as you've done with other problem sets
+    \item Try executing your script to estimate the likelihood function. This took about 4 minutes on my machine when I started from the estimates of the static model in Question 2.
+    \item Pat yourself on the back and grab a beverage of your choice, because that was a lot of work!
+    \end{enumerate}
+
+
+
+
+\end{enumerate}
+\end{document}

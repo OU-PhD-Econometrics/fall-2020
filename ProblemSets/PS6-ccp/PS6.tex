@@ -1,0 +1,155 @@
+\documentclass[12pt,english]{article}
+\usepackage{mathptmx}
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+\usepackage{geometry}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+\definecolor{byublue}     {RGB}{0.  ,30. ,76. }
+\definecolor{darkblue}    {RGB}{0.  ,0.  ,139.}
+\definecolor{dukeblue}    {RGB}{0.  ,0.  ,156.}
+\geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\usepackage{amsmath}
+\usepackage[authoryear]{natbib}
+\usepackage{minted}
+\usepackage{mathtools}
+\definecolor{bg}{rgb}{0.95,0.95,0.95}
+\usepackage[backref=page]{hyperref}                                              % Always add hyperref (almost) last
+\hypersetup{unicode=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=3,
+ breaklinks=true,pdfborder={0 0 0},colorlinks,citecolor=darkblue,filecolor=darkblue,linkcolor=darkblue,urlcolor=darkblue,pagebackref=true}
+\usepackage[all]{hypcap}                                            % Links point to top of image, builds on hyperref
+\usepackage{breakurl}
+
+\begin{document}
+
+\title{Problem Set 6}
+\author{ECON 6343: Econometrics III\\
+Prof. Tyler Ransom\\
+University of Oklahoma}
+\date{Due: October 6, 9:00 AM}
+
+\maketitle
+Directions: Answer all questions. Each student must turn in their own copy, but you may work in groups. Clearly label all answers. Show all of your code. Turn in jl-file(s), output files and writeup via GitHub. Your writeup may simply consist of comments in jl-file(s). If applicable, put the names of all group members at the top of your writeup or jl-file.
+
+% You may need to install and load the following package:
+% \begin{itemize}
+%     \item[~] \texttt{DataFramesMeta}
+% \end{itemize}
+
+You will need to load the following previously installed packages:
+\begin{itemize}
+    \item[~] \texttt{Optim} 
+    \item[~] \texttt{HTTP} 
+    \item[~] \texttt{GLM} 
+    \item[~] \texttt{LinearAlgebra} 
+    \item[~] \texttt{Random} 
+    \item[~] \texttt{Statistics} 
+    \item[~] \texttt{DataFrames} 
+    \item[~] \texttt{DataFramesMeta} 
+    \item[~] \texttt{CSV} 
+\end{itemize}
+\pagebreak
+In this problem set, we will repeat the estimation of the simplified version of the Rust (1987, \textit{Econometrica}) bus engine replacement model. Rather than solve the model by backwards recursion, we will exploit the renewal property of the replacement decision and estimate the model using conditional choice probabilities (CCPs). 
+
+\begin{enumerate}
+\item Follow the directions from PS5 to read in the data (the second CSV file you read in as part of PS5) and reshape to ``long'' panel format, calling your long dataset \texttt{df\_long}.
+
+\item Estimate a flexible logit model where the dependent variable is the replacement decision and the right hand side is a fully interacted set of the following variables:
+\begin{itemize}
+    \item Mileage
+    \item Mileage$^2$
+    \item Route Usage
+    \item Route Usage$^2$
+    \item Branded
+    \item Time period
+    \item Time period$^2$
+\end{itemize}
+
+\textbf{Hint:} ``Fully interacted'' means that all terms from 1st order to 7th order (e.g. Odometer$^2 \times$ RouteUsage$^2 \times$ Branded $\times$ time$^2$.
+
+\textbf{Hint:} Julia's \texttt{GLM} package allows you to easily accomplish this by specifying the interacted variables with asterisks in between them. e.g. \texttt{Odometer * RouteUsage} estimates a model that includes Odometer, Route Usage and the product of the two.
+\end{enumerate}
+
+\subsubsection*{Dynamic estimation with CCPs}
+We will use the flexible logit parameters to generate CCPs which we can use to compute the future value term as alternative to the backwards recursion we did in PS5.
+
+Recall the model from PS5, where the differenced conditional value function for running the bus (relative to replacing it) was
+\begin{align}\label{eq:condv}
+    v_{1t}\left(x_{t},b\right)-v_{0t}\left(x_{t},b\right) &= \theta_0 + \theta_1 x_{1t} + \theta_2 b + \beta \int V_{t+1}\left(x_{t+1},b\right) \mathrm{d}F\left(x_{t+1}\vert x_{t}\right)
+\end{align}
+and where $V_{t+1}$ is the value function and the integral is over transitions in the mileage states $x_{t}$.
+
+By exploiting the renewal property of the decision property, we can express $V_{t+1}$ instead as $v_{0t+1} - \log p_{0t+1}$. And since $v_{0t+1}$ corresponds to the renewal action, we know that it is equivalent to 
+
+Thus, our value function formulation can be simplified to
+\begin{align}\label{eq:condvccp}
+    v_{1t}\left(x_{t},b\right)-v_{0t}\left(x_{t},b\right) &= \theta_0 + \theta_1 x_{1t} + \theta_2 b - \beta \int \log p_{0t+1}\left(x_{t+1},b\right) \mathrm{d}F\left(x_{t+1}\vert x_{t}\right)
+\end{align}
+and by discretizing the integral, we can simplify this even further to be 
+\begin{align}\label{eq:condv2}
+\begin{split}
+    v_{1t}\left(x_{t},b\right)-v_{0t}\left(x_{t},b\right) &= \theta_0 + \theta_1 x_{1t} + \theta_2 b - \\
+    &\phantom{\text{===}}\beta \sum_{x_{1,t+1}} \log p_{0t+1}\left(x_{t+1},b\right)\left[f_{1}\left(x_{1,t+1}\vert x_{1,t},x_{2}\right) - f_{0}\left(x_{1,t+1}\vert x_{1,t},x_{2}\right)\right]
+    \end{split}
+\end{align}
+where the $f_j$'s are defined identically as in PS5.
+
+\begin{enumerate}
+\setcounter{enumi}{2}
+\item Estimate the $\theta$'s using \eqref{eq:condv2} and assuming a discount factor of $\beta = 0.9$. I will walk you through specific steps for how to do this:
+    \begin{enumerate}
+        \item \textbf{Construct the state transition matrices} using the exact same code as in this step of PS5.
+        
+        \item \textbf{Compute the future value terms} for all possible states of the model. Basically, what we want is $-\log p_{0t+1}$ evaluated at every possible state of the model ($t,b,x_{1,t},x_2$). The easiest way to do this is to adjust the data that we feed into a \texttt{predict()} function using the flexible logit coefficients from question number 2.
+        \begin{itemize}
+            \item First, create a data frame that has four variables:
+            \begin{itemize}
+                \item Odometer reading (equals \texttt{kron(ones(zbin),xval)})
+                \item Route usage (equals \texttt{kron(ones(xbin),zval)})
+                \item Branded (equals 0s of the same size as Odometer and Route usage)
+                \item time (equals 0s of the same size as Branded)
+            \end{itemize}
+            
+            \item Now write a function that reads in this data frame, the flexible logit estimates, and the other state variables (\texttt{Xstate}, \texttt{Zstate}, \texttt{xtran}, etc.)
+            
+            \item Initialize the future value array, which should be a 3-dimensional array of zeros. The size of the first dimension should be the total number of grid points (i.e. the number of rows of \texttt{xtran}). The second dimension should be 2, which is the possible outcomes of \texttt{:Branded}. The third dimension should be $T+1$. Note that the number of rows of the future value array should equal the number of rows of the state data frame.
+            \item Now write two nested \texttt{for} loops:
+            \begin{itemize}
+                \item Loop over \texttt{t} from 2 to $T$
+                \item Loop over the two possible brand states $\{0,1\}$
+            \end{itemize}
+            \item Inside all of the for loops, make the following calculations
+            \begin{itemize}
+                \item Update your state data frame so that the \texttt{:time} variable takes on the value of \texttt{t} and the \texttt{:Branded} variable takes on the value of \texttt{b}
+                \item Compute \texttt{p0} using the \texttt{predict()} function applied to your updated data frame and the flexible logit estimates
+                \item Store in the FV array the value of $-\beta \log p_0$. Remember that every row of the data frame corresponds to the rows in the state transition matrix, so you can vectorize this calculation.
+            \end{itemize}
+            \item Now multiply the state transitions by the future value term. This requires writing another for loop that goes over the rows in the original data frame (the one that you read in at the very beginning of this problem set). In other words, loop over \texttt{i} and \texttt{t}. To get the actual rows of the state transition matrix (since we don't need to use all possible rows), you should re-use the similar code from PS5; something like this:
+                \begin{minted}[bgcolor=bg]{julia}
+FVT1[i,t] = (xtran[row1,:].-xtran[row0,:])'*
+            FV[row0:row0+xbin-1,B[i]+1,t+1]
+                \end{minted}
+            The purpose of this loop is to map the CCPs from the each-possible-state-is-a-row data frame to the actual data frame we used to estimate the flexible logit in question 2.
+            \item Your function should return \texttt{FVT1} in ``long panel'' format. I used \texttt{FVT1'[:]} to make this conversion, but you should double check that your $i$ and $t$ indexing of your original data frame matches.
+        \end{itemize}
+        
+        \item \textbf{Estimate the structural parameters.}
+        \begin{itemize}
+            \item Add the output of your future value function as a new column in the original ``long panel'' data frame. The easiest way to do this is \texttt{df\_long = @transform(df\_long, fv = fvt1)}
+            \item Now use the \texttt{GLM} package to estimate the structural model. Make use of the ``offset'' function to add the future value term as another regressor whose coefficient is restricted to be 1. That is:
+            \begin{minted}[bgcolor=bg]{julia}
+theta_hat_ccp_glm = glm(@formula(Y ~ Odometer + Branded), 
+                    df_long, Binomial(), LogitLink(), 
+                    offset=df_long.fv)
+                \end{minted}
+        \end{itemize}
+        \item Optionally, you can write your own function to estimate a binary logit where you restrict the offset term to have a coefficient of 1. (I will include this code in my solutions.)
+    \item Wrap all of your code in an empty function as you've done with other problem sets. Prepend your wrapper function call (at the very end of the script) with \texttt{@time} so that you can time how long everything takes. (On my machine, everything took under 20 seconds.)
+    \item Glory in the power of CCPs!
+    \end{enumerate}
+
+
+
+
+\end{enumerate}
+\end{document}
