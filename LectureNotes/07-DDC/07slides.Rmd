@@ -170,14 +170,14 @@ v_{ijT-1}=u_{ijT-1}+\beta \mathbb{E}\max_{k\in J}\left\{u_{ikT}+\epsilon_{ikT}|d
 \end{align*}
 Rolling back one more period,
 \begin{align*}
-v_{ijT-2}=u_{ijt}+\beta \mathbb{E}\max_{k\in J}\left\{v_{ikT-1}+\epsilon_{ikT-1}|d_{iT-2}=j\right\}
+v_{ijT-2}=u_{ijT-2}+\beta \mathbb{E}\max_{k\in J}\left\{v_{ikT-1}+\epsilon_{ikT-1}|d_{iT-2}=j\right\}
 \end{align*}
 Keep going back and the $\mathbb{E}\max$ operator can always be expressed as functions of the next period conditional value functions:
 \begin{align*}
-v_{ijt}=u_{ijT-2}+\beta \mathbb{E}\max_{k\in J}\left\{v_{ikt+1}+\epsilon_{ikt+1}|d_{it}=j\right\}
+v_{ijt}=u_{ijt}+\beta \mathbb{E}\max_{k\in J}\left\{v_{ikt+1}+\epsilon_{ikt+1}|d_{it}=j\right\}
 \end{align*}
 
-Another name for $\max_{k\in J}\left\{v_{ikt+1}+\epsilon_{ikt+1}\right\}$ is....
+Another name for $\mathbb{E}\max_{k\in J}\left\{v_{ikt+1}+\epsilon_{ikt+1}\right\}$ is....
 
 ---
 
@@ -227,13 +227,13 @@ p_{jt}(X_{it})&=\frac{\exp(v_{jt}(X_{it}))}{\sum_{k\in J}\exp(v_{kt}(X_{it}))}
 - The likelihood of the data is:
 
 \begin{align*}
-\mathcal{L}(\alpha,\beta,\gamma)&=\prod_i\prod_t\prod_j\left[p_{jt}(X_{it},\alpha,\beta,\gamma)f_{jt}(X_{it+1}|X_it,\gamma)\right]^{d_{it}=j}
+\mathcal{L}(\alpha,\beta,\gamma)&=\prod_i\prod_t\prod_j\left[p_{jt}(X_{it},\alpha,\beta,\gamma)f_{jt}(X_{it+1}|X_{it},\gamma)\right]^{d_{it}=j}
 \end{align*}
 where $\gamma$ governs the transitions of the $X$'s
 
 - The log likelihood is then given by:
 \begin{align*}
-\ell(\alpha,\beta,\gamma)&=\sum_i\sum_t\sum_j (d_{it}=j)\left\{\ln[p_{jt}(X_{it},\alpha,\beta,\gamma)]+\ln[f_{jt}(X_{it+1}|X_it,\gamma)]\right\}
+\ell(\alpha,\beta,\gamma)&=\sum_i\sum_t\sum_j (d_{it}=j)\left\{\ln[p_{jt}(X_{it},\alpha,\beta,\gamma)]+\ln[f_{jt}(X_{it+1}|X_{it},\gamma)]\right\}
 \end{align*}
 
 Since the log likelihood function is additively separable, we can estimate $\gamma$ in a first stage
