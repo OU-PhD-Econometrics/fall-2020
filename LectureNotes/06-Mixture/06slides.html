@@ -170,7 +170,7 @@ P_{ij}\left(X,Z;\beta,\gamma\right)&amp;= \int\frac{\exp\left(X_{i}\left(\beta_{
 
 - Integrating out over the unobserved groups then yields the following log likelihood:
 `\begin{align*}
-\ell\left(X,Z;\beta,\gamma,\pi\right)=&amp;\sum_{i=1}^N \log\left\{\sum_{s}\prod_{j}\left[\frac{\exp\left(X_{i}\left(\beta_{j}-\beta_{J}\right)+\gamma_{s}\left(Z_{ij}-Z_{iJ}\right)\right)}{\sum_k \exp\left(X_{i}\left(\beta_{k}-\beta_{J}\right)+\gamma_{s}\left(Z_{ik}-Z_{iJ}\right)\right)}\right]^{d_{ij}}\right\}\\
+\ell\left(X,Z;\beta,\gamma,\pi\right)=&amp;\sum_{i=1}^N \log\left\{\sum_{s}\pi_s\prod_{j}\left[\frac{\exp\left(X_{i}\left(\beta_{j}-\beta_{J}\right)+\gamma_{s}\left(Z_{ij}-Z_{iJ}\right)\right)}{\sum_k \exp\left(X_{i}\left(\beta_{k}-\beta_{J}\right)+\gamma_{s}\left(Z_{ik}-Z_{iJ}\right)\right)}\right]^{d_{ij}}\right\}\\
 \end{align*}`
 
 ---
@@ -183,7 +183,7 @@ P_{ij}\left(X,Z;\beta,\gamma\right)&amp;= \int\frac{\exp\left(X_{i}\left(\beta_{
 
 - The log likelihood function for the finite mixture case is then:
 `\begin{align*}
-\ell\left(X,Z;\beta,\gamma,\pi\right)=&amp;\sum_{i=1}^N \log\left\{\sum_{s}\prod_{t}\prod_{j}\left[\frac{\exp\left(X_{it}\left(\beta_{j}-\beta_{J}\right)+\gamma_{s}\left(Z_{ijt}-Z_{iJt}\right)\right)}{\sum_k \exp\left(X_{it}\left(\beta_{k}-\beta_{J}\right)+\gamma_{s}\left(Z_{ikt}-Z_{iJt}\right)\right)}\right]^{d_{ijt}}\right\}
+\ell\left(X,Z;\beta,\gamma,\pi\right)=&amp;\sum_{i=1}^N \log\left\{\sum_{s}\pi_s\prod_{t}\prod_{j}\left[\frac{\exp\left(X_{it}\left(\beta_{j}-\beta_{J}\right)+\gamma_{s}\left(Z_{ijt}-Z_{iJt}\right)\right)}{\sum_k \exp\left(X_{it}\left(\beta_{k}-\beta_{J}\right)+\gamma_{s}\left(Z_{ikt}-Z_{iJt}\right)\right)}\right]^{d_{ijt}}\right\}
 \end{align*}`
 
 - And for the mixed logit case is:
@@ -306,15 +306,39 @@ q_{is}=&amp;\frac{\pi_s\prod_t\mathcal{L}(Y_{1t}|X_{1t},\alpha_1,s)\mathcal{L}(Y
 
 ---
 
+# Other notes on estimation in stages
+
+- With permanent unobserved heterogeneity, we no longer have .hi[global concavity]
+
+- This means that if we provide different starting values, we'll get different estimates
+
+- Another thing to note is .hi[standard errors]
+
+- With stages, each stage introduces estimation error into the following stages
+
+    - i.e. we take the estimate as given, but it actually is subject to sampling error
+
+- The easiest way to resolve this is with bootstrapping
+
+- Both of these issues (local optima and estimation error) are problem-specific
+
+- You need to understand your specific case
+
+---
+
 # To Recap
 
 - Why are we doing all of this difficult work?
 
 - Because preference heterogeneity allows for a more credible structural model
 
-- Introducing preference heterogeneity can make the model intractible
+- But introducing preference heterogeneity can make the model intractible
 
 - Discretizing the distribution of heterogeneity and using the EM algorithm can help
+
+- We also need to be mindful of how to compute standard errors of the estimates
+
+- As well as be aware that the objective function is likely no longer globally concave
 
 ---
 
