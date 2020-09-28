@@ -31,11 +31,18 @@ function lgwt(N0::Integer,a::Real=-1,b::Real=1)
     # using the recursion relation and the Newton-Raphson method
     
     y0 = 2
+    
+    
     vareps = 2e-52
     # Iterate until new points are uniformly within epsilon of old points
+    
+    
     i = 0
-    while norm(y.-y0,Inf)>vareps
-        
+    tracker=0
+    it_max=10
+    while (norm(y.-y0,Inf)>vareps && tracker<=it_max)
+        d=norm(y.-y0,Inf)
+    
         L[:,1]  .= 1
         Lp[:,1] .= 0
         
@@ -48,7 +55,11 @@ function lgwt(N0::Integer,a::Real=-1,b::Real=1)
         Lp = (N2)*( L[:,N1] .- y .* L[:,N2] )./(1 .- y.^2)
         y0 = y
         y  = y0 - L[:,N2]./Lp
+        if norm(y.-y0,Inf)==d
+            tracker+=1
+        end
         i+=1
+
     end
     
     # Linear map from[-1,1] to [a,b]
