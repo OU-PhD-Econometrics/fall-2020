@@ -126,12 +126,12 @@ V_{t+1}(x_{t+1})&amp;=\ln\left[\exp(v_0(x_{t+1}))+\exp(v_1(x_{t+1}))\right]+c
 
 - We can then express the conditional value function as:
 `\begin{align*}
-v_{1t}(x_t)&amp;=u_1(x_t)+\beta\sum_{x_{t+1}}\bigg(v_{0t+1}(x_{t+1})+\\
+v_{1t}(x_t)&amp;=u_1(x_t)+\beta\bigg(v_{0t+1}(x_{t+1})+\\
 &amp;\phantom{\text{----}}\ln\left\{1+\exp[v_{1t+1}(x_{t+1})-v_{0t+1}(x_{t+1})]\right\}\bigg)+\beta c
 \end{align*}`
 which can now be written as a function of the conditional choice probabilities:
 `\begin{align*}
-v_{1t}(x_t)&amp;=u_1(x_t)+\beta\sum_{x_{t+1}}\bigg(v_{0t+1}(x_{t+1})-\ln\left[p_{0t+1}(x_{t+1})\right]\bigg)+\beta c
+v_{1t}(x_t)&amp;=u_1(x_t)+\beta\bigg(v_{0t+1}(x_{t+1})-\ln\left[p_{0t+1}(x_{t+1})\right]\bigg)+\beta c
 \end{align*}`
 
 ---
@@ -330,6 +330,9 @@ v_1(x)-v_0(x)&amp;=u_1(x)-u_0(x)+\beta\left[\sum_{x'}\left(\ln[p_1(x)]-\ln[p_1(0
 
 - Through a property known as .hi[finite dependence] we can achieve cancellation after at most 3 periods (depending on the model)
 
+- Recent examples:
+    - Arcidiacono, Aucejo, Maurel, and Ransom (2016) – see equation (29)
+    - Ransom (2019) – see equation (A.14) and Figures A4 and A5
 
 ---
 
@@ -348,7 +351,12 @@ v_1(x)-v_0(x)&amp;=u_1(x)-u_0(x)+\beta\left[\sum_{x'}\left(\ln[p_1(x)]-\ln[p_1(0
 ---
 
 # References
-.smaller[
+.smallest70[
+Arcidiacono, P., E. Aucejo, A. Maurel, et al. (2016). _College
+Attrition and the Dynamics of Information Revelation_. Working Paper.
+Duke University. URL:
+[https://tyleransom.github.io/research/CollegeDropout2016May31.pdf](https://tyleransom.github.io/research/CollegeDropout2016May31.pdf).
+
 Arcidiacono, P. and J. B. Jones (2003). "Finite Mixture Distributions,
 Sequential Likelihood and the EM Algorithm". In: _Econometrica_ 71.3,
 pp. 933-946. DOI:
@@ -366,6 +374,10 @@ Hotz, V. J. and R. A. Miller (1993). "Conditional Choice Probabilities
 and the Estimation of Dynamic Models". In: _The Review of Economic
 Studies_ 60.3, pp. 497-529. DOI:
 [10.2307/2298122](https://doi.org/10.2307%2F2298122).
+
+Ransom, T. (2019). _Labor Market Frictions and Moving Costs of the
+Employed and Unemployed_. Discussion Paper 12139. IZA. URL:
+[http://ftp.iza.org/dp12139.pdf](http://ftp.iza.org/dp12139.pdf).
 
 Rust, J. (1987). "Optimal Replacement of GMC Bus Engines: An Empirical
 Model of Harold Zurcher". In: _Econometrica_ 55.5, pp. 999-1033. URL:

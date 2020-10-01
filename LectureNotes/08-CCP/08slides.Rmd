@@ -119,12 +119,12 @@ V_{t+1}(x_{t+1})&=\ln\left[\exp(v_0(x_{t+1}))+\exp(v_1(x_{t+1}))\right]+c
 
 - We can then express the conditional value function as:
 \begin{align*}
-v_{1t}(x_t)&=u_1(x_t)+\beta\sum_{x_{t+1}}\bigg(v_{0t+1}(x_{t+1})+\\
+v_{1t}(x_t)&=u_1(x_t)+\beta\bigg(v_{0t+1}(x_{t+1})+\\
 &\phantom{\text{----}}\ln\left\{1+\exp[v_{1t+1}(x_{t+1})-v_{0t+1}(x_{t+1})]\right\}\bigg)+\beta c
 \end{align*}
 which can now be written as a function of the conditional choice probabilities:
 \begin{align*}
-v_{1t}(x_t)&=u_1(x_t)+\beta\sum_{x_{t+1}}\bigg(v_{0t+1}(x_{t+1})-\ln\left[p_{0t+1}(x_{t+1})\right]\bigg)+\beta c
+v_{1t}(x_t)&=u_1(x_t)+\beta\bigg(v_{0t+1}(x_{t+1})-\ln\left[p_{0t+1}(x_{t+1})\right]\bigg)+\beta c
 \end{align*}
 
 ---
@@ -323,6 +323,9 @@ v_1(x)-v_0(x)&=u_1(x)-u_0(x)+\beta\left[\sum_{x'}\left(\ln[p_1(x)]-\ln[p_1(0)]\r
 
 - Through a property known as .hi[finite dependence] we can achieve cancellation after at most 3 periods (depending on the model)
 
+- Recent examples:
+    - `r Citet(biblio,"arcidiacono_al2016")` – see equation (29)
+    - `r Citet(biblio,"ransom2019")` – see equation (A.14) and Figures A4 and A5
 
 ---
 
@@ -341,7 +344,7 @@ v_1(x)-v_0(x)&=u_1(x)-u_0(x)+\beta\left[\sum_{x'}\left(\ln[p_1(x)]-\ln[p_1(0)]\r
 ---
 
 # References
-.smaller[
+.smallest70[
 ```{r refs, echo=FALSE, results="asis"}
 #PrintBibliography(biblio, start = 1, end = 2)
 PrintBibliography(biblio)
