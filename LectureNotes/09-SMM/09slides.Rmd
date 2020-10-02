@@ -1,0 +1,487 @@
+---
+title: "Lecture 9"
+subtitle: "Simulated Method of Moments: Another Method of Structural Estimation"
+author: Tyler Ransom
+date: ECON 6343, University of Oklahoma
+output:
+  xaringan::moon_reader:
+    includes:
+        in_header: "09slides_files/mathjax-equation-numbers.html"
+    css: ['default', 'metropolis', 'metropolis-fonts', 'ou-colors.css']
+    # self_contained: true
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: '16:9'
+
+---
+
+```{r, load_refs, include=FALSE, cache=FALSE}
+library(RefManageR)
+BibOptions(check.entries = FALSE,
+           bib.style = "authoryear",
+           style = "markdown",
+           hyperlink = FALSE,
+           dashed = TRUE)
+biblio <- ReadBib("../../References/References.bib", check = FALSE)
+#biblio <- ReadBib(system.file("Bib", "biblatexExamples.bib", package = "RefManageR"))
+```
+
+# Plan for the Day
+
+1. Review Method of Moments and GMM
+
+2. Introduce simulated method of moments (SMM)
+
+3. Walk through how to do SMM in Julia
+
+4. Discuss indirect inference
+
+
+---
+# Generalized Method of Moments (GMM)
+
+- GMM is a fundamental concept taught in graduate-level econometrics
+
+- It is very popular because it nests many common econometric estimators:
+    - OLS
+    - IV and 2SLS
+    - Nonlinear least squares (NLLS)
+    - MLE (e.g. probit, logit)
+
+- There's a great overview video [here](https://www.youtube.com/watch?v=U7Ylm187hYA)
+
+---
+# Method of Moments
+
+- We can use method of moments to estimate a model's parameters
+
+- Consider a simple regression model
+
+\begin{align*}
+y &= \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \varepsilon
+\end{align*}
+
+- Assume $\mathbb{E}[\varepsilon \vert \mathbb{x}] = 0$ (conditional independence)
+
+- Then we can form a system of 3 equations and 3 unknowns
+
+
+---
+# OLS Population Moment Conditions
+
+- If we write out the OLS moment conditions, we get
+
+\begin{align*}
+\mathbb{E}[\varepsilon]     &= 0\\
+\mathbb{E}[\varepsilon' x_1] &= 0\\
+\mathbb{E}[\varepsilon' x_2] &= 0\\
+\end{align*}
+
+- Rewriting in terms of our parameters of interest $(\beta_0,\beta_1,\beta_2)$:
+
+\begin{align*}
+\mathbb{E}[(y - \beta_0 - \beta_1 x_1 - \beta_2 x_2)]     &= 0\\
+\mathbb{E}[(y - \beta_0 - \beta_1 x_1 - \beta_2 x_2)' x_1] &= 0\\
+\mathbb{E}[(y - \beta_0 - \beta_1 x_1 - \beta_2 x_2)' x_2] &= 0\\
+\end{align*}
+
+---
+# OLS Sample Moment Conditions
+
+- We then need to adjust the previous formula to work with sample analogs:
+\begin{align*}
+g\left(\boldsymbol \beta\right) &=\begin{cases}
+\frac{1}{N}\sum_{i=1}^N(y_i - \beta_0 - \beta_1 x_{i1} - \beta_2 x_{i2})         &= 0\\
+\frac{1}{N}\sum_{i=1}^N(y_i - \beta_0 - \beta_1 x_{i1} - \beta_2 x_{i2})' x_{i1} &= 0\\
+\frac{1}{N}\sum_{i=1}^N(y_i - \beta_0 - \beta_1 x_{i1} - \beta_2 x_{i2})' x_{i2} &= 0\end{cases}
+\end{align*}
+
+- We can estimate this by exactly-identified GMM using the objective function
+
+\begin{align*}
+\hat{\boldsymbol \beta} &= \arg \min_{\boldsymbol \beta} J\left(\boldsymbol \beta\right)
+\end{align*}
+where
+\begin{align*}
+J\left(\boldsymbol \beta\right) &= N g\left(\boldsymbol \beta\right)' g\left(\boldsymbol \beta\right)
+\end{align*}
+
+---
+# GMM with more moment conditions than parameters
+
+- The solution to the obj fn on the pvs slide has a closed form for OLS: $(X'X)^{-1}X'y$
+
+- In cases with more moment conditions than parameters, we need to weight
+\begin{align*}
+\hat{\boldsymbol \beta} &= \arg \min_{\boldsymbol \beta} J\left(\boldsymbol \beta, \hat{\mathbf{W}}\right)
+\end{align*}
+where
+\begin{align*}
+J\left(\boldsymbol \beta\right) &= N g\left(\boldsymbol \beta\right)' \hat{\mathbf{W}}(\boldsymbol \beta) g\left(\boldsymbol \beta\right)
+\end{align*}
+
+- There is a ton of econometric theory about the optimal weighting matrix $\hat{\mathbf{W}}$
+
+- As well as the asymptotic properties of the GMM estimator (spoiler: they're good)
+
+---
+# GMM examples
+
+- The most common example of an overidentified GMM is Two Stage Least Squares
+
+    - Specifically, when # instruments $>$ # endogenous $x$'s
+
+- There are other examples in time series econometrics applications
+
+    - e.g. the $MA(1)$ model, the stochastic volatility model
+
+- Or in applications of non-linear least squares or MLE
+
+
+
+---
+# Binary Logit Sample Moment Conditions
+
+- The moment conditions for the binary logit model are:
+\begin{align*}
+g\left(\boldsymbol \beta\right) &=\begin{cases}
+\frac{1}{N}\sum_{i=1}^N\left[y_i - \frac{\exp\left(\beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2}\right)}{1+\exp\left(\beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2}\right)}\right]         &= 0\\
+\frac{1}{N}\sum_{i=1}^N\left[y_i - \frac{\exp\left(\beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2}\right)}{1+\exp\left(\beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2}\right)}\right]' x_{i1} &= 0\\
+\frac{1}{N}\sum_{i=1}^N\left[y_i - \frac{\exp\left(\beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2}\right)}{1+\exp\left(\beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2}\right)}\right]' x_{i2} &= 0\end{cases}
+\end{align*}
+where $y_i \in \left\{0,1\right\}$ 
+
+- If we have more than two $X$'s then we simply add more conditions
+
+- The formula for $J$ is the same as in the OLS case (or any other case)
+
+---
+# Coding example: Estimating binary logit by GMM
+
+- We can estimate the binary logit model by (exactly identified) GMM as follows:
+
+``` {julia, eval=F}
+    function logit_gmm(α, X, y)
+        K = size(X,2)
+        N = size(y,1)
+        P = exp.(X*α)./(1 .+ exp.(X*α))
+        
+        g = zeros(K)
+        for k = 1:K
+            g[k] = (1/N)*sum( (y .- P) .* X[:,k] )
+        end
+        J = N*g⋅g
+        return J
+    end
+    α_hat_optim = optimize(a -> logit_gmm(a, X, y), rand(size(X,2)), LBFGS(), Optim.Options(g_tol=1e-8, iterations=100_000))
+```
+
+- This gives estimates that are quite close to (but not identical to) MLE
+
+
+
+
+---
+# Usefulness of simulation
+
+- As we showed in PS4, we can sometimes use simulation to compute integrals
+
+- Another alternative is to use quadrature to compute the integral
+
+- In the simulation case, we took draws from the mixture distribution of a mixed logit
+
+- More generally, we can estimate highly complex models using simulation methods
+
+- In some cases, simulation is the _only_ option; everything else is intractable
+    - Quadrature typically only works with very low-dimensional integrals
+
+---
+# Simulation methods
+
+`r Citet(biblio,"train2009")` mentions three different types of simulation-based methods:
+
+1. .hi[Simulated Maximum Likelihood] (a.k.a. Maximum Simulated Likelihood)
+
+2. .hi[Simulated Method of Moments] (a.k.a. Method of Simulated Moments)
+
+3. .hi[Method of Simulated Scores]
+
+- What I asked you to code up in PS4 was basically SML
+
+- Today we'll talk mostly about SMM
+
+- We won't cover Method of Simulated Scores
+
+
+---
+# Simulated Method of Moments
+
+- As the name would imply, SMM is a simulated version of GMM
+
+- The difference: SMM uses moments from simulated data
+
+- The objective is then to make simulated and actual data match
+
+- See `r Citet(biblio,"mcfadden1989")` and `r Citet(biblio,"evans2018")` for more details
+
+- `r Citet(biblio,"evans2018")` includes a Python coding example
+
+- Notes by [Jason DeBacker](https://www.jasondebacker.com/classes/Lecture10_Notes_SMM.pdf), [Eric Sims](https://www3.nd.edu/~esims1/advanced_topics.pdf) and [Colin Cameron](http://cameron.econ.ucdavis.edu/mmabook/transparencies/ct06_gmm.pdf) are also helpful
+
+
+---
+# Pros of SMM
+
+- Can estimate models with $P$'s that don't have a closed form, like probit `r Citep(biblio,"chintagunta1992")`
+
+- Can estimate other models that would otherwise be intractable
+    - e.g. dynamic models with high-dimensional integrals
+    
+- Or micro-models based only on aggregated data
+
+- Coding for simulating the model is already done! Can dive right into counterfactuals
+
+- It's straightforward to interpret the moments and know that model is fitting these
+
+- Also easier to compare with reduced-form evidence
+
+---
+# Cons of SMM
+
+- Much more computationally intensive than GMM
+
+- Loss of (statistical) efficiency, relative to MLE (i.e. larger SE's)
+
+- For me personally, it's not always clear which moments to select
+    - this can feel a bit _ad hoc_
+
+---
+# SMM in Julia
+
+- Once we know the objective fn, we can program any estimator we please
+
+- Let's consider how to estimate a simple linear regression model
+
+\begin{align*}
+y &= X\beta + \varepsilon\\
+\varepsilon&\sim N(0,\sigma^2)
+\end{align*}
+
+- $y$ and $X$ are data, and we want to estimate $\beta$ and $\sigma$
+
+
+---
+# Estimation steps
+
+- For each guess of $\theta = [\beta', \sigma]'$ we do the following:
+
+    - Compute data moments
+    
+    - Draw $N$ $\varepsilon$'s
+    
+    - Compute $y$ from the model equation (call it $\tilde{y}$) given values for $\beta$ and $\sigma$
+    
+    - Compute model moments using $\tilde{y}$ (same as data moments with $y$)
+
+    - Update objective function value given values of data and model moments
+
+---
+# SMM in Julia
+.scroll-box-12[
+```{julia,eval=F}
+function ols_smm(θ, X, y, D)
+    K = size(X,2)
+    N = size(y,1)
+    β = θ[1:end-1]
+    σ = θ[end]
+    if length(β)==1
+        β = β[1]
+    end
+    gmodel = zeros(K+1,D)
+    gdata  = zeros(K+1)
+
+    # data moments
+    gdata[1] = mean(y)
+    for k = 2:K
+        gdata[k] = cov( y,X[:,k] ) # covariance between y and each of the X's
+    end
+    gdata[K+1] = var(y)            # variance of y
+
+    #### !!!!!!!!!!!!!!!!!!!!!!!!!!!!! ####
+    # This is critical!                   #
+    Random.seed!(1234)                    #
+    # You must always use the same ε draw #
+    # for every guess of θ!               #
+    #### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ###
+    
+    # simulated model moments
+    for d=1:D
+        ε = sqrt(σ^2)*randn(N) # to ensure σ is always positive
+        ỹ = X*β .+ ε
+        gmodel[1,d] = mean(ỹ)
+        for k=1:K
+            gmodel[k,d] = cov( ỹ,X[:,k] )
+        end
+        gmodel[K+1,d] = var(ỹ)
+    end
+
+    # minimize squared difference between data and moments
+    g = mean(gmodel .- gdata; dims=2)
+    J = N*g⋅g
+    return J
+end
+```
+]
+
+- Data moments to match: $\left\{\overline{y},\widehat{V}(y),\widehat{Cov}\left(y,X_k\right)\right\}$
+
+- Model moments to match: $\left\{\overline{\tilde{y}},\widehat{V}(\tilde{y}),\widehat{Cov}\left(\tilde{y},X_k\right)\right\}$
+
+---
+# SMM optimization
+
+- We can optimize the objective function with any optimizer we'd like
+
+- Note that the SMM objective function is much .hi[bumpier] than its GMM version
+
+- So you will need to employ tactics to find the global maximum:
+    - use LBFGS from many different starting values
+    - use Simulated Annealing or Particle Swarm
+    - (these are algorithms designed to find global optima)
+    
+- But if you give it OLS as starting values, it will go to the right place
+
+- It will also work if you give it $Cov(y,X_k)$ as starting values for the slope coefficients
+
+- Purely random starting values won't work!
+
+---
+# SMM.jl
+
+- SMM is so common, that others have already implemented it
+    - And probably in a more computationally efficient manner!
+
+- One such package is `SMM.jl`, written by [Florian Oswald](https://floswald.github.io/) (Sciences Po)
+    - This package allows for parallelization, which can speed up estimation time
+    
+    - It also uses a Bayesian Markov Chain Monte Carlo algorithm known as BGP
+    
+    - "BGP" comes from `r Citet(biblio,"bgp2013")`
+    
+    - I am still learning this package but there are some examples
+
+---
+# SMM.jl example
+
+- Let's estimate the following model using `SMM.jl`
+
+\begin{align*}
+Y_1 &= \beta_{01} + \varepsilon_{1}\\
+Y_2 &= \beta_{02} + \varepsilon_{2}
+\end{align*}
+where $\mathbf{\varepsilon} \sim MVN\left(\mathbf{0},I\right)$. Thus, the $\beta$'s constitute the means of each MVN dimension.
+
+- The code to do this is included in the examples of `SMM.jl` with $(\beta_{01},\beta_{02}) = (-1,1)$
+
+```{julia, eval=FALSE}
+using SMM, DataFrames
+MA = SMM.parallelNormal() # Note: this line may take up to 5 minutes to execute
+dc = SMM.history(MA.chains[1])
+dc = dc[dc[:accepted].==true, :]
+println(describe(dc))
+```
+
+- You can then verify that the `mean` column for `p1` and `p2` is close to -1 and 1.
+
+---
+# Indirect inference `r Citep(biblio,"smithPalgrave2008")`
+
+- So far today we've only talked about matching model moments to data
+
+- Logic: if the model matches the data, then it is a reasonable model
+
+- Another alternative is known as .hi[indirect inference]
+
+- In this case, we use an .hi[auxiliary model]
+
+---
+
+# Indirect Inference (Cont'd)
+
+- The auxiliary model doesn't need to accurately describe the DGP
+
+- It simply acts a lens through which to view the world
+
+- .hi[Objective:] minimize the parameters of the economic model such that
+
+- real-world data = simulated data .hi[through the lens of the auxiliary model]
+
+
+---
+
+# Example: Economic Model
+
+- Consider a simple macro model with two simultaneous equations:
+
+\begin{align*}
+C_t &= \beta Y_t + u_t\\
+Y_t &= C_t + X_t
+\end{align*}
+
+- $C_t$ (consumption) and $Y_t$ (income) are endogenous
+
+- $X_t$ (non-consumption expenditure) is exogenous
+
+- $u_t \overset{iid}{\sim}N(0,\sigma^2)$ 
+
+- Supposing we know the value of $\sigma^2$, then $\beta$ is the lone parameter in the model
+
+---
+# Example: Auxiliary model
+
+- We don't need to use indirect inference to estimate $\beta$, but we can
+
+- Suppose our auxiliary model is
+
+\begin{align*}
+C_t &= \theta X_t + e_t\\
+e_t &\sim N(0,s^2)
+\end{align*}
+where again the variance $s^2$ is known
+
+- We can estimate $\theta$ by OLS or MLE
+
+- But how does that help us estimate $\beta$?
+
+- We need to find the mapping between $\beta$ and $\theta$
+
+---
+# Example: Finding the mapping
+
+- Let's apply some algebra to the first system of equations. Substituting $Y_t$ gives
+
+\begin{align*}
+C_t &= \beta(C_t+X_t)+u_t\\
+C_t &= \frac{\beta}{1-\beta}X_t + \frac{1}{1-\beta}u_t \\
+&\Rightarrow \theta = \frac{\beta}{1-\beta} \\
+&\Rightarrow \beta = \frac{\theta}{1+\theta}
+\end{align*}
+
+- We know we can easily estimate $\theta$ by OLS
+
+- Then we can recover $\hat{\beta}$ by evaluating $\frac{\hat{\theta}}{1+\hat{\theta}}$
+
+- We worked backwards from the auxiliary model to get estimates of the main model
+
+
+---
+
+# References
+.smallest[
+```{r refs, echo=FALSE, results="asis"}
+#PrintBibliography(biblio, start = 1, end = 2)
+PrintBibliography(biblio)
+```
+]
