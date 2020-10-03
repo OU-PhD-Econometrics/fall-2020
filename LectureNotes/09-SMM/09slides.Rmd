@@ -127,24 +127,26 @@ J\left(\boldsymbol \beta\right) &= N g\left(\boldsymbol \beta\right)' \hat{\math
 - As well as the asymptotic properties of the GMM estimator (spoiler: they're good)
 
 ---
-# GMM examples
+# GMM as OLS
 
-- The most common example of an overidentified GMM is Two Stage Least Squares
+- Another example is OLS posed a different way
 
-    - Specifically, when # instruments $>$ # endogenous $x$'s
+- Previously, we solved $K$ equations of $\mathbb{E}\left[\varepsilon'X_k\right]=0$ and $\mathbb{E}\left[\varepsilon\right]=0$
 
-- There are other examples in time series econometrics applications
+- We could instead simply try to match $y$ to $X\beta$ for every observation
 
-    - e.g. the $MA(1)$ model, the stochastic volatility model
+- In this case, $g = y-X\beta$
 
-- Or in applications of non-linear least squares or MLE
+- There are $N$ moment conditions and $K+1$ parameters to be estimated
 
+- Use the $N\times N$ Identity matrix for $\mathbf{W}$ and this is precisely OLS
 
+- In my experience, this approach has better computational properties than the "classical" approach
 
 ---
 # Binary Logit Sample Moment Conditions
 
-- The moment conditions for the binary logit model are:
+- The "classical" approach to the moment conditions for the binary logit model is:
 \begin{align*}
 g\left(\boldsymbol \beta\right) &=\begin{cases}
 \frac{1}{N}\sum_{i=1}^N\left[y_i - \frac{\exp\left(\beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2}\right)}{1+\exp\left(\beta_0 + \beta_1 x_{i1} + \beta_2 x_{i2}\right)}\right]         &= 0\\
@@ -153,33 +155,32 @@ g\left(\boldsymbol \beta\right) &=\begin{cases}
 \end{align*}
 where $y_i \in \left\{0,1\right\}$ 
 
-- If we have more than two $X$'s then we simply add more conditions
+- With the same formula for $J$ as in the OLS case (or any other case)
 
-- The formula for $J$ is the same as in the OLS case (or any other case)
+- Under the alternative approach, use $g = y - P$ where $y\in \left\{0,1\right\}$ and $P\in\left[0,1\right]$
+
+- Again, there are $N$ moment conditions and $K+1$ parameters to be estimated
 
 ---
 # Coding example: Estimating binary logit by GMM
 
-- We can estimate the binary logit model by (exactly identified) GMM as follows:
+- We can estimate the binary logit model by GMM as follows:
 
 ``` {julia, eval=F}
-    function logit_gmm(α, X, y)
-        K = size(X,2)
-        N = size(y,1)
-        P = exp.(X*α)./(1 .+ exp.(X*α))
-        
-        g = zeros(K)
-        for k = 1:K
-            g[k] = (1/N)*sum( (y .- P) .* X[:,k] )
-        end
-        J = N*g⋅g
-        return J
-    end
-    α_hat_optim = optimize(a -> logit_gmm(a, X, y), rand(size(X,2)), LBFGS(), Optim.Options(g_tol=1e-8, iterations=100_000))
+using Optim, LinearAlgebra
+function logit_gmm(α, X, y)
+    P = exp.(X*α)./(1 .+ exp.(X*α))
+    g = y .- P
+    J = g'*I*g
+    return J
+end
+α̂_optim = optimize(a -> logit_gmm(a, X, y), rand(size(X,2)), LBFGS(), Optim.Options(g_tol=1e-8, iterations=100_000))
+println(α̂_optim.minimizer)
 ```
 
 - This gives estimates that are quite close to (but not identical to) MLE
 
+- With $\mathbf{W} = \mathbf{I}$, this objective function is identical to nonlinear least squares (NLLS)
 
 
 
@@ -271,21 +272,27 @@ y &= X\beta + \varepsilon\\
 
 - $y$ and $X$ are data, and we want to estimate $\beta$ and $\sigma$
 
+- .hi[Note:] here we need to make an assumption about what the DGP looks like
+
+- This means making the strong assumption that $\varepsilon\sim N(0,\sigma^2)$
+
 
 ---
 # Estimation steps
 
-- For each guess of $\theta = [\beta', \sigma]'$ we do the following:
+- For .hi[each guess] of $\theta = [\beta', \sigma]'$ we do the following:
 
     - Compute data moments
     
-    - Draw $N$ $\varepsilon$'s
+    - Draw $N$ $\varepsilon$'s $D$ times (typically $D>1000$)
     
-    - Compute $y$ from the model equation (call it $\tilde{y}$) given values for $\beta$ and $\sigma$
+    - For each draw, compute $y$ from the model equation (call it $\tilde{y}$) given $\theta$
     
     - Compute model moments using $\tilde{y}$ (same as data moments with $y$)
+    
+    - Model moments are averaged across all $D$ draws
 
-    - Update objective function value given values of data and model moments
+    - Update objective function value given values of data and avg'd model moments
 
 ---
 # SMM in Julia
@@ -299,15 +306,12 @@ function ols_smm(θ, X, y, D)
     if length(β)==1
         β = β[1]
     end
-    gmodel = zeros(K+1,D)
-    gdata  = zeros(K+1)
-
-    # data moments
-    gdata[1] = mean(y)
-    for k = 2:K
-        gdata[k] = cov( y,X[:,k] ) # covariance between y and each of the X's
-    end
-    gdata[K+1] = var(y)            # variance of y
+    # N+1 moments in both model and data
+    gmodel = zeros(N+1,D)
+    
+    # data moments are just the y vector itself
+    # and the variance of the y vector
+    gdata  = vcat(y,var(y))
 
     #### !!!!!!!!!!!!!!!!!!!!!!!!!!!!! ####
     # This is critical!                   #
@@ -315,47 +319,45 @@ function ols_smm(θ, X, y, D)
     # You must always use the same ε draw #
     # for every guess of θ!               #
     #### !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ###
-    
     # simulated model moments
     for d=1:D
-        ε = sqrt(σ^2)*randn(N) # to ensure σ is always positive
+        ε = σ*randn(N)
         ỹ = X*β .+ ε
-        gmodel[1,d] = mean(ỹ)
-        for k=1:K
-            gmodel[k,d] = cov( ỹ,X[:,k] )
-        end
-        gmodel[K+1,d] = var(ỹ)
+        gmodel[1:end-1,d] = ỹ
+        gmodel[  end  ,d] = var(ỹ)
     end
 
-    # minimize squared difference between data and moments
-    g = mean(gmodel .- gdata; dims=2)
-    J = N*g⋅g
+    # criterion function
+    err = vec(gdata .- mean(gmodel; dims=2))
+
+    # weighting matrix is the identity matrix
+
+    # minimize weighted difference between data and moments
+    J = err'*I*err
     return J
 end
 ```
 ]
 
-- Data moments to match: $\left\{\overline{y},\widehat{V}(y),\widehat{Cov}\left(y,X_k\right)\right\}$
+- Data moments to match: $\left\{y_i, i=1,\ldots,N;\widehat{V}(y)\right\}$
 
-- Model moments to match: $\left\{\overline{\tilde{y}},\widehat{V}(\tilde{y}),\widehat{Cov}\left(\tilde{y},X_k\right)\right\}$
+- Model moments to match: $\left\{\tilde{y}_i, i=1,\ldots,N;\widehat{V}(\tilde{y})\right\}$
 
 ---
 # SMM optimization
 
 - We can optimize the objective function with any optimizer we'd like
 
-- Note that the SMM objective function is much .hi[bumpier] than its GMM version
+- In general, the SMM objective function may be poorly behaved (i.e. local optima)
 
-- So you will need to employ tactics to find the global maximum:
+- So you may need to employ tactics to find the global optimum:
     - use LBFGS from many different starting values
     - use Simulated Annealing or Particle Swarm
     - (these are algorithms designed to find global optima)
     
-- But if you give it OLS as starting values, it will go to the right place
+- But SMM should be well behaved for simple problems (like OLS)
 
-- It will also work if you give it $Cov(y,X_k)$ as starting values for the slope coefficients
-
-- Purely random starting values won't work!
+- .hi[Always remember:] Must use .hi[same] draw of $\varepsilon$ in every optimizer iteration!
 
 ---
 # SMM.jl
