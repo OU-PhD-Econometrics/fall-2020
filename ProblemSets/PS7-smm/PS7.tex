@@ -1,0 +1,84 @@
+\documentclass[12pt,english]{article}
+\usepackage{mathptmx}
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+\usepackage{geometry}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+\definecolor{byublue}     {RGB}{0.  ,30. ,76. }
+\definecolor{darkblue}    {RGB}{0.  ,0.  ,139.}
+\definecolor{dukeblue}    {RGB}{0.  ,0.  ,156.}
+\geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\usepackage{amsmath}
+\usepackage[authoryear]{natbib}
+\usepackage{minted}
+\usepackage{mathtools}
+\definecolor{bg}{rgb}{0.95,0.95,0.95}
+\usepackage[backref=page]{hyperref}                                              % Always add hyperref (almost) last
+\hypersetup{unicode=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=3,
+ breaklinks=true,pdfborder={0 0 0},colorlinks,citecolor=darkblue,filecolor=darkblue,linkcolor=darkblue,urlcolor=darkblue,pagebackref=true}
+\usepackage[all]{hypcap}                                            % Links point to top of image, builds on hyperref
+\usepackage{breakurl}
+
+\begin{document}
+
+\title{Problem Set 7}
+\author{ECON 6343: Econometrics III\\
+Prof. Tyler Ransom\\
+University of Oklahoma}
+\date{Due: October 13, 9:00 AM}
+
+\maketitle
+Directions: Answer all questions. Each student must turn in their own copy, but you may work in groups. Clearly label all answers. Show all of your code. Turn in jl-file(s), output files and writeup via GitHub. Your writeup may simply consist of comments in jl-file(s). If applicable, put the names of all group members at the top of your writeup or jl-file.
+
+You may need to install and load the following package:
+\begin{itemize}
+ \item[~] \texttt{SMM}
+\end{itemize}
+
+You will need to load the following previously installed packages:
+\begin{itemize}
+    \item[~] \texttt{Optim} 
+    \item[~] \texttt{HTTP} 
+    \item[~] \texttt{GLM} 
+    \item[~] \texttt{LinearAlgebra} 
+    \item[~] \texttt{Random} 
+    \item[~] \texttt{Statistics} 
+    \item[~] \texttt{DataFrames} 
+    \item[~] \texttt{DataFramesMeta} 
+    \item[~] \texttt{CSV} 
+\end{itemize}
+\pagebreak
+In this problem set, we will practice estimating models by Generalized Method of Moments (GMM) and Simulated Method of Moments (SMM).
+
+\begin{enumerate}
+\item Estimate the linear regression model from Question 2 of Problem Set 2 by GMM. Write down the moment function as in slide \#8 of the Lecture 9 slide deck and use \texttt{Optim} for estimation. Use the $N\times N$ Identity matrix as your weighting matrix. Check your answer using the closed-form matrix formula for the OLS estimator.
+
+\item Estimate the multinomial logit model from Question 5 of Problem Set 2 by the following means:
+    \begin{enumerate}
+    \item Maximum likelihood (i.e. re-run your code [or mine] from Question 5 of Problem Set 2)
+    \item GMM with the MLE estimates as starting values. Your $g$ object should be a vector of dimension $N\times J$ where $N$ is the number of rows of the $X$ matrix and $J$ is the dimension of the choice set. Each element, $g$ should equal $d - P$, where $d$ and $P$ are ``stacked'' vectors of dimension $N\times J$
+    \item GMM with random starting values
+    \end{enumerate}
+    Compare your estimates from part (b) and (c). Is the objective function globally concave?
+
+\item Simulate a data set from a multinomial logit model, and then estimate its parameter values and verify that the estimates are close to the parameter values you set. That is, for a given sample size $N$, choice set dimension $J$ and parameter vector $\beta$, write a function that outputs data $X$ and $Y$. I will let you choose $N$, $J$, $\beta$ and the number of covariates in $X$ ($K$), but $J$ should be larger than 2 and $K$ should be larger than 1. If you haven't done this before, you may want to follow these steps:
+    \begin{enumerate}
+    \item Generate $X$ using a random number generator---\texttt{rand()} or \texttt{randn()}.
+    \item Set values for $\beta$ such that conformability with $X$ and $J$ is satisfied
+    \item Generate the $N\times J$ matrix of choice probabilities $P$
+    \item Draw the preference shocks $\epsilon$ as a $N\times 1$ vector of $U[0,1]$ random numbers
+    \item Generate $Y$ as follows:
+        \begin{itemize}
+        \item Initialize $Y$ as an $N\times 1$ vector of 0s
+        \item Update $Y_i = \sum_{j=1}^J 1\left[\left\{\sum_{k=j}^J  P_{ik}\right\} > 
+        \epsilon_i\right]$
+        \end{itemize}
+    \item An alternative way to generate choices would be to draw a $N\times J$ matrix of $\epsilon$'s from a T1EV distribution. This distribution is already defined in the \texttt{Distributions} package. Then $Y_i = \arg \max_{j} X_i \beta_j + \epsilon_{ij}$. I'll show you an example of how to do that in the solutions code for this problem set.
+    \end{enumerate}
+\item Use \texttt{SMM.jl} to run the example code on slide \#21 of the Lecture 9 slide deck.
+
+\item Use your code from Question 3 to estimate the multinomial logit model from Question 2 using SMM and the code example from slide \#18 of the Lecture 9 slide deck.
+
+\end{enumerate}
+\end{document}

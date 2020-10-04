@@ -22,5 +22,8 @@ ProblemSets/PS5-ddc/an_busdata.log
 ProblemSets/PS5-ddc/rustbusdata.csv
 ProblemSets/PS5-ddc/AM2011replication
 ProblemSets/PS6-ccp/PS6solutions.jl
+ProblemSets/PS7-smm/PS7solutions.jl
+ProblemSets/PS7-smm/PS7stata.do
+ProblemSets/PS7-smm/PS7stata.*
 References/*.pdf
 References/TrainTextbook/*.pdf
