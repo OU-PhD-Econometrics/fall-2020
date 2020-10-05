@@ -20,7 +20,7 @@
 | 14 | Thu Oct  8  | [Simulated Method of Moments](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/24b0d44f914bda6f549d5a446468cd16d1948dd6/LectureNotes/09-SMM/09slides.html)  | _Train_, 10.1-10.2; [Smith](http://www.econ.yale.edu/smith/palgrave7.pdf), p. 1  | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ7.md)  |
 | 15 | Tue Oct 13  | Coding Day - go over PS 7  | | [PS 7](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ProblemSets/PS7-smm/PS7.pdf)  |
 | 16 | Thu Oct 15  | Model Fit, Counterfactuals, Model validation | [Fu, Grau and Rivera (2020)](https://www.ssc.wisc.edu/~cfu/wander.pdf) | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ8.md)  |
-| 17 | Tue Oct 20  | Subjective Expectations, Stated Preference and Choice Experiments  | _Train_, 7.2-7.6; [Blass, Lach and Manski (2010)](https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1468-2354.2010.00586.x) | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ9.md)  |
+| 17 | Tue Oct 20  | Subjective Expectations, Stated Preference and Choice Experiments  | _Train_, 7.2-7.6; [Koşar, Ransom and van der Klaauw (2020)](https://tyleransom.github.io/research/SCE_migration.pdf), section 3.3 | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ9.md)  |
 | 18 | Thu Oct 22  | Measurement Error & Factor Models  | [Heckman, Stixrud and Urzua (2006)](https://jenni.uchicago.edu/papers/Heckman-Stixrud-Urzua_JOLE_v24n3_2006.pdf)  | Reading Quiz  |
 | 19 | Tue Oct 27  | Coding Day - go over PS 8  | | PS 8  |
 | 20 | Thu Oct 29  | Midterm Exam (in class)  | | |
