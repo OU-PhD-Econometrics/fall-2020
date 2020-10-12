@@ -19,21 +19,21 @@
 | 13 | Tue Oct  6  | Coding Day - go over PS 6  | | [PS 6](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ProblemSets/PS6-ccp/PS6.pdf)  |
 | 14 | Thu Oct  8  | [Simulated Method of Moments](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/24b0d44f914bda6f549d5a446468cd16d1948dd6/LectureNotes/09-SMM/09slides.html)  | _Train_, 10.1-10.2; [Smith](http://www.econ.yale.edu/smith/palgrave7.pdf), p. 1  | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ7.md)  |
 | 15 | Tue Oct 13  | Coding Day - go over PS 7  | | [PS 7](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ProblemSets/PS7-smm/PS7.pdf)  |
-| 16 | Thu Oct 15  | Model Fit, Counterfactuals, Model validation | [Fu, Grau and Rivera (2020)](https://www.ssc.wisc.edu/~cfu/wander.pdf) | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ8.md)  |
+| 16 | Thu Oct 15  | [Model Fit, Counterfactuals, Model validation](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/10-Cfl/10slides.html) | [Fu, Grau and Rivera (2020)](https://www.ssc.wisc.edu/~cfu/wander.pdf), [Lang and Palacios (2018)](http://people.bu.edu/lang/Lang%20and%20Palacios.pdf) | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ8.md)  |
 | 17 | Tue Oct 20  | Subjective Expectations, Stated Preference and Choice Experiments  | _Train_, 7.2-7.6; [Koşar, Ransom and van der Klaauw (2020)](https://tyleransom.github.io/research/SCE_migration.pdf), section 3.3 | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ9.md)  |
-| 18 | Thu Oct 22  | Measurement Error & Factor Models  | [Heckman, Stixrud and Urzua (2006)](https://jenni.uchicago.edu/papers/Heckman-Stixrud-Urzua_JOLE_v24n3_2006.pdf)  | Reading Quiz  |
+| 18 | Thu Oct 22  | Measurement Error & Factor Models  | [Heckman, Stixrud and Urzua (2006)](https://jenni.uchicago.edu/papers/Heckman-Stixrud-Urzua_JOLE_v24n3_2006.pdf)  | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ10.md)  |
 | 19 | Tue Oct 27  | Coding Day - go over PS 8  | | PS 8  |
 | 20 | Thu Oct 29  | Midterm Exam (in class)  | | |
 | ---  | Tue Nov  3  | **No class** (Election Day)  | | |
-| 21 | Thu Nov 5   | Causal Modeling: DAGs and Potential Outcomes | Mixtape | Reading Quiz | 
-| 22 | Tue Nov 10  | Overview of Reduced-form Causal Inference Techniques | Mixtape | Reading Quiz  |  
+| 21 | Thu Nov 5   | Causal Modeling: DAGs and Potential Outcomes | Mixtape | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ11.md) | 
+| 22 | Tue Nov 10  | Overview of Reduced-form Causal Inference Techniques | Mixtape | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ12.md)  |  
 | 23 | Thu Nov 12  | Regression and Partial identification  | [Krauth (2016)](https://www.degruyter.com/view/journals/jem/5/1/article-p117.xml), [Oster (2019)](https://www.tandfonline.com/doi/full/10.1080/07350015.2016.1227711) | PS 9  |
-| 24 | Tue Nov 17  | ATE, LATE, MTE | | |
-| 25 | Thu Nov 19  | Treatment Effect Heterogeneity | | |
-| 26 | Tue Nov 24  | Intro to Machine Learning | | |
+| 24 | Tue Nov 17  | ATE, LATE, MTE | | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ13.md) |
+| 25 | Thu Nov 19  | Treatment Effect Heterogeneity | | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ14.md) |
+| 26 | Tue Nov 24  | Intro to Machine Learning | | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ15.md) |
 | ---  | Thu Nov 26  | **No class** (Thanksgiving)  | | |
-| 27 | Tue Dec  1  | Machine Learning for Causal Modeling  | | |
-| 28 | Thu Dec  3  | Matrix Completion Methods (Time permitting)  | | |
+| 27 | Tue Dec  1  | Machine Learning for Causal Modeling  | | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ16.md) |
+| 28 | Thu Dec  3  | Matrix Completion Methods (Time permitting)  | | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ17.md) |
 | 29 | Tue Dec  8  | Presentations  | | Presentation  |
 | 30 | Thu Dec 10  | Presentations  | | Presentation, Referee Report  |
 | ---  | Mon Dec 14  | Final Exam (Referee Report due)  | | Research Proposal |
