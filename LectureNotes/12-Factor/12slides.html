@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Lecture 12</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Tyler Ransom" />
+    <link href="12slides_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="12slides_files/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="12slides_files/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            TeX: { equationNumbers: { autoNumber: "AMS" } },
+        });
+    </script>
+        <style>
+        .mjx-mrow a {
+            color: black;
+            pointer-events: none;
+            cursor: default;
+        }
+    </style>
+    <link rel="stylesheet" href="ou-colors.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Lecture 12
+## Factor Models
+### Tyler Ransom
+### ECON 6343, University of Oklahoma
+
+---
+
+
+
+
+# Plan for the Day
+
+1. Discuss proxy variables &amp; measurement error
+
+2. Methods for dimensionality reduction
+
+3. Economic content of factor models
+
+4. Examples of factor models
+
+
+
+---
+# Attribution
+
+I gratefully acknowledge Esteban Aucejo for sharing his slides on factor models, some of which I incorporated in what follows.
+
+I also based some content on Shalizi (2019) which is an excellent textbook on data analysis.
+
+
+---
+# Proxy variables
+
+- Suppose we have a simple linear regression model
+
+`\begin{align*}
+y &amp;= X\beta + \varepsilon
+\end{align*}`
+
+- If `\((y,X)\)` come from observational data, the model is likely confounded
+
+- That is, our OLS estimate of `\(\hat{\beta}\)` would be biased (because `\(X\)` is correlated with `\(\varepsilon\)`)
+
+- One potential way to remove the bias is to include a .hi[proxy variable]
+
+- This is a variable that we can observe and that is related to something in `\(\varepsilon\)`
+
+- Example: unobserved ability biases returns to schooling. IQ might be a viable proxy
+
+
+---
+# A brief review of measurement error
+
+- What if our proxy is measured with error? This can cause econometric problems
+
+- In linear regression, under "classical measurement error" (CEV) assumption:
+
+    - OLS estimates are attenuated to zero (i.e. "attenuation bias")
+    
+    - OLS t-stats are biased downwards
+
+- There are other "non-classical" forms of measurement error as well
+
+- See Pischke (2007) for a good treatment of ME
+
+- Naturally, measurement error is a beast in non-linear models
+
+- See Chen, Hong, and Nekipelov (2011) for a complete treatment
+
+---
+# Proxy variables &amp; measurement error
+
+- Unless they happen to resolve the endogeneity problem, proxy variables won't work
+
+- (Need `\(\mathbb{E}\left(\varepsilon \vert X, proxy\right) = \mathbb{E}\left(\varepsilon \vert proxy\right)\)`)
+
+- And usually proxies don't satisfy this requirement
+
+- You can use instrumental variables to solve the ME problem
+
+- But only in linear models
+
+- And, of course, instrument validity is almost always in question
+
+- So it seems you have to choose between omitted variable bias and attenuation bias
+
+---
+# What if we have many correlated proxies?
+
+- For the unobserved ability question, we might have many different proxies
+
+- e.g. individuals might take multiple standardized tests
+
+- How do we know which test scores to attempt to use as proxies?
+
+- What if each test itself suffers from measurement error?
+
+- What if the test scores are highly correlated with each other?
+
+- Today we'll talk about how to handle this situation
+
+- The application focuses on measuring ability
+
+- But this approach is generally applicable when we have many noisy measurements
+
+---
+# Dimensionality reduction
+
+- .hi[Dimensionality reduction] is a common task in data analysis
+
+- If 3 variables all give the same information, why not just have 1?
+
+- There are two related methods for reducing dimensionality
+
+1. .hi[Principle Components Analysis (PCA)]
+
+2. .hi[Factor Analysis]
+
+---
+# PCA
+
+- PCA is one way to reduce dimensionality. Let `\(M\)` be an `\(N\times J\)` matrix of data
+
+- Decompose `\(M\)` as follows:
+`\begin{align*}
+M &amp;= \boldsymbol{\theta}\Lambda\\
+[N\times J] &amp;= [N\times J] [J\times J]
+\end{align*}`
+
+- `\(\Lambda\)` are stacked eigenvectors
+
+- `\(\boldsymbol{\theta}\)` is an .hi[orthogonalized transformation] of `\(M\)` (columns of `\(\boldsymbol{\theta}\)` are uncorrelated)
+
+- `\(\Lambda\)` indicates the rotation angle to get from `\(\boldsymbol{\theta}\)` back to `\(M\)`
+
+- If `\(M\)` were orthogonal to begin with, `\(\Lambda = I\)` and `\(M=\boldsymbol{\theta}\)`
+
+
+---
+# PCA 2
+
+- Nothing on the previous slide helps us with dimensionality reduction per se
+
+- We reduce dimensionality by choosing the eigenvectors with the largest magnitudes
+
+- These represent the dimensions `\(\boldsymbol{\theta}\)` with the greatest variance
+
+- We say that we "select the first `\(K\)` .hi[principal components] of `\(M\)`"
+
+- Mathematically, we "reduce" (i.e. "approximate") `\(M\)` by choosing a subset of `\(\boldsymbol{\theta}\)` and `\(\Lambda\)`
+
+`\begin{align*}
+\widetilde{M} &amp;= \boldsymbol{\theta}_k\Lambda_k\\
+[N\times J] &amp;= [N\times K] [K\times J]\\
+&amp;\\
+M &amp;= \boldsymbol{\theta}_k\Lambda_k + \boldsymbol{\varepsilon}
+\end{align*}`
+where `\(\boldsymbol{\varepsilon}\equiv M - \widetilde{M}\)` is a `\(N\times J\)` matrix
+
+
+---
+# Visual depiction of PCA
+
+.center[![pca](GaussianScatterPCA.jpg)]
+
+- The arrows are the eigenvectors; longer arrows correspond to more variance 
+(image source: [Wikipedia](https://upload.wikimedia.org/wikipedia/commons/f/f5/GaussianScatterPCA.svg))
+
+---
+# Factor Analysis
+
+- Factor Analysis comes in two forms: Exploratory (EFA) and Confirmatory (CFA)
+    
+    - EFA: see what factors might be in the data
+    
+    - CFA: write down a model and use the data to test it
+
+- In economics, we pretty much only do CFA
+
+- FA is used extensively in psychometrics
+
+- It is a natural tool for analyzing cognitive or behavioral tests
+
+    - Each test measures some set of skills, but does so noisily
+    
+    - Tests tend to measure the same set of skills, so they are correlated
+
+---
+# How factor analysis works
+
+- Suppose our `\(J\)` columns of `\(M\)` correspond to measurements (e.g. test scores)
+
+- FA tries to find some underlying unobservables that commonly affect `\(M\)`
+
+- We assume that we cannot observe `\(\boldsymbol{\theta}\)`
+
+- If we assume that `\(M\)` is standardized (mean-zero, unit-variance), then
+
+`\begin{align*}
+M &amp;= \underbrace{\boldsymbol{\theta}_k\Lambda_k + \boldsymbol{\varepsilon}}_{\boldsymbol{u}}
+\end{align*}`
+
+- `\(u\)` is a composite error term (since both `\(\boldsymbol{\theta}\)` and `\(\varepsilon\)` are unobservable)
+
+- In FA, we call `\(\boldsymbol{\theta}\)` .hi[factors], and we call `\(\Lambda\)` .hi[factor loadings] and `\(\boldsymbol{\varepsilon}\)` .hi[uniquenesses]
+
+
+---
+# PCA vs. FA
+
+- Clearly, PCA and FA are related, but there are important differences
+
+- The `\(\boldsymbol{\theta}_k\)` we get from PCA and FA are going to be different
+
+- But the `\(\Lambda_k\)` are identical (and hence the `\(\boldsymbol{\varepsilon}\)` are different)
+
+- `\(\boldsymbol{\theta}_k^{PCA}\)` has larger variance than `\(\boldsymbol{\theta}_k^{FA}\)`
+
+- This is because PCA treats `\(M\)` as not measured with error, but FA does the opposite
+
+- For many more excellent details, see Shalizi (2019)  [here](http://www.stat.cmu.edu/~cshalizi/uADA/12/lectures/ch19.pdf)
+
+---
+# Extensions of FA
+
+- We can extend FA to allow for `\(X\)`'s that affect our measurements
+
+`\begin{align*}
+M &amp;= X\boldsymbol{\beta} + \underbrace{\boldsymbol{\theta}_k\Lambda_k + \boldsymbol{\varepsilon}}_{\boldsymbol{u}} \\
+[N\times J] &amp;= [N\times L] [L\times K] + [N\times K] [K\times J] + [N\times J]
+\end{align*}`
+
+- If `\(X\)` is `\(N\times L\)` then `\(\boldsymbol{\beta}\)` is a `\(L\times K\)` matrix, where `\(K\)` is the number of factors
+
+- However, we do need to make more assumptions for econometric identification!
+
+---
+# Identifying assumptions for a 2-factor model
+
+- We need to make the following assumptions:
+
+`\begin{align*}
+\mathbb{E}\left(\boldsymbol{\varepsilon}\right) &amp;= \mathbf{0}_{J\times 1}\\
+\mathbb{V}\left(\boldsymbol{\varepsilon}\right) &amp;\equiv \mathbb{E}\left(\boldsymbol{\varepsilon}'\boldsymbol{\varepsilon}\right)=\Omega_{J\times J}\\
+\Omega_{[j,j]} &amp;= \sigma^2_j, \Omega_{[j,k]} = 0\\
+\mathbb{E}\left(\boldsymbol{\theta}\right) &amp;= \mathbf{0}_{2\times 1}\\
+\mathbb{V}\left(\boldsymbol{\theta}\right) &amp;= \Sigma_\boldsymbol{\theta}
+\end{align*}`
+
+- Let `\(u \equiv M - X\boldsymbol{\beta}\)`, then
+`\begin{align*}
+\mathbb{E}\left(u\right) &amp;= \mathbf{0}_{J\times 1}\\
+\mathbb{V}\left(u\right) &amp;= \Lambda\Sigma_\boldsymbol{\theta}\Lambda' + \Omega\\
+\Sigma_\boldsymbol{\theta} &amp;= \left[\begin{array}{cc}
+\sigma^2_{\theta_1} &amp; \sigma_{\theta_1 \theta_2}\\
+\sigma_{\theta_1 \theta_2} &amp; \sigma^2_{\theta_2}\\
+\end{array}\right]
+\end{align*}`
+
+---
+# Identification of a 2-factor model
+
+- Our only data source to estimate `\(\Lambda\)` and `\(\Sigma_\boldsymbol{\theta}\)` is `\(\mathbb{V}\left(M-X\boldsymbol{\beta}\right)\equiv \mathbb{V}\left(u\right)\)`
+
+- Let's look at the variance-covariance matrix of `\(u\)`:
+
+    - This has `\(J\)` diagonal elements and `\(\frac{J(J-1)}{2}\)` unique off-diagonal elements
+
+- With these `\(J+\frac{J(J-1)}{2}\)` moments in the data, we want to estimate:
+    - The `\(J\)` diagonal elements of `\(\Omega\)` (i.e. the `\(\sigma^2_j\)`'s)
+    - `\(2J\)` elements of `\(\Lambda\)`
+    - four elements of `\(\Sigma_\boldsymbol{\theta}\)`
+
+- We have `\(3J+4\)` parameters, but only `\(J+\frac{J(J-1)}{2}\)` data moments
+
+- In general, the model is not identified. We will need to impose further assumptions.
+
+
+---
+# Additional identifying assumptions
+
+- The following are common assumptions, but you could impose others
+
+1. `\(\theta_1 \perp \theta_2\)` (so `\(\Sigma_\boldsymbol{\theta}\)` is diagonal)
+
+2. The scale of each factor is arbitrary. 2 ways to normalize the scale:
+    - `\(\Sigma_\boldsymbol{\theta} = I_{2\times 2}\)`
+    - or
+    - Set one element of each row of `\(\Lambda=1\)`
+    
+- With these two assumptions, we achieve identification if
+
+`\begin{align*}
+2J + J \leq J+\frac{J(J-1)}{2}
+\end{align*}`
+
+- So `\(J\geq 5\)` is necessary (but not sufficient) for identification
+
+
+
+---
+# Other identification considerations
+
+- For .hi[model interpretability], also need to put more structure on `\(\Lambda\)`
+
+- For example, suppose we have 6 measurements: 
+    - 3 from a cognitive test and 3 from a personality test
+
+- In this case, the first row of `\(\Lambda\)` should be 0 for the personality measures
+
+- Likewise, the second row of `\(\Lambda\)` should be 0 for the cognitive measures
+
+- If all 6 measurements come from a cog. test, can't identify a non-cog. factor
+
+- Could possibly identify `\(\sigma_{\theta_1\theta_2}\)` if one measurement measures both factors
+
+
+---
+# Estimation of factor models
+
+- Typically, we impose distributional assumptions on `\(\boldsymbol{\theta}\)` and `\(\boldsymbol{\varepsilon}\)`
+
+- e.g. assume `\(\boldsymbol{\theta}\)` and `\(\boldsymbol{\varepsilon}\)` are each MVN with 0 covariance and `\(\boldsymbol{\theta} \perp \boldsymbol{\varepsilon}\)`
+
+- Then we estimate `\((\Lambda, \Sigma_\boldsymbol{\theta}, \Omega)\)` by maximum likelihood
+
+- The likelihood function will need to be integrated, since `\(\boldsymbol{\theta}\)` is unobserved
+
+- Can use quadrature, simulated method of moments, MCMC, or the EM algorithm
+
+    - As you know, these vary in their ease of use
+
+
+---
+# Using factor models to `\(\downarrow\)` bias of regression estimates
+
+- The whole reason we use a factor model is to reduce bias
+
+- Let's go back to the log wage example from the start of today
+
+    - `\(\beta\)`'s are biased if we omit cognitive ability (omitted variable bias)
+    
+    - `\(\beta\)`'s are also biased if we include IQ score (attenuation bias from meas. err.)
+
+- We know cognitive ability affects wages, and we have (noisy) measurements of it
+
+- We can estimate the log wage parameters by maximum likelihood
+
+- We combine together the log wage and factor model likelihoods
+
+- I'll walk you through how to do this in the Problem Set (due next time)
+
+---
+# Factor models and dynamic selection
+
+- Factor models can also be used to account for dynamic selection
+
+- Intuition: `\(\uparrow\)` cog. abil `\(\Rightarrow \uparrow\)` schooling `\(\Rightarrow \uparrow\)` wages
+
+- Schooling is endogenous, so we can add a schooling choice model to our likelihood
+
+- When the ability factor enters choice of schooling, this induces a correlation between schooling choices and wages
+
+- But conditional on the factor, we have separability of the likelihood components
+
+- `\(\mathcal{L} = \int_A \underbrace{\mathcal{L}_1(A)}_{\text{measurements}}\underbrace{\mathcal{L}_2(A)}_{\text{choices}}\underbrace{\mathcal{L}_3(A)}_{\text{wages}} dF(A)\)`
+
+- We covered a variant of this case back when we discussed Mixed Logit
+
+
+---
+# Seminal papers applying factor analysis
+
+- Heckman, Stixrud, and Urzua (2006)
+    
+    - first paper to apply this method to an econometric model
+    
+    - show that this method works
+    
+    - 2 latent factors impact a variety of outcomes
+    
+- Cunha, Heckman, and Schennach (2010)
+
+    - develop a dynamic factor model of early childhood skill production
+    
+    - latent ability in one period affects investment in subsequent periods
+
+
+---
+# Recent papers
+
+- Aucejo and James (2019)
+    - Why do women attain more education than men, especially among Blacks?
+    - Use 59 measures of early student information 
+    - 3 factors: family background, math/verbal skills, externalizing behavior
+    - Family background differences drive most of the observed gaps
+
+- Ashworth, Hotz, Maurel, and Ransom (2020)
+    - Estimate wage returns to schooling and different types of work experience
+    - 2 factors: cognitive and "not" cognitive
+    - Accounting for selection matters a lot for calculation of returns to schooling
+
+---
+# References
+.smallest[
+Ashworth, J, V. J. Hotz, A. Maurel, et al. (2020). "Changes across
+Cohorts in Wage Returns to Schooling and Early Work Experiences". In:
+_Journal of Labor Economics_. DOI:
+[10.1086/711851](https://doi.org/10.1086%2F711851).
+
+Aucejo, E. M. and J. James (2019). "Catching Up to Girls: Understanding
+the Gender Imbalance in Educational Attainment Within Race". In:
+_Journal of Applied Econometrics_ 34.4, pp. 502-525. DOI:
+[10.1002/jae.2699](https://doi.org/10.1002%2Fjae.2699).
+
+Chen, X, H. Hong, and D. Nekipelov (2011). "Nonlinear Models of
+Measurement Errors". In: _Journal of Economic Literature_ 49.4, pp.
+901-937. DOI:
+[10.1257/jel.49.4.901](https://doi.org/10.1257%2Fjel.49.4.901).
+
+Cunha, F, J. J. Heckman, and S. M. Schennach (2010). "Estimating the
+Technology of Cognitive and Noncognitive Skill Formation". In:
+_Econometrica_ 78.3, pp. 883-931. DOI:
+[10.3982/ECTA6551](https://doi.org/10.3982%2FECTA6551).
+
+Heckman, J. J, J. Stixrud, and S. Urzua (2006). "The Effects of
+Cognitive and Noncognitive Abilities on Labor Market Outcomes and
+Social Behavior". In: _Journal of Labor Economics_ 24.3, pp. 411-482.
+DOI: [10.1086/504455](https://doi.org/10.1086%2F504455).
+
+Pischke, S. (2007). _Lecture Notes on Measurement Error_. Lecture
+Notes. London School of Economics. URL:
+[http://econ.lse.ac.uk/staff/spischke/ec524/Merr_new.pdf](http://econ.lse.ac.uk/staff/spischke/ec524/Merr_new.pdf).
+
+Shalizi, C. R. (2019). _Advanced Data Analysis from an Elementary Point
+of View_. Cambridge University Press. URL:
+[http://www.stat.cmu.edu/~cshalizi/ADAfaEPoV/ADAfaEPoV.pdf](http://www.stat.cmu.edu/~cshalizi/ADAfaEPoV/ADAfaEPoV.pdf).
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
