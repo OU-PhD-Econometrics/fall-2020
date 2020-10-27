@@ -23,10 +23,10 @@
 | 17 | Tue Oct 20  | [Subjective Expectations, Stated Preference and Choice Experiments](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/11-SubjExp/11slides.html)  | _Train_, 7.2-7.3; [Koşar, Ransom and van der Klaauw (2020)](https://tyleransom.github.io/research/SCE_migration.pdf), section 3.3 | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ9.md)  |
 | 18 | Thu Oct 22  | [Measurement Error & Factor Models](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/fcdfaa8be0acf072f7d251e1d29632eccd74da05/LectureNotes/12-Factor/12slides.html)  | [Heckman, Stixrud and Urzua (2006)](https://jenni.uchicago.edu/papers/Heckman-Stixrud-Urzua_JOLE_v24n3_2006.pdf)  | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ10.md)  |
 | --- | Tue Oct 27  | **No class** (Snow Day)  | | |
-| 19 | Tue Oct 27  | Coding Day - go over PS 8  | | [PS 8](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ProblemSets/PS8-factor/PS8.pdf)  |
+| 19 | Thu Oct 29  | Coding Day - go over PS 8  | | [PS 8](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ProblemSets/PS8-factor/PS8.pdf)  |
 | ---  | Tue Nov  3  | **No class** (Election Day)  | | |
-| 20 | Thu Nov 5   | Learning models | Miller (1984) | Take-home Midterm | 
-| 21 | Thu Nov 12  | Constrained optimization and equilibrium models | ???  | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ11.md) |
+| 20 | Thu Nov 5   | Learning models | [Miller (1984)](https://doi.org/10.1086/261276) | Take-home Midterm | 
+| 21 | Thu Nov 12  | Constrained optimization and equilibrium models | TBA  | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ11.md) |
 | 22 | Tue Nov 10  | Obtaining causal effects without an "identification strategy"  | [Altonji, Elder & Taber](https://doi.org/10.1086/426036) |  | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ12.md) | 
 | 23 | Tue Nov 17  | Causal Modeling: DAGs and Potential Outcomes | Mixtape | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ13.md) |
 | 24 | Thu Nov 19  | ATE, LATE, MTE | | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ14.md) |
