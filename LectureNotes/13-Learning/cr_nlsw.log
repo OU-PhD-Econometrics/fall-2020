@@ -1,0 +1,171 @@
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /home/ransom/cr_nlsw.log
+  log type:  text
+ opened on:  30 Oct 2020, 10:37:56
+
+. 
+. webuse nlswork
+(National Longitudinal Survey.  Young Women 14-26 years of age in 1968)
+
+. mdesc ln_wage
+     Variable      Missing      Total     Missing/Total
+    ------------------------------------------------------------
+     ln_wage           0       28534              0
+
+. 
+. fillin id year
+
+. mdesc ln_wage
+     Variable      Missing      Total     Missing/Total
+    ------------------------------------------------------------
+     ln_wage       42131       70665        .596207
+
+. 
+. egen grid = group(id)
+
+. drop idcode
+
+. ren grid idcode
+
+. 
+. bys id (year): egen t = seq()
+
+. 
+. gen Choice = 2-!mi(ln_wage)
+
+. 
+. xtset id year
+       panel variable:  idcode (strongly balanced)
+        time variable:  year, 68 to 88, but with gaps
+                delta:  1 unit
+
+. 
+. gen working = Choice==1
+
+. 
+. drop ttl_exp age
+
+. 
+. bys id (year): gen exper = sum(L.working)
+
+. bys id (year): egen yrbornA = max(birth_yr)
+
+. bys id (year): egen yrborn = mean(yrbornA)
+
+. bys id (year): egen collgradA = max(collgrad)
+
+. bys id (year): egen raceA = max(race)
+
+. 
+. drop birth_yr collgrad race
+
+. ren yrborn birth_yr
+
+. ren collgradA collgrad
+
+. ren raceA race
+
+. gen race1 = race==1
+
+. gen age = year - birth_yr
+
+. 
+. recode ln_wage (. = 999)
+(ln_wage: 42131 changes made)
+
+. 
+. keep id t Choice workin ln_wage exper race age collgrad race1
+
+. outsheet using nlswlearn.csv, comma nol replace
+
+. 
+. reg   ln_wage c.exper##c.exper i.collgrad race1 if Choice==1
+
+      Source |       SS           df       MS      Number of obs   =    28,534
+-------------+----------------------------------   F(4, 28529)     =   1524.19
+       Model |  1148.34765         4  287.086912   Prob > F        =    0.0000
+    Residual |  5373.53624    28,529  .188353473   R-squared       =    0.1761
+-------------+----------------------------------   Adj R-squared   =    0.1760
+       Total |  6521.88388    28,533  .228573367   Root MSE        =      .434
+
+---------------------------------------------------------------------------------
+        ln_wage |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+----------------+----------------------------------------------------------------
+          exper |   .0548383   .0039726    13.80   0.000     .0470517    .0626248
+                |
+c.exper#c.exper |   -.000337   .0006319    -0.53   0.594    -.0015755    .0009016
+                |
+     1.collgrad |   .4861714    .007035    69.11   0.000     .4723825    .4999603
+          race1 |   .0959641   .0056729    16.92   0.000     .0848449    .1070832
+          _cons |   1.402809   .0064485   217.54   0.000      1.39017    1.415448
+---------------------------------------------------------------------------------
+
+. xtreg ln_wage c.exper##c.exper i.collgrad race1 if Choice==1, fe
+note: 1.collgrad omitted because of collinearity
+note: race1 omitted because of collinearity
+
+Fixed-effects (within) regression               Number of obs     =     28,534
+Group variable: idcode                          Number of groups  =      4,711
+
+R-sq:                                           Obs per group:
+     within  = 0.1066                                         min =          1
+     between = 0.0001                                         avg =        6.1
+     overall = 0.0201                                         max =         15
+
+                                                F(2,23821)        =    1420.53
+corr(u_i, Xb)  = -0.1642                        Prob > F          =     0.0000
+
+---------------------------------------------------------------------------------
+        ln_wage |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+----------------+----------------------------------------------------------------
+          exper |   .0988903   .0032534    30.40   0.000     .0925135     .105267
+                |
+c.exper#c.exper |    -.00555   .0005149   -10.78   0.000    -.0065591   -.0045408
+                |
+     1.collgrad |          0  (omitted)
+          race1 |          0  (omitted)
+          _cons |   1.498916   .0040576   369.41   0.000     1.490963    1.506869
+----------------+----------------------------------------------------------------
+        sigma_u |  .43407273
+        sigma_e |  .30275422
+            rho |  .67273507   (fraction of variance due to u_i)
+---------------------------------------------------------------------------------
+F test that all u_i=0: F(4710, 23821) = 9.72                 Prob > F = 0.0000
+
+. xtreg ln_wage c.exper##c.exper i.collgrad race1 if Choice==1, re
+
+Random-effects GLS regression                   Number of obs     =     28,534
+Group variable: idcode                          Number of groups  =      4,711
+
+R-sq:                                           Obs per group:
+     within  = 0.1065                                         min =          1
+     between = 0.2130                                         avg =        6.1
+     overall = 0.1733                                         max =         15
+
+                                                Wald chi2(4)      =    4108.70
+corr(u_i, X)   = 0 (assumed)                    Prob > chi2       =     0.0000
+
+---------------------------------------------------------------------------------
+        ln_wage |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+----------------+----------------------------------------------------------------
+          exper |   .0911048   .0031491    28.93   0.000     .0849327    .0972769
+                |
+c.exper#c.exper |  -.0046877   .0005034    -9.31   0.000    -.0056744    -.003701
+                |
+     1.collgrad |   .5135775   .0135325    37.95   0.000     .4870544    .5401007
+          race1 |   .0704529    .011886     5.93   0.000     .0471567    .0937492
+          _cons |   1.379295   .0105059   131.29   0.000     1.358704    1.399887
+----------------+----------------------------------------------------------------
+        sigma_u |   .3355117
+        sigma_e |  .30275422
+            rho |  .55118779   (fraction of variance due to u_i)
+---------------------------------------------------------------------------------
+
+. 
+. log close
+      name:  <unnamed>
+       log:  /home/ransom/cr_nlsw.log
+  log type:  text
+ closed on:  30 Oct 2020, 10:37:58
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,452 @@
+---
+title: "Lecture 13"
+subtitle: "Learning Models"
+author: Tyler Ransom
+date: ECON 6343, University of Oklahoma
+output:
+  xaringan::moon_reader:
+    includes:
+        in_header: "13slides_files/mathjax-equation-numbers.html"
+    css: ['default', 'metropolis', 'metropolis-fonts', 'ou-colors.css']
+    # self_contained: true
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: '16:9'
+
+---
+
+```{r, load_refs, include=FALSE, cache=FALSE}
+library(RefManageR)
+library(tidyverse)
+BibOptions(check.entries = FALSE,
+           bib.style = "authoryear",
+           style = "markdown",
+           hyperlink = FALSE,
+           dashed = TRUE)
+biblio <- ReadBib("../../References/References.bib", check = FALSE)
+```
+
+# Plan for the Day
+
+1. Learning from noisy signals
+
+2. How learning models relate to factor models
+
+3. Bayesian updating & the Kalman filter
+
+4. How to code learning models
+
+5. Examples of learning models in economics
+
+
+---
+# Attribution
+
+Some of these slides are based on content from Peter Arcidiacono's course on learning models.
+
+
+---
+# Imperfect information
+
+- Imperfect information abounds in economics (and real life)
+
+    - life is full of "noisy signals"
+
+    - see also: "it's better to be lucky than good"
+
+    - how do we know someone or something is "lucky" or "good"?
+
+    - how do we know a restaurant we visited for the first time is actually good?
+
+    - how do we know we didn't just happen to get their best dish on a good night?
+
+---
+# Tractable imperfect information
+
+- How do we estimate models where a person has imperfect information?
+
+- We've done some of this already with dynamic discrete choice models: 
+
+    - people can't see the future
+
+    - instead, have expectations about their future states & preference shocks 
+    
+    - we compute individuals' expectations according to the $\mathbb{E}\max$ formula
+
+    - we impose a strong assumption on the distribution of $\epsilon$
+    
+    - That way, we can tractably compute the $\mathbb{E}\max$
+
+
+---
+# How learning works
+
+- Consider a setting where an agent is trying to learn about something, call it $a_i$
+
+- For simplicity, assume $a_i$ is continuous and drawn from CDF $F_a$
+
+- The agent doesn't know the exact value of $a_i$, but has beliefs denoted $\mathbb{E}_t [a_i]$
+
+- He gains additional information about $a_i$ from a noisy signal $S_{it}$
+
+- That is, $S_{it} = a_i + \varepsilon_{it}$ where $\varepsilon_{it}$ is pure noise
+
+- The agent updates his beliefs to $\mathbb{E}_{t+1} [a_i]$ by incorporating the new information in $S_{it}$
+
+- This process repeats itself in each period where $S_{it}$ is received
+
+
+---
+# A little bit more math
+
+- If $\varepsilon_{it}$ is pure noise, then it is independent of $a_i$ for all $t$
+
+- Assume WLOG that $\mathbb{E}(a_{i})=0$ and $\mathbb{E}(\varepsilon_{it})=0$ for all $t$
+
+- Then we can decompose the variance of the signal $S_{it}$
+
+\begin{align*}
+\mathbb{V}(S_{it}) &= \mathbb{V}(a_{i}) + \mathbb{V}(\varepsilon_{it})\\
+&= \sigma^2_a + \sigma^2_{\varepsilon}
+\end{align*}
+
+- The .hi[signal-to-noise ratio (SNR)] is defined as
+\begin{align*}
+\frac{\mathbb{V}(S_{it})}{\mathbb{V}(\varepsilon_{it})} &= \frac{\sigma^2_a + \sigma^2_{\varepsilon}}{\sigma^2_{\varepsilon}}\\
+\end{align*}
+
+- This ratio measures the quality of the signal (bigger is better)
+
+---
+# Semantic detail
+
+- Some people call the signal the "meaningful input" rather than the input + noise
+
+- In this case, the SNR would be
+\begin{align*}
+\frac{\mathbb{V}(a_{i})}{\mathbb{V}(\varepsilon_{it})} &= \frac{\sigma^2_a}{\sigma^2_{\varepsilon}}\\
+\end{align*}
+
+- I couldn't find a consensus on this, so just make sure you keep track of things
+
+---
+# Connection to factor models
+
+- In factor models, we have $J$ correlated noisy measurements $M_j$
+
+- We try to separate the "factor" from $M$ using correlation across the $M_j$'s
+
+- Factor models also involve a composite error term (can label it $a_i + \varepsilon_{ij}$)
+
+- .hi[Difference:] True value of the factor is known to the individual but not the researcher
+
+- In learning models, the factor is unknown to both the researcher and the individual
+
+- Learning models require panel data
+
+---
+# Learning models and factor models
+
+- Rather than being substitutes, these two types of models are .hi[complements]
+
+- Factor models recognize that agents might possess some private information
+
+- Learning models underscore the potential importance of unknown information
+
+- If we ignored private information, that might distort what we call "learning"
+
+
+---
+# Bayesian updating of beliefs
+
+- How exactly do agents update their beliefs given new information in $S_{it}$?
+
+- The simplest way to handle this is to assume .hi[Bayesian updating]
+
+- As the name implies, this comes from Bayes' rule
+
+- Given a .hi[prior] mean and variance belief $\mathbb{E}_t[a_i]$ and $\mathbb{V}_t[a_i]$, agents update according to
+\begin{align*}
+\mathbb{E}_{t+1}[a_i] &= \mathbb{E}_t[a_i]\frac{\sigma^2_\varepsilon}{\sigma^2_\varepsilon + \mathbb{V}_t[a_i]} + S_{it}\frac{\mathbb{V}_t[a_i]}{\sigma^2_\varepsilon + \mathbb{V}_t[a_i]} \\
+\mathbb{V}_{t+1}[a_i] &= \mathbb{V}_t[a_i] \frac{\sigma^2_\varepsilon}{\sigma^2_\varepsilon + \mathbb{V}_t[a_i]}
+\end{align*}
+
+- $\mathbb{E}_{t+1}[a_i]$ and $\mathbb{V}_{t+1}[a_i]$ are referred to as the .hi[posterior] beliefs
+
+---
+# Properties of Bayesian Learning
+
+1. $\mathbb{V}_{t+1}[a_i]>0$ for all $t$
+ 
+    - One is never completely certain of what he has learned
+
+2. If $\sigma^2_a>0$ then $\frac{\partial\mathbb{V}_{t+1}[a_i]}{\partial t}<0$
+
+    - As additional signals are received, uncertainty of beliefs goes down
+
+3. If $\sigma^2_a>0$ then $\lim_{t\rightarrow\infty}\mathbb{V}_{t+1}[a_i] = 0$
+
+    - In the limit, uncertainty of beliefs vanishes
+
+4. The .hi[speed of learning] is dictated by the signal-to-noise ratio
+
+- These properties may not be desirable, but they are intrinsic to Bayesianism
+
+---
+# Non-Bayesian updating
+
+- Bayesian updating is so popular because the math works out nicely
+
+- This is because of what is known as a .hi[conjugate prior] (read Wikipedia)
+
+- If we assume a different kind of updating, the math could get ugly real quick
+
+- But a lot of properties of Bayesian updating make sense (e.g. $\lim_{t\rightarrow\infty}\mathbb{V}_{t+1}[a_i] = 0$)
+
+- Moreover, we often don't know people's beliefs
+
+- If we had detailed data on people's beliefs, that would allow us to be more flexible
+
+    - Sort of like how getting stated preference data aids estimation of choice models
+
+---
+# Other considerations
+
+- Things get more complicated if the signal is not continuous
+
+    - Naturally, a discrete signal will provide less information
+    
+    - e.g. Pass/Fail on an exam, versus a 0-100 score
+
+- Another complication is if the signal is selected
+
+    - For example, I only see a wage signal if I have a job
+    
+    - In this case, we need a choice model to resolve the sample selection problem
+    
+    - We'll talk about this towards the end of today's class
+
+---
+# The Kalman filter
+
+- The .hi[Kalman filter] is a generalization of Bayesian updating of a learning model
+
+- Most common [application](http://greg.czerniak.info/guides/kalman1/): remote sensing of aircraft/spacecraft
+
+    - Any given sensor sends back a "noisy" signal about exact location
+    
+    - Multiple sensors acting in sequence can provide more reliable location info
+    
+- Another cool example: estimating the $R_0$ of SARS-Cov-2
+
+    -  `r Citet(biblio,"kalmanCovidR0")`
+    
+    - They created a neat continuously updated [dashboard](http://trackingr-env.eba-9muars8y.us-east-2.elasticbeanstalk.com/)
+    
+    - $R_0$ tends to 1 in equilibrium, as predicted by [Joshua Gans](https://joshuagans.substack.com/p/why-r-tends-towards-1)
+
+---
+# Multidimensional learning
+
+- What would Bayesian updating look like if $a_i$ were a vector rather than a scalar?
+
+- Let $A_i$ denote the vector, and suppose its population covariance is $\Delta$
+
+- $\mathbf{S}_{it} = A_i + \boldsymbol\varepsilon_{it}$ is a vector-valued signal
+
+\begin{align*}
+\mathbb{E}_{t+1}[A_i]&=(\mathbb{V}^{-1}_{t}[A_i] + \Omega_{it})^{-1}(\mathbb{V}^{-1}_{t}[A_i]\mathbb{E}_{t}[A_i]+\Omega_{it}\mathbf{S}_{it}) \\
+\mathbb{V}_{t+1}[A_i]&=(\mathbb{V}^{-1}_{t}[A_i] + \Omega_{it})^{-1}
+\end{align*}
+
+- $\Omega_{it}$ is a diagonal matrix with $\frac{1}{\sigma^2_{\varepsilon_j}}$ in the $(j,j)$ element
+
+- Elements of $\Omega$ and $\mathbf{S}$ are set to 0 for signals that aren't received
+
+    - (in other words, not all signals need to be received in every period)
+
+---
+# Updating, step by step
+
+- This example will hopefully clarify how updating works
+
+- In period 1, the individual begins with prior beliefs $(\mathbb{E}_1[a_i],\mathbb{V}_1[a_i])$
+
+- Usually, set these to the population values $(0,\sigma^2_a)$ for all individuals
+
+- Then, a signal $S_{i1}$ is received and beliefs are updated according to the formulas:
+\begin{align*}
+\mathbb{E}_{2}[a_i] &= \underbrace{\mathbb{E}_1[a_i]}_{0}\frac{\sigma^2_\varepsilon}{\sigma^2_\varepsilon + \underbrace{\mathbb{V}_1[a_i]}_{\sigma^2_a}} + S_{i1}\frac{\overbrace{\mathbb{V}_1[a_i]}^{\sigma^2_a}}{\sigma^2_\varepsilon + \underbrace{\mathbb{V}_1[a_i]}_{\sigma^2_a}}\\
+& = \frac{S_{i1}\sigma^2_a}{\sigma^2_\varepsilon + \sigma^2_a}
+\end{align*}
+
+---
+# Updating the variance
+
+- When $S_{i1}$ is received, $i$ updates the variance as follows:
+
+\begin{align*}
+\mathbb{V}_{2}[a_i] &= \underbrace{\mathbb{V}_1[a_i]}_{\sigma^2_a} \frac{\sigma^2_\varepsilon}{\sigma^2_\varepsilon + \underbrace{\mathbb{V}_1[a_i]}_{\sigma^2_a}}\\
+& = \frac{\sigma^2_a\sigma^2_\varepsilon}{\sigma^2_\varepsilon + \sigma^2_a}
+\end{align*}
+
+- It is straightforward to show that $\mathbb{V}_{2}[a_i]<\mathbb{V}_{1}[a_i]$ when $\sigma^2_a>0$
+
+---
+# Estimating a simple learning model
+
+- Let's estimate a simple learning model
+
+- Suppose the signals are log wage residuals
+
+- Individuals are trying to ascertain their ability from these residuals
+
+\begin{align*}
+\log w_{it} &= X\beta + a_i + \varepsilon_{it}
+\end{align*}
+
+- We want to estimate $(\beta,\sigma^2_a,\sigma^2_\varepsilon)$ by maximum likelihood
+
+- We also want to recover each person's beliefs at each point in time
+
+- Let's also compare the results with those from other panel data estimators (FE, RE)
+
+- .hi[Note:] our learning model assumes $a_i \perp X$ so is identical to RE
+
+---
+# Estimation code
+
+- In the single linear equation case, estimation is identical to RE (so just use RE)
+
+- For a multidimensional learning case, see [this Github repository](https://github.com/tyleransom/LearningModels)
+
+- Let's estimate the simple learning model from the previous slide
+
+.scroll-box-12[
+```{julia,eval=F}
+using Random, Statistics, LinearAlgebra, DataFrames, DataFramesMeta, CSV, FixedEffectModels, MixedModels
+df = CSV.read("nlswlearn.csv")
+dfuse = df[df.ln_wage.!=999,:]
+# FE
+@show reg(dfuse, @formula(ln_wage ~ 1 + exper*exper + collgrad + race1 + fe(idcode)), Vcov.cluster(:idcode))
+
+# RE
+categorical!(dfuse, :idcode)
+@show fm1 = fit(MixedModel, @formula(ln_wage ~ 1 + exper*exper + collgrad + race1 + (1|idcode)), dfuse)
+# gives σ²_ε = .092187 and σ²_a = 0.106297
+
+# Add columns to data indicating the signal (S_{it}) and prior/posterior mean/variances
+sig_eps = .092187
+df = @transform(df, signal = :ln_wage .- coef(fm1)[1] .- coef(fm1)[2].*:exper .- coef(fm1)[3]*:collgrad .- coef(fm1)[4].*:race1 .- coef(fm1)[5].*:exper.^2,
+                    priorEbelief = zeros(length(:ln_wage)),
+                    postrEbelief = zeros(length(:ln_wage)),
+                    priorVbelief = 0.106297*ones(length(:ln_wage)),
+                    postrVbelief = 0.106297*ones(length(:ln_wage)))
+# loop through to apply belief formulas
+for i = 1:N
+    for t=1:T
+        rowt = (i-1)*T+t
+        row1 = (i-1)*T+t+1
+        if df.ln_wage[rowt]==999 # didn't get a signal this period
+            df.signal[rowt] = 0
+            df.postrEbelief[rowt] = df.priorEbelief[rowt]
+            df.postrVbelief[rowt] = df.priorVbelief[rowt]
+        else # these are the formulas from the slides
+            df.postrEbelief[rowt] = df.priorEbelief[rowt]*(sig_eps./(sig_eps + df.priorVbelief[rowt])) + df.signal[rowt]*(df.priorVbelief[rowt])./(sig_eps + df.priorVbelief[rowt])
+            df.postrVbelief[rowt] = df.priorVbelief[rowt]*(sig_eps./(sig_eps + df.priorVbelief[rowt]))
+        end
+        if t<T  # set prior in t+1 to be posterior from t except in very last period
+            df.priorEbelief[row1] = df.postrEbelief[rowt]
+            df.priorVbelief[row1] = df.postrVbelief[rowt]
+        end
+    end
+end
+```
+]
+
+---
+# Looking at the belief updating
+.scroll-box-20[
+```{julia,eval=F}
+│ Row   │ ln_wage │ idcode │ t     │ signal     │ priorEbelief │ postrEbelief │ priorVbelief │ postrVbelief │
+├───────┼─────────┼────────┼───────┼────────────┼──────────────┼──────────────┼──────────────┼──────────────┤
+│ 1     │ 999.0   │ 1      │ 1     │ 0.0        │ 0.0          │ 0.0          │ 0.106297     │ 0.106297     │
+│ 2     │ 999.0   │ 1      │ 2     │ 0.0        │ 0.0          │ 0.0          │ 0.106297     │ 0.106297     │
+│ 3     │ 1.45121 │ 1      │ 3     │ 0.071744   │ 0.0          │ 0.0384221    │ 0.106297     │ 0.0493702    │
+│ 4     │ 1.02862 │ 1      │ 4     │ -0.436915  │ 0.0384221    │ -0.127359    │ 0.0493702    │ 0.0321516    │
+│ 5     │ 1.58998 │ 1      │ 5     │ 0.0476647  │ -0.127359    │ -0.082101    │ 0.0321516    │ 0.0238378    │
+│ 6     │ 1.78027 │ 1      │ 6     │ 0.17047    │ -0.082101    │ -0.0302093   │ 0.0238378    │ 0.0189402    │
+│ 7     │ 1.77701 │ 1      │ 7     │ 0.167209   │ -0.0302093   │ 0.00343808   │ 0.0189402    │ 0.0157121    │
+│ 8     │ 1.77868 │ 1      │ 8     │ 0.168878   │ 0.00343808   │ 0.0275291    │ 0.0157121    │ 0.0134241    │
+│ 9     │ 2.49398 │ 1      │ 9     │ 0.825968   │ 0.0275291    │ 0.129018     │ 0.0134241    │ 0.0117178    │
+│ 10    │ 2.55172 │ 1      │ 10    │ 0.883707   │ 0.129018     │ 0.214128     │ 0.0117178    │ 0.0103963    │
+│ 11    │ 999.0   │ 1      │ 11    │ 0.0        │ 0.214128     │ 0.214128     │ 0.0103963    │ 0.0103963    │
+│ 12    │ 2.42026 │ 1      │ 12    │ 0.752253   │ 0.214128     │ 0.268664     │ 0.0103963    │ 0.00934272   │
+│ 13    │ 2.61417 │ 1      │ 13    │ 0.946164   │ 0.268664     │ 0.331007     │ 0.00934272   │ 0.008483     │
+│ 14    │ 2.53637 │ 1      │ 14    │ 0.868366   │ 0.331007     │ 0.376288     │ 0.008483     │ 0.00776818   │
+│ 15    │ 2.46293 │ 1      │ 15    │ 0.746001   │ 0.376288     │ 0.405021     │ 0.00776818   │ 0.00716446   │
+├───────┼─────────┼────────┼───────┼────────────┼──────────────┼──────────────┼──────────────┼──────────────┤
+│ 16    │ 999.0   │ 2      │ 1     │ 0.0        │ 0.0          │ 0.0          │ 0.106297     │ 0.106297     │
+│ 17    │ 999.0   │ 2      │ 2     │ 0.0        │ 0.0          │ 0.0          │ 0.106297     │ 0.106297     │
+│ 18    │ 999.0   │ 2      │ 3     │ 0.0        │ 0.0          │ 0.0          │ 0.106297     │ 0.106297     │
+│ 19    │ 1.36035 │ 2      │ 4     │ -0.019122  │ 0.0          │ -0.0102407   │ 0.106297     │ 0.0493702    │
+│ 20    │ 1.2062  │ 2      │ 5     │ -0.259337  │ -0.0102407   │ -0.0971167   │ 0.0493702    │ 0.0321516    │
+```
+]
+
+
+---
+# Why learning is important
+
+- Uncertainty and learning can explain some empirical puzzles
+
+    - Why engage in something costly and not finish it? (e.g. college)
+
+- Agents might act differently if they have greater amounts of information
+
+- This means we need to model how beliefs map into actions
+
+- Thus, .hi[learning should be part of a dynamic choice model]
+
+- A persistent question is how can we help agents become more informed?
+
+- Information is valuable, but usually costly to obtain. How can we lower that cost?
+
+---
+# Papers that use learning models
+
+- Education:
+
+    - High school dropout `r Citep(biblio,"fu_al2020")`
+    
+    - College dropout `r Citep(biblio,c("stinebricknerStinebrickner2014jole", "arcidiacono_al2016"))`
+    
+    - College major choice `r Citep(biblio,c("arcidiacono2004", "stinebricknerStinebrickner2014restud"))`
+
+
+---
+# Papers that use learning models
+
+- Labor:
+    
+    - Occupational choice `r Citep(biblio,c("miller1984","james2011"))`
+    
+    - Employee quality `r Citep(biblio,c("farberGibbons1996","altonjiPierret2001"))`
+
+- Family:
+
+    - Marriage match quality `r Citep(biblio,"brien_al2006")`
+
+- IO:
+
+    - Learning about experience goods `r Citep(biblio,c("erdemKeane1996","ackerberg2003"))`
+
+---
+# References
+.tinier[
+```{r refs, echo=FALSE, results="asis"}
+PrintBibliography(biblio)
+```
+]
