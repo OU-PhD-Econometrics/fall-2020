@@ -26,14 +26,14 @@
 | 19 | Thu Oct 29  | Coding Day - go over PS 8  | | [PS 8](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ProblemSets/PS8-factor/PS8.pdf)  |
 | ---  | Tue Nov  3  | **No class** (Election Day)  | | |
 | 20 | Thu Nov 5   | [Learning models](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/13-Learning/13slides.html) | [Miller (1984)](https://doi.org/10.1086/261276) | Take-home Midterm | 
-| 21 | Thu Nov 12  | Constrained optimization and equilibrium models | TBA  | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ11.md) |
-| 22 | Tue Nov 10  | Obtaining causal effects without an "identification strategy"  | [Altonji, Elder & Taber (2005)](https://doi.org/10.1086/426036) |  | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ12.md) | 
-| 23 | Tue Nov 17  | Causal Modeling: DAGs and Potential Outcomes | Mixtape | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ13.md) |
-| 24 | Thu Nov 19  | ATE, LATE, MTE | | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ14.md) |
-| 25 | Tue Nov 24  | Treatment Effect  Heterogeneity| | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ15.md) |
+| 21 | Thu Nov 12  | [Constrained optimization and equilibrium models](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/14-Opt/14slides.html) | Start finding a paper for presentation/referee report  |  |
+| 22 | Tue Nov 10  | Obtaining causal effects without an "identification strategy"  | [Altonji, Elder & Taber (2005)](https://doi.org/10.1086/426036) |  | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ11.md) | 
+| 23 | Tue Nov 17  | Causal Modeling: DAGs and Potential Outcomes | Mixtape | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ12.md) |
+| 24 | Thu Nov 19  | ATE, LATE, MTE | | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ13.md) |
+| 25 | Tue Nov 24  | Treatment Effect  Heterogeneity| | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ14.md) |
 | ---  | Thu Nov 26  | **No class** (Thanksgiving)  | | |
-| 26 | Tue Dec  1  | Intro to Machine Learning | | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ16.md) |
-| 27 | Thu Dec  3  | Machine Learning for Causal Modeling  | | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ17.md) |
+| 26 | Tue Dec  1  | Intro to Machine Learning | | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ15.md) |
+| 27 | Thu Dec  3  | Machine Learning for Causal Modeling  | | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ16.md) |
 | 28 | Tue Dec  8  | Presentations  | | Presentation  |
 | 29 | Thu Dec 10  | Presentations  | | Presentation, Referee Report  |
 | ---  | Mon Dec 14  | Final Exam (Referee Report due)  | | Research Proposal |
