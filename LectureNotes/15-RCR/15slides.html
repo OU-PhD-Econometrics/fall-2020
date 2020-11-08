@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Lecture 15</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Tyler Ransom" />
+    <link href="15slides_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="15slides_files/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="15slides_files/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            TeX: { equationNumbers: { autoNumber: "AMS" } },
+        });
+    </script>
+        <style>
+        .mjx-mrow a {
+            color: black;
+            pointer-events: none;
+            cursor: default;
+        }
+    </style>
+    <link rel="stylesheet" href="ou-colors.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Lecture 15
+## Causality without a valid identification strategy
+### Tyler Ransom
+### ECON 6343, University of Oklahoma
+
+---
+
+
+
+
+# Plan for the Day
+
+1. The current state of linear IV
+
+2. How can we infer causality when no valid "strategy" exists?
+
+3. Examples of papers pursuing this approach
+
+4. Application: _SFFA v. Harvard_ lawsuit
+
+
+---
+# The current state of linear IV
+
+- Over the past two years, instrumental variables have taken a beating
+
+- Young (2020) looks at papers published in AEA journals: 
+
+    - Published IV results are highly sensitive (i.e. depend on small no. of obs.)
+    
+    - IV has little power (i.e. rarely rejects OLS point estimate)
+    
+    - Statistical significance of excluded instruments is exaggerated
+
+- Lee, McCrary, Moreira, and Porter (2020): valid instrument requires `\(F&gt;105\)`
+
+- Mellon (2020): so many papers use rainfall as IV, it must not be excludable
+
+- On the bright side, #EconTwitter has created some good niche content
+
+
+---
+# Rainfall as an instrument
+
+.center[
+&lt;blockquote class="twitter-tweet"&gt;&lt;p lang="en" dir="ltr"&gt;(Gleefully rubs hands together while searching twitter for “&lt;a href="https://twitter.com/alex_peys?ref_src=twsrc%5Etfw"&gt;@Alex_peys&lt;/a&gt; rainfall meme”) &lt;a href="https://t.co/HV0DNKOUKw"&gt;pic.twitter.com/HV0DNKOUKw&lt;/a&gt;&lt;/p&gt;&amp;mdash; ⑆Luke Stein⑈ (@lukestein) &lt;a href="https://twitter.com/lukestein/status/1298665911101136901?ref_src=twsrc%5Etfw"&gt;August 26, 2020&lt;/a&gt;&lt;/blockquote&gt; &lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8"&gt;&lt;/script&gt;
+]
+
+---
+# Is the instrument excludable?
+.center[
+&lt;blockquote class="twitter-tweet"&gt;&lt;p lang="en" dir="ltr"&gt;Nice work from &lt;a href="https://twitter.com/jon_mellon?ref_src=twsrc%5Etfw"&gt;@jon_mellon&lt;/a&gt;. So many papers use weather as an IV for different measures that this strongly suggests exclusion-restriction violations are everywhere. Read it also for his absolutely relentless commitment to the bit in the section headings. &lt;a href="https://t.co/Ih3si6CIgX"&gt;https://t.co/Ih3si6CIgX&lt;/a&gt; &lt;a href="https://t.co/2QDIQIoaNy"&gt;pic.twitter.com/2QDIQIoaNy&lt;/a&gt;&lt;/p&gt;&amp;mdash; Kieran Healy (@kjhealy) &lt;a href="https://twitter.com/kjhealy/status/1318593081894182913?ref_src=twsrc%5Etfw"&gt;October 20, 2020&lt;/a&gt;&lt;/blockquote&gt; &lt;script async src="https://platform.twitter.com/widgets.js" charset="utf-8"&gt;&lt;/script&gt;
+]
+
+---
+# Beyond IV
+
+- It has become more clear that IV has significant limitations
+
+- How can we still infer causality from observational cross-sectional data?
+
+- We know that whatever instrument we might imagine up is unlikely to be valid
+
+- We have three remaining options:
+
+    - Try to include enough controls so as to satisfy unconfoundedness
+    
+    - Walk away and concede that we'll never be able to obtain a causal estimate
+    
+    - Partially identify the effect of interest
+
+---
+# Setting
+
+- Suppose we have the following model we'd like to estimate
+
+`\begin{align*}
+y &amp;= \alpha d + X\beta + \varepsilon
+\end{align*}`
+
+- We want to estimate `\(\alpha\)` such that we can infer causality of `\(d\)` on `\(y\)`
+
+- But since we only have observational data, this is a tall task
+
+- Today we'll focus on partial identification
+
+- .hi[Partial identification] means we identify a _set_ of values `\(\alpha\)` can take on
+
+- One edge of the set is the "assume correlation is causality" bound
+
+- The other edge is a plausible lower bound (if bias on `\(\alpha\)` is positive)
+
+
+---
+# Intuition
+
+- Thinking again about our model,
+
+`\begin{align*}
+y &amp;= \alpha d + X\beta + \varepsilon
+\end{align*}`
+
+suppose `\(Corr(X\beta,\varepsilon)=0\)` but `\(Corr(d,\varepsilon)\neq0\)`
+
+- Can we (causally) infer something about `\(\alpha\)` from `\(Corr(d,X\beta)\)`?
+
+- Specifically, how would `\(\hat{\alpha}\)` change if `\(Corr(d,\varepsilon)=Corr(d,X\beta)\)`? Or if `\(Corr(d,\varepsilon)=0\)`?
+
+- Knowing `\(d\)`'s correlation w/unobservables `\((\varepsilon)\)` can help us pin down causality
+
+- We can use the correlation of `\(d\)` with the observables `\((X\beta)\)` as a guide
+
+
+---
+# More intuition
+
+- The following steps allow us to identify the causal effect
+
+    1. Regress `\(y\)` on `\(d\)`
+    
+    2. Regress `\(y\)` on `\(d\)` and `\(X\)`
+    
+    3. Compute the magnitude of the change in `\(\alpha\)` across (1) and (2)
+    
+    4. Make an assumption about how `\(Corr(d,\varepsilon)\)` and `\(Corr(d,X\beta)\)` relate
+    
+    5. This allows you to plausibly compute the unbiased (i.e. causal) value of `\(\alpha\)`
+
+---
+# Altonji, Elder, and Taber (2005)
+
+- The authors pioneer the idea of bounding `\(Corr(d,\varepsilon)\)` by looking at `\(Corr(d,X\beta)\)`
+
+- Setting: estimating the causal effect of attending Catholic high school
+
+- There is lots of selection into this process, but no available random variation
+
+- Argue that `\(Corr(d,\varepsilon)=Corr(d,X\beta)\)` is a good bound to the set. Why?
+
+    - `\(X\)` is only a subset of everything that affects `\(y\)`
+    
+    - This is because data is often collected for multiple purposes
+    
+    - Data is also costly to collect, and some variables are impossible to measure
+    
+    - Thus `\(X\)` is probably a _random_ subset of everything that affects `\(y\)`
+
+---
+# `\(Corr(d,\varepsilon)\overset{?}{\lesseqqgtr}Corr(d,X\beta)\)`
+
+- How do we know if we should assume `\(Corr(d,\varepsilon)=Corr(d,X\beta)\)`?
+
+- This question is application-specific and requires careful thinking
+
+- What are the sources of selection bias? Why is `\(R^2\)` low?
+
+- Selection bias? Measurement error? Irreducible uncertainty?
+
+- e.g. if there is a lot of irreducible uncertainty, then  `\(Corr(d,\varepsilon)&lt;Corr(d,X\beta)\)`
+
+- The opposite is true if there is not much irreducible uncertainty
+
+- Also, typically assume that `\(Corr(d,\varepsilon)\)` and `\(Corr(d,X\beta)\)` have same sign
+
+
+---
+# Krauth (2016)
+
+- Generalizes Altonji, Elder, and Taber (2005)
+
+- Allows for a .hi[relative correlation restriction (RCR)]
+
+`\begin{align*}
+Corr(d, \varepsilon) = \lambda Corr(d, X\beta)
+\end{align*}`
+
+- We can do two things with `\(\lambda\)`:
+
+    1. Assume `\(\lambda \in [\lambda_L, \lambda_H]\)` and then estimate corresponding `\(\alpha\)`'s in the interval `\([\alpha_L, \alpha_H]\)`
+    
+    2. Estimate `\(\alpha\)` by OLS, then find the smallest (absolute) value of `\(\lambda\)` such that the OLS estimate is statistically zero
+
+
+---
+# Oster (2019)
+
+- Also generalizes Altonji, Elder, and Taber (2005)
+
+- Focuses on comparing movements in `\(\alpha\)` with corresponding movements in `\(R^2\)`
+
+- Intuition: if we could observe all unobservables, then `\(R^2=1\)`
+
+- Thus, the value of `\(\alpha\)` when `\(R^2=1\)` represents its true causal value
+
+    - If there is measurement error in `\(y\)`, instead consider `\(R_{\max}&lt;1\)`
+
+- Implementation-wise, the approach is closely similar to Krauth (2016)
+
+- I prefer Krauth's approach, but the idea is the same
+
+
+---
+# Coding up these estimators
+
+- Altonji, Elder, and Taber (2005) don't provide generalizable code for their approach
+
+- Krauth (2016) and Oster (2019) do, but it's only in Stata
+
+- There's nothing in Julia or R that I am aware of
+
+- Krauth (2016) codes in FORTRAN, which may be easily portable to Julia
+
+---
+# Papers that use these approaches
+
+- Altonji, Elder, and Taber (2005) analyze Catholic school value-added
+
+    - Catholic HS increases HS graduation, but not test scores or college attendance
+
+- Ransom and Ransom (2018) analyze returns to being a HS athlete
+
+    - Virtually all of the effect is selection
+    
+    - Use Krauth's method
+    
+    - `\(\lambda^\ast\)` typically very close to 0
+    
+    - This implies that `\(\alpha\rightarrow 0\)` for even slight deviations of `\(Corr(d,\varepsilon)\)` from 0
+    
+    - Thus, it's unlikely that being a HS athlete causes much of any later outcome
+
+---
+# When it's impossible to randomize
+
+- There are many situations where it would be impossible to run an experiment
+
+- Some examples:
+
+    - Almost all job hiring
+    
+    - College or graduate school admissions
+    
+    - Many others
+    
+- In these situations, how can we infer causality?
+
+- If we want to test for racial/sex/age discrimination, how can we do it?
+
+- The methods discussed today can be useful in testing for discrimination
+
+---
+# Case study: _SFFA v. Harvard_
+
+- In 2014, Students For Fair Admissions brought a legal complaint against Harvard
+
+- SFFA claimed that Harvard discriminated against Asian Americans in admissions
+
+- In October 2018, the case went to trial
+
+- Expert witnesses: Peter Arcidiacono (SFFA), David Card (Harvard)
+
+- Expert witness reports were publicly released in June 2018 ([1](https://docs.justia.com/cases/federal/district-courts/massachusetts/madce/1:2014cv14176/165519/415/1.html), [2](https://projects.iq.harvard.edu/files/diverse-education/files/expert_report_-_2017-12-15_dr._david_card_expert_report_updated_confid_desigs_redacted.pdf), [3](https://docs.justia.com/cases/federal/district-courts/massachusetts/madce/1:2014cv14176/165519/415/2.html), [4](https://projects.iq.harvard.edu/files/diverse-education/files/expert_report_rebuttal_as_filed_d._mass._14-cv-14176_dckt_000419_037_filed_2018-06-15.pdf))
+
+- The reports included a lot of detail about Harvard's admissions process
+
+- Also included a lot of estimates of various models of Harvard admissions
+
+---
+# Harvard's admissions process
+
+- What factors does Harvard consider for undergraduate admissions?
+
+- Basically, everything it can possibly observe:
+
+    - HS transcript data, standardized test scores
+    
+    - Letters of recommendation, personal statement
+    
+    - Demographics &amp; family background (race/ethnicity, sex, parent SES)
+    
+    - Relationship with Harvard (prospective athlete, legacy, donor, etc.)
+    
+- Harvard distills all of the information above into 5 ratings
+
+    - Academic, Extracurricular, Personal, Athletic, Overall
+
+---
+# Comparison of the expert models
+
+- Both experts used similar datasets and similar empirical methods
+
+- Analysis boils down to a binomial logit (admit/not) with lots of `\(X\)`'s
+
+- Main disagreement is about what to include in `\(X\)`, what subsample to use
+
+- SFFA throws out applicants with special relationships, excludes the personal rating
+
+    - The personal rating seeems to be one place where discrimination happens
+    
+    - If testing for presence of discrimination, shouldn't put this in `\(X\)`
+    
+- Harvard removes some interactions from `\(X\)`, adds some poorly measured variables
+
+---
+# Coefficient stability across models (SFFA report)
+
+&lt;style type="text/css"&gt;
+    .remark-slide thead, .remark-slide tr:nth-child(2n) {
+        background-color: white;
+    }
+&lt;/style&gt;
+
+Logit Coefficient        | (1)       |   (2) |   (3) |   (4) |   (5)  |
+-------------------|-----------|-----------|-----------|-----------|-----------|
+African American          | 0.531    | 2.417   | 2.671   | 2.851   | 3.772   
+                          |  (0.040) | (0.050) | (0.074) | (0.078) | (0.105) 
+Hispanic                  |  0.425   | 1.273   | 1.286   | 1.339   | 1.959   
+                          |  (0.039) | (0.044) | (0.063) | (0.067) | (0.085) 
+Asian American            | 0.057    | -0.434  | -0.565  | -0.378  | -0.466  
+                          |  (0.032) | (0.035) | (0.052) | (0.055) | (0.070) 
+Missing                   |  0.012   | -0.283  | -0.348  | -0.330  | -0.379  
+                          |  (0.054) | (0.057) | (0.093) | (0.099) | (0.122) 
+N | 142,728 | 142,700 | 142,700 | 136,061 | 128,422 
+Pseudo R Sq. | 0.078 | 0.260 | 0.262 | 0.283 | __0.556__
+Demographics | Y  | Y | Y | Y | Y  
+Academics | N  | Y | Y | Y | Y  
+Race and Gender Interactions | N  | N | Y | Y | Y  
+HS and NBHD Variables | N  | N | N | Y | Y  
+Ratings (excluding Personal) | N  | N | N | N | Y 
+
+A pseudo `\(R^2\)` of 0.56 is the same as a linear `\(R^2\)` of `\(\approx\)` 0.8-0.9
+
+---
+# Relative correlations in discrimination studies
+
+- In discrimination studies, `\(d\)` corresponds to the race/sex/age group of interest
+
+- We can't assume `\(Corr(d,\varepsilon)=0\)` since we're using observational data 
+
+- So we want to use `\(Corr(d,X\beta)\)` as a guide
+
+- If `\(|\alpha|\downarrow\)` as more controls are added, argument for discrimination weakens
+
+- The logic being that, if we could add all the controls, `\(\alpha\rightarrow 0\)`
+
+
+---
+# Does Harvard discriminate against Asians?
+
+- SFFA put forth the following compelling evidence:
+
+- The coefficient on Asian American is negative &amp; significant, with a high `\(R^2\)`
+
+- Given AME (-1pp) and overall admissions rate (5%), this implies a 20% penalty
+
+- In model 5, `\(Corr(\text{Asian},X\beta)&gt;Corr(\text{White},X\beta)\)`, but `\(\alpha_{\text{Asian}}&lt;\alpha_{\text{White}}\)`!
+
+- In order for `\(\alpha\rightarrow 0\)`, Asians would have to be much, much worse than whites on the remaining unobservables
+
+- This is unlikely, given that `\(Corr(\text{Asian},X\beta)&gt;Corr(\text{White},X\beta)\)` with high `\(R^2\)`
+
+---
+# How did Harvard's expert estimate a null result?
+
+- Need to do _all_ of the following to obtain an insignificant `\(\hat{\alpha}_{\text{Asian}}\)`:
+
+    - include the personal rating in `\(X\)`
+    
+    - include parental occupation (which is riddled with measurement error)
+    
+    - exclude from `\(X\)` interactions between low-SES status and race
+    
+- See Arcidiacono, Kinsler, and Ransom (2020b) for more details
+
+---
+# What did the court decide?
+
+- The trial judge ruled in favor of Harvard
+
+- Main arguments defending this decision:
+
+    - Statistical evidence (however strong) is never enough to rule against someone
+
+    - Harvard admissions officers didn't admit to penalizing Asians
+    
+    - The models by Harvard's expert had lower residual variance
+
+“Finally, SFFA did not present a single Asian American applicant who was overtly discriminated against or who was better qualified than an admitted white applicant when considering the full range of factors that Harvard values in the admissions process.”
+
+
+---
+# Other fun facts about the trial
+
+- Data included one admissions cycle after the complaint was filed
+
+- In this admissions cycle, the Asian American penalty is much smaller
+
+- During the trial, Harvard re-worded its internal policies about personal rating
+
+- Harvard's internal research office ran models that showed an Asian penalty
+
+- Admissions models show a penalty against those who don't report their race
+
+    - This suggests that applicants know they might be discriminated against
+    
+- Despite admissions being zero-sum, all of Harvard's witnesses testified that "race is only used as a plus factor"
+
+---
+# References
+.tiny[
+Altonji, J. G, T. E. Elder, and C. R. Taber (2005). "Selection on
+Observed and Unobserved Variables: Assessing the Effectiveness of
+Catholic Schools". In: _Journal of Political Economy_ 113.1, pp.
+151-184. DOI: [10.1086/426036](https://doi.org/10.1086%2F426036).
+
+Arcidiacono, P., J. Kinsler, and T. Ransom (2020b). _Asian American
+Discrimination in Harvard Admissions_. Working Paper. Duke University.
+
+Krauth, B. (2016). "Bounding a Linear Causal Effect Using Relative
+Correlation Restrictions". In: _Journal of Econometric Methods_ 5.1,
+pp. 117-141. DOI:
+[10.1515/jem-2013-0013](https://doi.org/10.1515%2Fjem-2013-0013).
+
+Lee, D. S., J. McCrary, M. J. Moreira, et al. (2020). _Valid t-ratio
+Inference for IV_. Working Paper. arXiv. URL:
+[https://arxiv.org/abs/2010.05058](https://arxiv.org/abs/2010.05058).
+
+Mellon, J. (2020). _Rain, Rain, Go Away: 137 Potential
+Exclusion-Restriction Violations for Studies Using Weather as an
+Instrumental Variable_. Working Paper. University of Manchester. URL:
+[https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3715610](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3715610).
+
+Oster, E. (2019). "Unobservable Selection and Coefficient Stability:
+Theory and Evidence". In: _Journal of Business &amp; Economic Statistics_
+37.2, pp. 187-204. DOI:
+[10.1080/07350015.2016.1227711](https://doi.org/10.1080%2F07350015.2016.1227711).
+
+Ransom, M. R. and T. Ransom (2018). "Do High School Sports Build or
+Reveal Character? Bounding Causal Estimates of Sports Participation".
+In: _Economics of Education Review_ 64, pp. 75-89. DOI:
+[10.1016/j.econedurev.2018.04.002](https://doi.org/10.1016%2Fj.econedurev.2018.04.002).
+
+Young, A. (2020). _Consistency without Inference: Instrumental
+Variables in Practical Application_. Working Paper. London School of
+Economics.
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="https://platform.twitter.com/widgets.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
