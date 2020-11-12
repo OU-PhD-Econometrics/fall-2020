@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Lecture 16</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Tyler Ransom" />
+    <link href="16slides_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="16slides_files/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="16slides_files/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            TeX: { equationNumbers: { autoNumber: "AMS" } },
+        });
+    </script>
+        <style>
+        .mjx-mrow a {
+            color: black;
+            pointer-events: none;
+            cursor: default;
+        }
+    </style>
+    <link rel="stylesheet" href="ou-colors.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Lecture 16
+## Using DAGs for Causal Inference
+### Tyler Ransom
+### ECON 6343, University of Oklahoma
+
+---
+
+
+
+
+
+
+# Attribution
+
+Today's material is based on Cunningham (2021) and [lecture notes](https://github.com/andrewheiss/evalf20.classes.andrewheiss.com) by [Andrew Heiss](https://www.andrewheiss.com/)
+
+I have adjusted the materials slightly to fit the needs and goals of this course
+
+
+---
+# Plan for the Day
+
+1. What is a DAG?
+
+2. How are DAGs useful?
+
+3. What do familiar reduced-form causal models look like as DAGs?
+
+4. How do we use a DAG to estimate causal effects with observational data?
+
+---
+# What is a Directed Acyclic Graph (DAG)?
+
+.pull-left[
+
+- .hi[Directed:] Each node has an arrow that points to another node
+
+- .hi[Acyclic:] You can't cycle back to a node; arrows are uni-directional
+    - Rules out simultaneity
+
+- .hi[Graph:] It's a graph, in the sense of discrete mathematical graph theory
+
+]
+
+.pull-right[
+
+&lt;img src="16slides_files/figure-html/simple-dag-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+
+
+This DAG represents a model where `\(Z\)` determines `\(X\)` and `\(Y\)`, while `\(X\)` also determines `\(Y\)`
+
+---
+# What is a Directed Acyclic Graph (DAG)?
+
+.pull-left[
+
+- Graphical model of the DGP
+
+- Use mathematical operations called `\(do\)`-calculus 
+
+- These tell you what to adjust for to isolate and identify causality
+
+- `\(do\)`-calculus is based on Bayesian Networks
+
+]
+
+.pull-right[
+
+![](16slides_files/figure-html/simple-dag-1.png)
+
+]
+
+
+---
+# Judea Pearl: Father of using DAGs for causal inference
+
+.pull-left-narrow[
+&lt;figure&gt;
+  &lt;img src="https://evalf20.classes.andrewheiss.com/slides/img/01/book-of-why.jpg" alt="The Book of Why" title="The Book of Why" width="100%"&gt;
+&lt;/figure&gt;
+]
+
+.pull-right-wide.center[
+&lt;figure&gt;
+  &lt;img src="https://evalf20.classes.andrewheiss.com/slides/img/01/judea-pearl.jpg" alt="Judea Pearl" title="Judea Pearl" width="90%"&gt;
+&lt;/figure&gt;
+]
+
+---
+# How to draw a DAG
+
+e.g. .hi[What is the causal effect of an additional year of education on earnings?]
+
+1. List variables
+
+2. Simplify
+
+3. Connect arrows
+
+4. Use logic and math to determine which nodes and arrows to measure
+
+---
+# 1. List variables
+
+- Education (treatment) → Earnings (outcome)
+
+- (Many) other factors to consider
+    - Location
+    - Cognitive &amp; non-cognitive abilities (incl. risk tolerance, delaying gratification, ...)
+    - Demographics
+    - Family socioeconomic status
+    - Genetics
+    - Birth cohort
+    - Compulsory schooling laws
+    - Employment network
+
+---
+
+# 2. Simplify
+
+- Education (treatment) → Earnings (outcome)
+
+    - Background (Demographics, Abilities, Genetics, Family SES)
+
+    - Location
+
+    - Birth cohort
+
+    - Compulsory schooling laws
+
+    - Employment network
+
+---
+# 3. Draw arrows
+
+.pull-left-narrow[
+
+Education causes earnings
+
+]
+
+.pull-right-wide[
+
+&lt;img src="16slides_files/figure-html/edu-earn-simple-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+
+---
+# 3. Draw arrows
+
+.pull-left-narrow[
+
+These factors all cause education:
+
+- Background
+- Birth cohort
+- Location
+- Job network
+- Schooling laws
+
+]
+
+.pull-right-wide[
+
+&lt;img src="16slides_files/figure-html/edu-earn-2-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+
+---
+
+# 3. Draw arrows
+.pull-left-narrow[
+
+These factors also cause earnings:
+
+- Background
+- Birth cohort
+- Location
+- Employment network
+
+]
+
+.pull-right-wide[
+
+&lt;img src="16slides_files/figure-html/edu-earn-3-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+
+---
+# 3. Draw arrows
+
+.pull-left-narrow[
+
+Education also causes employment network
+
+]
+
+.pull-right-wide[
+
+&lt;img src="16slides_files/figure-html/edu-earn-4-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+
+---
+# 3. Draw arrows
+
+.pull-left-narrow[
+
+- Location and background are probably related, but neither causes the other
+
+- Instead, something unobservable (U1) generates their relationship
+
+]
+
+.pull-right-wide[
+
+&lt;img src="16slides_files/figure-html/edu-earn-full-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+]
+
+---
+# Having the computer draw DAGs for you
+
+- [dagitty.net](http://www.dagitty.net/)
+
+- `ggdag` package in R
+
+---
+# Causal identification
+
+.pull-left-narrow[
+A causal effect is .hi[identified] if the association between treatment and outcome is .hi[properly stripped and isolated]
+]
+
+.pull-right-wide[
+![](16slides_files/figure-html/edu-earn-full-1.png)
+]
+
+
+---
+# Paths and associations
+
+- Arrows in a DAG transmit associations
+
+- You can redirect and control those paths by "adjusting" or "conditioning"
+
+- There are different types of associations:
+
+1. .hi[Confounding]
+
+2. .hi[Causation]
+
+3. .hi[Collision]
+
+---
+# DAG depiction of the 3 types of associations
+
+.pull-left-3[
+
+.center[.hi[Confounding]]
+
+&lt;img src="16slides_files/figure-html/confounding-dag-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+.center[.hi-lite[Common cause]]
+
+]
+
+.pull-middle-3.center[
+.hi[Causation]
+
+&lt;img src="16slides_files/figure-html/mediation-dag-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+.hi-lite[Mediation]
+]
+
+.pull-right-3[
+.center[.hi[Collision]]
+
+&lt;img src="16slides_files/figure-html/collision-dag-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+.center[.hi-lite[Sample Selection]]
+]
+
+---
+# Confounding
+
+.pull-left-wide[
+&lt;img src="16slides_files/figure-html/confounding-dag-big-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right-narrow[
+- This situation is classic omitted variable bias
+
+- Resolve it by including `\(Z\)` as a regressor
+
+- If `\(Z\)` is unobserved, then the task becomes more difficult
+]
+
+
+
+
+---
+# Paths
+
+.pull-left-wide[
+![](16slides_files/figure-html/confounding-dag-big-1.png)
+]
+
+.pull-right-narrow[
+- There are two paths between `\(X\)` and `\(Y\)`:
+
+1. `\(X\)` → `\(Y\)`
+
+2. `\(X\)` ← `\(Z\)` → `\(Y\)`
+
+- `\(Z\)` is called a .hi[backdoor]
+]
+
+---
+# `\(d\)`-connection
+
+.pull-left-wide[
+![](16slides_files/figure-html/confounding-dag-big-1.png)
+]
+
+.pull-right-narrow[
+- `\(X\)` and `\(Y\)` are&lt;br&gt;.hi[_d_-connected] because associations can pass through `\(Z\)`
+
+- The relationship between `\(X\)` and `\(Y\)` is not identified / isolated
+
+- We .hi[close the door] by adjusting for `\(Z\)`
+]
+
+
+---
+# `\(d\)`-separation
+
+.pull-left[
+&lt;img src="16slides_files/figure-html/confounding-dag-adjusted-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+
+.pull-right[
+- If we adjust for `\(Z\)`,&lt;br&gt; `\(X\)` and `\(Y\)` are now&lt;br&gt;.hi[_d_-separated] and the association is isolated
+]
+
+---
+# Closing backdoors
+
+.pull-left-narrow[
+.box-inv-5[Block all backdoor paths to identify the main pathway you care about]
+]
+
+.pull-right-wide[
+![](16slides_files/figure-html/edu-earn-full-1.png)
+]
+
+---
+# All paths
+
+.pull-left.left[
+- Education → Earnings
+
+- Education → Job connections → Earnings
+
+- Education ← Background → Earnings
+
+- Education ← Background ← U1 → Location → Earnings
+
+- Education ← Location → Earnings
+
+- Education ← Location ← U1 → Background → Earnings
+
+- Education ← Year → Earnings
+]
+
+.pull-right[
+![](16slides_files/figure-html/edu-earn-full-1.png)
+]
+
+---
+# All paths
+
+.pull-left.left[
+- Education → Earnings
+
+- Education → Job connections → Earnings
+
+- Education ← Background → Earnings
+
+- Education ← Background ← U1 → Location → Earnings
+
+- Education ← Location → Earnings
+
+- Education ← Location ← U1 → Background → Earnings
+
+- Education ← Cohort → Earnings
+]
+
+.pull-right[
+![](16slides_files/figure-html/edu-earn-full-1.png)
+]
+
+---
+# All paths
+
+.pull-left-narrow[
+- Adjust for Location, Background and Cohort to isolate the Education → Earnings causal effect
+]
+
+.pull-right-wide[
+&lt;img src="16slides_files/figure-html/edu-earn-adjust-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+
+---
+# Causation
+
+.pull-left-wide[
+&lt;img src="16slides_files/figure-html/causation-dag-big-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right-narrow[
+- `\(X\)` causes `\(Y\)`
+- `\(X\)` also causes&lt;br&gt; `\(Z\)` which causes `\(Y\)`
+- Should you adjust for `\(Z\)`?
+- Not if you want the causal effect of `\(X\)` on `\(Y\)`!
+- Sometimes called "overcontrolling"
+- Example: Personal rating in Harvard admissions
+]
+
+---
+# Colliders
+
+.pull-left-wide[
+&lt;img src="16slides_files/figure-html/collider-dag-big-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right-narrow[
+- `\(X\)` causes `\(Z\)`
+- `\(Y\)` causes `\(Z\)`
+- Should you adjust for `\(Z\)`?
+- Not if you want the causal effect of `\(X\)` on `\(Y\)`!
+- Colliders always close open backdoor paths
+- If you condition on a collider, this opens a backdoor path
+]
+
+
+---
+# DAG for Instrumental Variables
+
+.pull-left-wide[
+&lt;img src="16slides_files/figure-html/iv-dag-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right-narrow[
+- Relevance means `\(Z\)` affects `\(X\)`
+- Excludability means `\(Z\)` does not affect `\(Y\)` except through `\(X\)`
+]
+
+
+
+
+---
+# DAG for an RCT
+
+.pull-left-wide[
+&lt;img src="16slides_files/figure-html/rct-dag-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right-narrow[
+- Randomization means `\(U\)` does not affect `\(X\)`
+- Hence `\(Corr(Y,X)\)` is causal
+]
+
+
+---
+# Other Resources
+
+- Another great resource for DAGs is Nick Huntington-Klein's intro [slides](https://nickch-k.github.io/introcausality/Lectures/Lecture_16_Back_Doors.html)
+
+    - These are geared towards a class that hasn't learned regression yet
+
+    - There are helpful practice questions and examples
+
+    - All about closing backdoors and going through frontdoors
+
+- Huenermund and Bareinboim (2019) has excellent details on `\(do\)`-calculus
+
+    - Also discusses how to resolve the Structural vs. Reduced Form debate
+
+---
+# `\(do\)`-Calculus
+
+- `\(do\)`-Calculus is the Bayesian Network math describing how to obtain causality
+
+- We aim to obtain causality from .hi[observational data] using our DAG as the model
+
+- And making as few parametric assumptions as possible
+    - Our DAG generates a bunch of testable implications which we can use for validity
+    - e.g. `\(Educ \perp Earnings \vert Background, Network\)`, ...
+
+- The `\(do\)`-operator means setting the value of treatment to a specific value
+
+- Written `\(\mathbb{P}[Y\vert do(X=x)]\)` or `\(\mathbb{E}[Y\vert do(X=x)]\)`
+
+- e.g. `\(\mathbb{E}[\log wage\vert do(educ=13)]\)` (i.e. 1 year of college)
+
+- `\(do(X=x)\)` is graphically depicted by deleting all arrows leading into `\(X\)`
+
+---
+# Interventions
+
+.pull-left[
+.center[.hi[Observational DAG]]
+&lt;img src="16slides_files/figure-html/observational-dag-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right[
+.center[.hi[Experimental DAG]]
+&lt;img src="16slides_files/figure-html/experimental-dag-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+]
+
+---
+# Returns to schooling example
+
+$$
+\mathbb{E}[\log wage\ |\ do(\text{educ=16})]
+$$
+
+.pull-left[
+.center[.hi[Observational DAG]]
+
+&lt;img src="16slides_files/figure-html/edu-earn-obs-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+]
+
+.pull-right[
+.center[.hi[Experimental DAG]]
+
+&lt;img src="16slides_files/figure-html/edu-earn-experiment-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+]
+
+
+---
+# Intuition of `\(do\)`-Calculus
+
+- `\(do()\)` is a causal operator, but we only have observational data
+
+- `\(\mathbb{P}[Y\ |\ do(X)] \neq \mathbb{P}(Y\ |\ X)\)`
+
+- So in order to estimate a causal effect, we need to get rid of the `\(do()\)`'s
+
+- There are three formal rules, but there are also two special cases
+
+1. Backdoor adjustment
+
+2. Frontdoor adjustment
+
+---
+# Formal rules of `\(do\)`-Calculus Pearl (2012)
+
+1. (Insertion/deletion of observations):
+`\begin{align*}
+\mathbb{P}(y\vert do(x), z, w) &amp;= \mathbb{P}(y\vert do(x), w)
+\text{ if } (Y \perp Z\vert X, W)G_{\overline{X}}
+\end{align*}`
+
+2. (Action/observation exchange):
+`\begin{align*}
+\mathbb{P}(y\vert do(x), do(z), w) &amp;= \mathbb{P}(y\vert do(x), z, w)
+\text{ if } (Y \perp Z\vert X, W)G_{\overline{X}\underline{Z}}
+\end{align*}`
+
+3. (Insertion/deletion of actions):
+`\begin{align*}
+\mathbb{P}(y\vert do(x), do(z), w) &amp;= \mathbb{P}(y\vert do(x), w)
+\text{ if } (Y \perp Z\vert X, W)_{\overline{X}\overline{Z(W)}}
+\end{align*}`
+- `\(G_{\overline{X}}\)` is the DAG with X "done" (all incoming arrows deleted)
+- `\(G_{\underline{Z}}\)` is the DAG with all outgoing arrows from `\(Z\)` deleted
+- `\(G_{\overline{X}\underline{Z}}\)` is the DAG with `\(G_{\overline{X}}\)` and `\(G_{\underline{Z}}\)` applied
+
+---
+# Backdoor adjustment
+
+$$
+\mathbb{P}[Y\ |\ do(X)] = \sum_Z \mathbb{P}(Y\ |\ X, Z) \mathbb{P}(Z)
+$$
+
+.pull-left[
+&lt;img src="16slides_files/figure-html/backdoor-dag-1.png" width="90%" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right[
+- This is the definition of adjusting for `\(Z\)`
+
+- This works because `\(Z\)` is observed
+
+- Our DAG presumes that there are no other confounders besides `\(Z\)`
+]
+
+---
+# Frontdoor adjustment
+
+&lt;img src="16slides_files/figure-html/frontdoor-1.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+
+- `\(S \rightarrow T\)` is `\(d\)`-separated
+- `\(T \rightarrow C\)` is `\(d\)`-separated
+- combine the effects to find `\(S \rightarrow C\)`
+
+
+
+---
+# Actually coding this up
+
+- We don't have time to go through `\(do\)`-Calculus more thoroughly
+
+- But you can consult Huenermund and Bareinboim (2019) for more details
+
+- You can also see an example from Andrew Heiss [here](https://www.andrewheiss.com/blog/2020/02/25/closing-backdoors-dags/#comparison-of-all-methods)
+
+- The R package `causaleffect` has many algorithms built-in
+
+- Near as I can tell, no one has programmed these up in Julia yet
+
+---
+# Remaining issues
+
+- DAGs seem really useful for understanding intuition
+
+- I don't know how they deal with measurement issues
+
+- They can't deal with simultaneity
+
+- Thes issues might not actually be problematic, but I am unsure
+
+---
+# References
+Cunningham, S. (2021). _Causal Inference: The Mixtape_. Yale University
+Press. URL:
+[https://www.scunning.com/causalinference_norap.pdf](https://www.scunning.com/causalinference_norap.pdf).
+
+Huenermund, P. and E. Bareinboim (2019). _Causal Inference and
+Data-Fusion in Econometrics_. Working Paper. arXiv. URL:
+[https://arxiv.org/abs/1912.09104](https://arxiv.org/abs/1912.09104).
+
+Pearl, J. (2012). "The Do-Calculus Revisited". In: _Proceedings of the
+Twenty-Eighth Conference on Uncertainty in Artificial Intelligence_.
+Ed. by N. de Freitas and K. Murphy. Corvallis, OR: AUAI Press, pp.
+4-11.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="https://platform.twitter.com/widgets.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

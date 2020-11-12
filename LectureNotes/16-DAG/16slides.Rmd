@@ -1,0 +1,1033 @@
+---
+title: "Lecture 16"
+subtitle: "Using DAGs for Causal Inference"
+author: Tyler Ransom
+date: ECON 6343, University of Oklahoma
+output:
+  xaringan::moon_reader:
+    includes:
+        in_header: "16slides_files/mathjax-equation-numbers.html"
+    css: ['default', 'metropolis', 'metropolis-fonts', 'ou-colors.css']
+    # self_contained: true
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: '16:9'
+      beforeInit: ["https://platform.twitter.com/widgets.js"]
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, 
+                      fig.retina = 3, fig.align = "center")
+```
+
+```{r, load_refs, include=FALSE, cache=FALSE}
+library(RefManageR)
+library(tidyverse)
+library(ggdag)
+BibOptions(check.entries = FALSE,
+           bib.style = "authoryear",
+           style = "markdown",
+           hyperlink = FALSE,
+           dashed = TRUE)
+biblio <- ReadBib("../../References/References.bib", check = FALSE)
+```
+
+# Attribution
+
+Today's material is based on `r Citet(biblio,"mixtape2021")` and [lecture notes](https://github.com/andrewheiss/evalf20.classes.andrewheiss.com) by [Andrew Heiss](https://www.andrewheiss.com/)
+
+I have adjusted the materials slightly to fit the needs and goals of this course
+
+
+---
+# Plan for the Day
+
+1. What is a DAG?
+
+2. How are DAGs useful?
+
+3. What do familiar reduced-form causal models look like as DAGs?
+
+4. How do we use a DAG to estimate causal effects with observational data?
+
+---
+# What is a Directed Acyclic Graph (DAG)?
+
+.pull-left[
+
+- .hi[Directed:] Each node has an arrow that points to another node
+
+- .hi[Acyclic:] You can't cycle back to a node; arrows are uni-directional
+    - Rules out simultaneity
+
+- .hi[Graph:] It's a graph, in the sense of discrete mathematical graph theory
+
+]
+
+.pull-right[
+
+```{r simple-dag, echo=FALSE, fig.width=4.5, fig.height=3, out.width="100%"}
+dagify(
+  Y ~ X + Z,
+  X ~ Z,
+  coords = list(x = c(X = 1, Y = 3, Z = 2),
+                y = c(X = 1, Y = 1, Z = 2))
+) %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(color = "grey80", size = 14) +
+  geom_dag_text(color = "black", size = 5) +
+  theme_dag()
+```
+
+]
+
+
+This DAG represents a model where $Z$ determines $X$ and $Y$, while $X$ also determines $Y$
+
+---
+# What is a Directed Acyclic Graph (DAG)?
+
+.pull-left[
+
+- Graphical model of the DGP
+
+- Use mathematical operations called $do$-calculus 
+
+- These tell you what to adjust for to isolate and identify causality
+
+- $do$-calculus is based on Bayesian Networks
+
+]
+
+.pull-right[
+
+![](`r knitr::fig_chunk("simple-dag", "png")`)
+
+]
+
+
+---
+# Judea Pearl: Father of using DAGs for causal inference
+
+.pull-left-narrow[
+<figure>
+  <img src="https://evalf20.classes.andrewheiss.com/slides/img/01/book-of-why.jpg" alt="The Book of Why" title="The Book of Why" width="100%">
+</figure>
+]
+
+.pull-right-wide.center[
+<figure>
+  <img src="https://evalf20.classes.andrewheiss.com/slides/img/01/judea-pearl.jpg" alt="Judea Pearl" title="Judea Pearl" width="90%">
+</figure>
+]
+
+---
+# How to draw a DAG
+
+e.g. .hi[What is the causal effect of an additional year of education on earnings?]
+
+1. List variables
+
+2. Simplify
+
+3. Connect arrows
+
+4. Use logic and math to determine which nodes and arrows to measure
+
+---
+# 1. List variables
+
+- Education (treatment) → Earnings (outcome)
+
+- (Many) other factors to consider
+    - Location
+    - Cognitive & non-cognitive abilities (incl. risk tolerance, delaying gratification, ...)
+    - Demographics
+    - Family socioeconomic status
+    - Genetics
+    - Birth cohort
+    - Compulsory schooling laws
+    - Employment network
+
+---
+
+# 2. Simplify
+
+- Education (treatment) → Earnings (outcome)
+
+    - Background (Demographics, Abilities, Genetics, Family SES)
+
+    - Location
+
+    - Birth cohort
+
+    - Compulsory schooling laws
+
+    - Employment network
+
+---
+# 3. Draw arrows
+
+.pull-left-narrow[
+
+Education causes earnings
+
+]
+
+.pull-right-wide[
+
+```{r edu-earn-simple, echo=FALSE, fig.width=4.5, fig.height=3, out.width="100%"}
+edu_earn_coords <- list(x = c(Edu = 2, Earn = 4, Coh = 2, Bkgd = 4, 
+                              Loc = 3, Netw = 3, Laws = 1, U1 = 3),
+                        y = c(Edu = 2, Earn = 2, Coh = 3, Bkgd = 3, 
+                              Loc = 3, Netw = 1, Laws = 2, U1 = 4))
+
+dagify(
+  Earn ~ Edu,
+  exposure = "Edu",
+  outcome = "Earn",
+  coords = edu_earn_coords) %>% 
+  tidy_dagitty() %>% 
+  node_status() %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(aes(color = status), size = 14) +
+  geom_dag_text(color = "black", size = 5) +
+  scale_color_manual(values = c("#FF4136", "#0074D9"),
+                     na.value = "#7FDBFF") +
+  guides(color = FALSE) +
+  theme_dag()
+```
+
+]
+
+---
+# 3. Draw arrows
+
+.pull-left-narrow[
+
+These factors all cause education:
+
+- Background
+- Birth cohort
+- Location
+- Job network
+- Schooling laws
+
+]
+
+.pull-right-wide[
+
+```{r edu-earn-2, echo=FALSE, fig.width=4.5, fig.height=3, out.width="100%"}
+dagify(
+  Earn ~ Edu,
+  Edu ~ Laws + Loc + Bkgd + Coh,
+  exposure = "Edu",
+  outcome = "Earn",
+  coords = edu_earn_coords) %>% 
+  tidy_dagitty() %>% 
+  node_status() %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(aes(color = status), size = 14) +
+  geom_dag_text(color = "black", size = 5) +
+  scale_color_manual(values = c("#FF4136", "#0074D9"),
+                     na.value = "#7FDBFF") +
+  guides(color = FALSE) +
+  coord_cartesian(ylim = c(1, 3)) +
+  theme_dag()
+```
+
+]
+
+---
+
+# 3. Draw arrows
+.pull-left-narrow[
+
+These factors also cause earnings:
+
+- Background
+- Birth cohort
+- Location
+- Employment network
+
+]
+
+.pull-right-wide[
+
+```{r edu-earn-3, echo=FALSE, fig.width=4.5, fig.height=3, out.width="100%"}
+dagify(
+  Earn ~ Edu + Coh + Bkgd + Loc + Netw,
+  Edu ~ Laws + Loc + Bkgd + Coh,
+  exposure = "Edu",
+  outcome = "Earn",
+  coords = edu_earn_coords) %>% 
+  tidy_dagitty() %>% 
+  node_status() %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(aes(color = status), size = 14) +
+  geom_dag_text(color = "black", size = 5) +
+  scale_color_manual(values = c("#FF4136", "#0074D9"),
+                     na.value = "#7FDBFF") +
+  guides(color = FALSE) +
+  theme_dag()
+```
+
+]
+
+---
+# 3. Draw arrows
+
+.pull-left-narrow[
+
+Education also causes employment network
+
+]
+
+.pull-right-wide[
+
+```{r edu-earn-4, echo=FALSE, fig.width=4.5, fig.height=3, out.width="100%"}
+dagify(
+  Earn ~ Edu + Coh + Bkgd + Loc + Netw,
+  Edu ~ Laws + Loc + Bkgd + Coh,
+  Netw ~ Edu,
+  exposure = "Edu",
+  outcome = "Earn",
+  coords = edu_earn_coords) %>% 
+  tidy_dagitty() %>% 
+  node_status() %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(aes(color = status), size = 14) +
+  geom_dag_text(color = "black", size = 5) +
+  scale_color_manual(values = c("#FF4136", "#0074D9"),
+                     na.value = "#7FDBFF") +
+  guides(color = FALSE) +
+  theme_dag()
+```
+
+]
+
+---
+# 3. Draw arrows
+
+.pull-left-narrow[
+
+- Location and background are probably related, but neither causes the other
+
+- Instead, something unobservable (U1) generates their relationship
+
+]
+
+.pull-right-wide[
+
+```{r edu-earn-full, echo=FALSE, fig.width=4.5, fig.height=3, out.width="100%"}
+dagify(
+  Earn ~ Edu + Coh + Bkgd + Loc + Netw,
+  Edu ~ Laws + Loc + Bkgd + Coh,
+  Netw ~ Edu,
+  Bkgd ~ U1,
+  Loc ~ U1,
+  exposure = "Edu",
+  outcome = "Earn",
+  latent = "U1",
+  labels = c("Earn" = "Earnings", "Edu" = "Education",
+             "Coh" = "Coh", "Bkgd" = "Background",
+             "Loc" = "Location", "Netw" = "Job connections",
+             "U1" = "Unobserved stuff"),
+  coords = edu_earn_coords) %>% 
+  tidy_dagitty() %>% 
+  node_status() %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(aes(color = status), size = 14) +
+  geom_dag_text(color = "black", size = 5) +
+  scale_color_manual(values = c("#FF4136", "grey60", "#0074D9"),
+                     na.value = "#7FDBFF") +
+  guides(color = FALSE) +
+  theme_dag()
+```
+
+]
+
+---
+# Having the computer draw DAGs for you
+
+- [dagitty.net](http://www.dagitty.net/)
+
+- `ggdag` package in R
+
+---
+# Causal identification
+
+.pull-left-narrow[
+A causal effect is .hi[identified] if the association between treatment and outcome is .hi[properly stripped and isolated]
+]
+
+.pull-right-wide[
+![](`r knitr::fig_chunk("edu-earn-full", "png")`)
+]
+
+
+---
+# Paths and associations
+
+- Arrows in a DAG transmit associations
+
+- You can redirect and control those paths by "adjusting" or "conditioning"
+
+- There are different types of associations:
+
+1. .hi[Confounding]
+
+2. .hi[Causation]
+
+3. .hi[Collision]
+
+---
+# DAG depiction of the 3 types of associations
+
+.pull-left-3[
+
+.center[.hi[Confounding]]
+
+```{r confounding-dag, echo=FALSE, fig.width=4.5, fig.height=3.35, out.width="100%"}
+dagify(
+  Y ~ X + Z,
+  X ~ Z,
+  coords = list(x = c(X = 1, Y = 3, Z = 2),
+                y = c(X = 1, Y = 1, Z = 2))
+) %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(color = "grey80", size = 17) +
+  geom_dag_text(color = "black", size = 5) +
+  theme_dag()
+```
+
+.center[.hi-lite[Common cause]]
+
+]
+
+.pull-middle-3.center[
+.hi[Causation]
+
+```{r mediation-dag, echo=FALSE, fig.width=4.5, fig.height=3.35, out.width="100%"}
+dagify(
+  Y ~ X + Z,
+  Z ~ X,
+  coords = list(x = c(X = 1, Y = 3, Z = 2),
+                y = c(X = 1, Y = 1, Z = 2))
+) %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(color = "grey80", size = 17) +
+  geom_dag_text(color = "black", size = 5) +
+  theme_dag()
+```
+
+.hi-lite[Mediation]
+]
+
+.pull-right-3[
+.center[.hi[Collision]]
+
+```{r collision-dag, echo=FALSE, fig.width=4.5, fig.height=3.35, out.width="100%"}
+dagify(
+  Y ~ X,
+  Z ~ Y,
+  Z ~ X,
+  coords = list(x = c(X = 1, Y = 3, Z = 2),
+                y = c(X = 1, Y = 1, Z = 2))
+) %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(color = "grey80", size = 17) +
+  geom_dag_text(color = "black", size = 5) +
+  theme_dag()
+```
+
+.center[.hi-lite[Sample Selection]]
+]
+
+---
+# Confounding
+
+.pull-left-wide[
+```{r confounding-dag-big, echo=FALSE, fig.width=4.5, fig.height=3, out.width="100%"}
+dagify(
+  Y ~ X + Z,
+  X ~ Z,
+  coords = list(x = c(X = 1, Y = 3, Z = 2),
+                y = c(X = 1, Y = 1, Z = 2))
+) %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(color = "grey80", size = 15) +
+  geom_dag_text(color = "black", size = 5) +
+  theme_dag()
+```
+]
+
+.pull-right-narrow[
+- This situation is classic omitted variable bias
+
+- Resolve it by including $Z$ as a regressor
+
+- If $Z$ is unobserved, then the task becomes more difficult
+]
+
+
+
+
+---
+# Paths
+
+.pull-left-wide[
+![](`r knitr::fig_chunk("confounding-dag-big", "png")`)
+]
+
+.pull-right-narrow[
+- There are two paths between $X$ and $Y$:
+
+1. $X$ → $Y$
+
+2. $X$ ← $Z$ → $Y$
+
+- $Z$ is called a .hi[backdoor]
+]
+
+---
+# $d$-connection
+
+.pull-left-wide[
+![](`r knitr::fig_chunk("confounding-dag-big", "png")`)
+]
+
+.pull-right-narrow[
+- $X$ and $Y$ are<br>.hi[_d_-connected] because associations can pass through $Z$
+
+- The relationship between $X$ and $Y$ is not identified / isolated
+
+- We .hi[close the door] by adjusting for $Z$
+]
+
+
+---
+# $d$-separation
+
+.pull-left[
+```{r confounding-dag-adjusted, echo=FALSE, fig.width=4.5, fig.height=3, out.width="100%"}
+dagify(
+  Y ~ X + Z,
+  X ~ Z,
+  coords = list(x = c(X = 1, Y = 3, Z = 2),
+                y = c(X = 1, Y = 1, Z = 2))
+) %>% 
+  tidy_dagitty() %>% 
+  adjust_for("Z") %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(aes(shape = adjusted, color = adjusted), size = 15) +
+  geom_dag_text(color = "black", size = 5) +
+  scale_shape_manual(values = c(15, 19)) +
+  scale_color_manual(values = c("#FFDC00", "grey80")) +
+  guides(shape = FALSE, color = FALSE) +
+  theme_dag()
+```
+]
+
+
+.pull-right[
+- If we adjust for $Z$,<br> $X$ and $Y$ are now<br>.hi[_d_-separated] and the association is isolated
+]
+
+---
+# Closing backdoors
+
+.pull-left-narrow[
+.box-inv-5[Block all backdoor paths to identify the main pathway you care about]
+]
+
+.pull-right-wide[
+![](`r knitr::fig_chunk("edu-earn-full", "png")`)
+]
+
+---
+# All paths
+
+.pull-left.left[
+- Education → Earnings
+
+- Education → Job connections → Earnings
+
+- Education ← Background → Earnings
+
+- Education ← Background ← U1 → Location → Earnings
+
+- Education ← Location → Earnings
+
+- Education ← Location ← U1 → Background → Earnings
+
+- Education ← Year → Earnings
+]
+
+.pull-right[
+![](`r knitr::fig_chunk("edu-earn-full", "png")`)
+]
+
+---
+# All paths
+
+.pull-left.left[
+- Education → Earnings
+
+- Education → Job connections → Earnings
+
+- Education ← Background → Earnings
+
+- Education ← Background ← U1 → Location → Earnings
+
+- Education ← Location → Earnings
+
+- Education ← Location ← U1 → Background → Earnings
+
+- Education ← Cohort → Earnings
+]
+
+.pull-right[
+![](`r knitr::fig_chunk("edu-earn-full", "png")`)
+]
+
+---
+# All paths
+
+.pull-left-narrow[
+- Adjust for Location, Background and Cohort to isolate the Education → Earnings causal effect
+]
+
+.pull-right-wide[
+```{r edu-earn-adjust, echo=FALSE, fig.width=4.5, fig.height=3, out.width="100%"}
+dagify(
+  Earn ~ Edu + Coh + Bkgd + Loc + Netw,
+  Edu ~ Req + Loc + Bkgd + Coh,
+  Netw ~ Edu,
+  Bkgd ~ U1,
+  Loc ~ U1,
+  exposure = "Edu",
+  outcome = "Earn",
+  latent = "U1",
+  labels = c("Earn" = "Earnings", "Edu" = "Education",
+             "Coh" = "Coh", "Bkgd" = "Background",
+             "Loc" = "Location", "Netw" = "Job connections",
+             "U1" = "Unobserved stuff"),
+  coords = edu_earn_coords) %>% 
+  tidy_dagitty() %>% 
+  node_status() %>% 
+  adjust_for(c("Loc", "Bkgd", "Coh")) %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(aes(color = status, shape = adjusted), size = 14) +
+  geom_dag_text(color = "black", size = 5) +
+  scale_color_manual(values = c("#FF4136", "grey60", "#0074D9"),
+                     na.value = "#7FDBFF") +
+  scale_shape_manual(values = c(15, 19)) +
+  guides(color = FALSE, shape = FALSE) +
+  theme_dag()
+```
+]
+
+
+---
+# Causation
+
+.pull-left-wide[
+```{r causation-dag-big, echo=FALSE, fig.width=4.5, fig.height=3, out.width="100%"}
+dagify(
+  Y ~ X + Z,
+  Z ~ X,
+  coords = list(x = c(X = 1, Y = 3, Z = 2),
+                y = c(X = 1, Y = 1, Z = 2))
+) %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(color = "grey80", size = 15) +
+  geom_dag_text(color = "black", size = 5) +
+  theme_dag()
+```
+]
+
+.pull-right-narrow[
+- $X$ causes $Y$
+- $X$ also causes<br> $Z$ which causes $Y$
+- Should you adjust for $Z$?
+- Not if you want the causal effect of $X$ on $Y$!
+- Sometimes called "overcontrolling"
+- Example: Personal rating in Harvard admissions
+]
+
+---
+# Colliders
+
+.pull-left-wide[
+```{r collider-dag-big, echo=FALSE, fig.width=4.5, fig.height=3, out.width="100%"}
+dagify(
+  Y ~ X,
+  Z ~ Y,
+  Z ~ X,
+  coords = list(x = c(X = 1, Y = 3, Z = 2),
+                y = c(X = 1, Y = 1, Z = 2))
+) %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(color = "grey80", size = 15) +
+  geom_dag_text(color = "black", size = 5) +
+  theme_dag()
+```
+]
+
+.pull-right-narrow[
+- $X$ causes $Z$
+- $Y$ causes $Z$
+- Should you adjust for $Z$?
+- Not if you want the causal effect of $X$ on $Y$!
+- Colliders always close open backdoor paths
+- If you condition on a collider, this opens a backdoor path
+]
+
+
+---
+# DAG for Instrumental Variables
+
+.pull-left-wide[
+```{r iv-dag, echo=FALSE, fig.width=4.5, fig.height=3, out.width="100%"}
+dagify(
+  Y ~ X + U,
+  X ~ U,
+  X ~ Z,
+  coords = list(x = c(Z = 1, X = 2, Y = 4, U = 3),
+                y = c(Z = 1, X = 1, Y = 1, U = 2))
+) %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(color = "grey80", size = 14) +
+  geom_dag_text(color = "black", size = 5) +
+  theme_dag()
+```
+]
+
+.pull-right-narrow[
+- Relevance means $Z$ affects $X$
+- Excludability means $Z$ does not affect $Y$ except through $X$
+]
+
+
+
+
+---
+# DAG for an RCT
+
+.pull-left-wide[
+```{r rct-dag, echo=FALSE, fig.width=4.5, fig.height=3, out.width="100%"}
+dagify(
+  Y ~ X + U,
+  coords = list(x = c(X = 1, Y = 3, U = 2),
+                y = c(X = 1, Y = 1, U = 2))
+) %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(color = "grey80", size = 14) +
+  geom_dag_text(color = "black", size = 5) +
+  theme_dag()
+```
+]
+
+.pull-right-narrow[
+- Randomization means $U$ does not affect $X$
+- Hence $Corr(Y,X)$ is causal
+]
+
+
+---
+# Other Resources
+
+- Another great resource for DAGs is Nick Huntington-Klein's intro [slides](https://nickch-k.github.io/introcausality/Lectures/Lecture_16_Back_Doors.html)
+
+    - These are geared towards a class that hasn't learned regression yet
+
+    - There are helpful practice questions and examples
+
+    - All about closing backdoors and going through frontdoors
+
+- `r Citet(biblio,"huenermund2019")` has excellent details on $do$-calculus
+
+    - Also discusses how to resolve the Structural vs. Reduced Form debate
+
+---
+# $do$-Calculus
+
+- $do$-Calculus is the Bayesian Network math describing how to obtain causality
+
+- We aim to obtain causality from .hi[observational data] using our DAG as the model
+
+- And making as few parametric assumptions as possible
+    - Our DAG generates a bunch of testable implications which we can use for validity
+    - e.g. $Educ \perp Earnings \vert Background, Network$, ...
+
+- The $do$-operator means setting the value of treatment to a specific value
+
+- Written $\mathbb{P}[Y\vert do(X=x)]$ or $\mathbb{E}[Y\vert do(X=x)]$
+
+- e.g. $\mathbb{E}[\log wage\vert do(educ=13)]$ (i.e. 1 year of college)
+
+- $do(X=x)$ is graphically depicted by deleting all arrows leading into $X$
+
+---
+# Interventions
+
+.pull-left[
+.center[.hi[Observational DAG]]
+```{r observational-dag, echo=FALSE, fig.width=4, fig.height=3, out.width="90%"}
+dagify(
+  Y ~ X + A,
+  X ~ A,
+  coords = list(x = c(X = 1, Y = 2, A = 1.5),
+                y = c(X = 1, Y = 1, A = 2))
+) %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(color = "black", size = 11) +
+  geom_dag_text() +
+  theme_dag()
+```
+]
+
+.pull-right[
+.center[.hi[Experimental DAG]]
+```{r experimental-dag, echo=FALSE, fig.width=4, fig.height=3, out.width="90%"}
+dagify(
+  Y ~ X + A,
+  coords = list(x = c(X = 1, Y = 2, A = 1.5),
+                y = c(X = 1, Y = 1, A = 2)),
+  labels = c(X = "X = x")
+) %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(color = "black", size = 11) +
+  geom_dag_text() +
+  geom_dag_text_repel(aes(label = label),
+                      nudge_x = 0, nudge_y = 0.25,
+                      color = "black", 
+                      fontface = "bold", lineheight = 0.95, seed = 1234) +
+  theme_dag()
+```
+]
+
+---
+# Returns to schooling example
+
+$$
+\mathbb{E}[\log wage\ |\ do(\text{educ=16})]
+$$
+
+.pull-left[
+.center[.hi[Observational DAG]]
+
+```{r edu-earn-obs, echo=FALSE, fig.width=6, fig.height=4.5, out.width="90%"}
+dagify(
+  Earn ~ Edu + Coh + Bkgd + Loc + Netw,
+  Edu ~ Req + Loc + Bkgd + Coh,
+  Netw ~ Edu,
+  Bkgd ~ U1,
+  Loc ~ U1,
+  exposure = "Edu",
+  outcome = "Earn",
+  latent = "U1",
+  labels = c("Earn" = "Earnings", "Edu" = "Education",
+             "Coh" = "Coh", "Bkgd" = "Background",
+             "Loc" = "Location", "Netw" = "Employment network",
+             "U1" = "Unobserved stuff"),
+  coords = edu_earn_coords) %>% 
+  tidy_dagitty() %>% 
+  node_status() %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(aes(color = status), size = 14) +
+  geom_dag_text(color = "black", size = 5) +
+  scale_color_manual(values = c("#FF4136", "grey60", "#0074D9"),
+                     na.value = "#7FDBFF") +
+  guides(color = FALSE) +
+  theme_dag()
+```
+
+]
+
+.pull-right[
+.center[.hi[Experimental DAG]]
+
+```{r edu-earn-experiment, warning=FALSE, echo=FALSE, fig.width=6, fig.height=4.5, out.width="90%"}
+dagify(
+  Earn ~ Edu + Coh + Bkgd + Loc + Netw,
+  NULL ~ Req,
+  Netw ~ Edu,
+  Bkgd ~ U1,
+  Loc ~ U1,
+  exposure = "Edu",
+  outcome = "Earn",
+  latent = "U1",
+  labels = c("Earn" = "Earnings", "Edu" = "Education",
+             "Coh" = "Coh", "Bkgd" = "Background",
+             "Loc" = "Location", "Netw" = "Employment network",
+             "U1" = "Unobserved stuff"),
+  coords = edu_earn_coords) %>% 
+  tidy_dagitty() %>% 
+  node_status() %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point(aes(color = status), size = 14) +
+  geom_dag_text(color = "black", size = 5) +
+  scale_color_manual(values = c("#FF4136", "grey60", "#0074D9"),
+                     na.value = "#7FDBFF") +
+  guides(color = FALSE) +
+  theme_dag()
+```
+]
+
+
+---
+# Intuition of $do$-Calculus
+
+- $do()$ is a causal operator, but we only have observational data
+
+- $\mathbb{P}[Y\ |\ do(X)] \neq \mathbb{P}(Y\ |\ X)$
+
+- So in order to estimate a causal effect, we need to get rid of the $do()$'s
+
+- There are three formal rules, but there are also two special cases
+
+1. Backdoor adjustment
+
+2. Frontdoor adjustment
+
+---
+# Formal rules of $do$-Calculus `r Citet(biblio,"pearl2012")`
+
+1. (Insertion/deletion of observations):
+\begin{align*}
+\mathbb{P}(y\vert do(x), z, w) &= \mathbb{P}(y\vert do(x), w)
+\text{ if } (Y \perp Z\vert X, W)G_{\overline{X}}
+\end{align*}
+
+2. (Action/observation exchange):
+\begin{align*}
+\mathbb{P}(y\vert do(x), do(z), w) &= \mathbb{P}(y\vert do(x), z, w)
+\text{ if } (Y \perp Z\vert X, W)G_{\overline{X}\underline{Z}}
+\end{align*}
+
+3. (Insertion/deletion of actions):
+\begin{align*}
+\mathbb{P}(y\vert do(x), do(z), w) &= \mathbb{P}(y\vert do(x), w)
+\text{ if } (Y \perp Z\vert X, W)_{\overline{X}\overline{Z(W)}}
+\end{align*}
+- $G_{\overline{X}}$ is the DAG with X "done" (all incoming arrows deleted)
+- $G_{\underline{Z}}$ is the DAG with all outgoing arrows from $Z$ deleted
+- $G_{\overline{X}\underline{Z}}$ is the DAG with $G_{\overline{X}}$ and $G_{\underline{Z}}$ applied
+
+---
+# Backdoor adjustment
+
+$$
+\mathbb{P}[Y\ |\ do(X)] = \sum_Z \mathbb{P}(Y\ |\ X, Z) \mathbb{P}(Z)
+$$
+
+.pull-left[
+```{r backdoor-dag, echo=FALSE, fig.width=5, fig.height=3.4, out.width="90%"}
+dagify(Y ~ X + Z,
+  X ~ Z,
+  coords = list(x = c(X = 1, Y = 3, Z = 2),
+                y = c(X = 1, Y = 1, Z = 2))) %>% 
+  tidy_dagitty() %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point() +
+  geom_dag_text() +
+  theme_dag()
+```
+]
+
+.pull-right[
+- This is the definition of adjusting for $Z$
+
+- This works because $Z$ is observed
+
+- Our DAG presumes that there are no other confounders besides $Z$
+]
+
+---
+# Frontdoor adjustment
+
+```{r frontdoor, echo=FALSE, fig.width=5, fig.height=3.4, out.width="50%"}
+dagify(C ~ T + G,
+       T ~ S,
+       S ~ G,
+       coords = list(
+         x = c(S = 1, T = 2, C = 3, G = 2),
+         y = c(S = 1, T = 1, C = 1, G = 2)
+       ),
+       labels = c(S = "Smoking", 
+                  T = "Tar", 
+                  C = "Cancer",
+                  G = "Genetics"),
+       exposure = "S",
+       outcome = "C") %>% 
+  tidy_dagitty() %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_edges() +
+  geom_dag_point() +
+  geom_dag_text() +
+  geom_dag_label_repel(aes(label = label), nudge_y = 0.1, seed = 1234) +
+  theme_dag()
+```
+
+
+- $S \rightarrow T$ is $d$-separated
+- $T \rightarrow C$ is $d$-separated
+- combine the effects to find $S \rightarrow C$
+
+
+
+---
+# Actually coding this up
+
+- We don't have time to go through $do$-Calculus more thoroughly
+
+- But you can consult `r Citet(biblio,"huenermund2019")` for more details
+
+- You can also see an example from Andrew Heiss [here](https://www.andrewheiss.com/blog/2020/02/25/closing-backdoors-dags/#comparison-of-all-methods)
+
+- The R package `causaleffect` has many algorithms built-in
+
+- Near as I can tell, no one has programmed these up in Julia yet
+
+---
+# Remaining issues
+
+- DAGs seem really useful for understanding intuition
+
+- I don't know how they deal with measurement issues
+
+- They can't deal with simultaneity
+
+- Thes issues might not actually be problematic, but I am unsure
+
+---
+# References
+```{r refs, echo=FALSE, results="asis"}
+PrintBibliography(biblio)
+```
