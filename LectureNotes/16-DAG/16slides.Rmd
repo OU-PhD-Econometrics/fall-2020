@@ -1024,7 +1024,7 @@ dagify(C ~ T + G,
 
 - They can't deal with simultaneity
 
-- Thes issues might not actually be problematic, but I am unsure
+- These issues might not actually be problematic, but I am unsure
 
 ---
 # References

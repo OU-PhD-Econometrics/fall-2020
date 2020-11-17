@@ -29,8 +29,8 @@
 | 21 | Tue Nov 10  | [Constrained optimization and equilibrium models](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/14-Opt/14slides.html) | Start finding a paper for presentation/referee report  |  |
 | 22 | Thu Nov 12  | [Obtaining causal effects without an "identification strategy"](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/15-RCR/15slides.html)  | [Altonji, Elder & Taber (2005)](https://doi.org/10.1086/426036) |  [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ11.md) | 
 | 23 | Tue Nov 17  | [DAGs and _do_-Calculus](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/16-DAG/16slides.html) | [Mixtape](https://www.scunning.com/causalinference_norap.pdf), pp. 67-80 | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ12.md) |
-| 24 | Thu Nov 19  | Potential Outcomes, ATE, LATE, MTE | | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ13.md) |
-| 25 | Tue Nov 24  | Treatment Effect  Heterogeneity| | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ14.md) |
+| 24 | Thu Nov 19  | [Potential Outcomes, ATE, LATE, and Control Functions](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/17-PO/17slides.html) | [Mixtape](https://www.scunning.com/causalinference_norap.pdf), pp. 85-93 | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ13.md) |
+| 25 | Tue Nov 24  | More topics on treatment effects | | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ14.md) |
 | ---  | Thu Nov 26  | **No class** (Thanksgiving)  | | |
 | 26 | Tue Dec  1  | Intro to Machine Learning | | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ15.md) |
 | 27 | Thu Dec  3  | Machine Learning for Causal Modeling  | | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ16.md) |

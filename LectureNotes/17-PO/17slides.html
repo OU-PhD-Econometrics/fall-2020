@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Lecture 17</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Tyler Ransom" />
+    <link href="17slides_files/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="17slides_files/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="17slides_files/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            TeX: { equationNumbers: { autoNumber: "AMS" } },
+        });
+    </script>
+        <style>
+        .mjx-mrow a {
+            color: black;
+            pointer-events: none;
+            cursor: default;
+        }
+    </style>
+    <link rel="stylesheet" href="ou-colors.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Lecture 17
+## Potential Outcomes and Treatment Effects
+### Tyler Ransom
+### ECON 6343, University of Oklahoma
+
+---
+
+
+
+
+
+
+# Attribution
+
+Today's material is based on lecture notes from Arnaud Maurel (Duke University).
+
+I have adjusted his materials to fit the needs and goals of this course
+
+
+---
+# Plan for the Day
+
+1. What are potential outcomes? What are treatment effects?
+
+2. Challenges to identifying treatment effects
+
+3. Matching &amp; IV
+
+4. Control functions
+
+---
+# Potential Outcomes model
+
+- Developed by Quandt (1958) and Rubin (1974)
+
+- Two potential outcomes, `\((Y_0,Y_1)\)`, associated with each treatment status `\(D\in\{0,1\}\)`
+
+- The econometrician only observes:
+    - the treatment dummy `\(D\)`
+    - the realized outcome `\(Y=D Y_1 + (1-D)Y_0\)`
+
+- Note: we could have more than two treatments
+
+- Note: we also assume .hi[SUTVA]: `\(i\)`'s treatment doesn't affect `\(j\)`'s outcome
+    - SUTVA also known as "no interference" in Judea Pearl's world
+
+---
+# Objects of interest
+
+Individual-level Treatment Effects: 
+
+- `\(Y_{i1} - Y_{i0},\,\,\,\, i=1,\ldots,N\)`
+
+Mean treatment effect parameters:
+
+- .hi[Average Treatment Effect (ATE):] `\(\mathbb{E}(Y_1-Y_0)\)`
+
+- .hi[Average Treatment on the Treated (ATT):] `\(\mathbb{E}(Y_1-Y_0|D=1)\)`
+
+- .hi[Average Treatment on the Untreated (ATU):] `\(\mathbb{E}(Y_1-Y_0|D=0)\)`
+ 
+- No covariates in this simple setting, but we could include them fairly easily
+
+---
+# Objects of interest (Continued)
+
+- Each treatment parameter answers a different question
+
+- ATT is most related to the effectiveness of an existing program 
+
+    - ATT does not account for program's cost
+
+- We can define many other relevant treatment effect parameters:
+
+    - Marginal Treatment Effect
+    
+    - Policy Relevant Treatment Effect
+    
+- These require imposing some structure on the underlying selection model 
+
+
+
+---
+# Identification challenges
+Two main problems arise when identifying the effect of treatment `\(D\)` on outcome `\(Y\)`: 
+
+1. .hi[Evaluation problem:] for each `\(i\)` we only observe either `\(Y_0\)` or `\(Y_1\)`, but never both
+
+2. .hi[Selection problem:] selection into treatment is endogenous, i.e. `\((Y_0,Y_1) \not \perp D\)`
+
+
+---
+# The evaluation problem
+
+- Fundamental observability problem `\(\implies\)` individual TE `\(Y_{i1} - Y_{i0}\)` is not identified
+
+- Thus, we often focus on mean treatment effects, such as the ATE, ATT, ATU 
+
+- Or on other parameters that depend on the marginal distributions only; e.g. QTE
+
+- Suppose individuals were randomly assigned across treatment and control groups: 
+`\begin{align*}
+ATE&amp;=\mathbb{E}(Y_1-Y_0)\\
+&amp;=\mathbb{E}(Y_1|D=1) - \mathbb{E}(Y_0|D=0)\\
+&amp;=\mathbb{E}(Y|D=1) - \mathbb{E}(Y|D=0)
+\end{align*}`
+
+- Then the ATE would be directly identified from the data 
+ 
+(as would be the case for the other average treatment effects; they'd all be equal here)
+
+
+---
+# The evaluation problem (Cont'd)
+
+- Direct identification of TE from the data is specific to .hi[mean TE's]
+
+- Why? They only depend on the marginal distributions of `\(Y_0\)` and `\(Y_1\)`
+
+- Other features of the distribution of TE's depend on the joint distribution of `\((Y_0,Y_1)\)` 
+
+    - e.g. variance, median
+
+- Additional assumptions would be needed for identification of these
+
+
+---
+# The selection problem
+ 
+- .hi[Major difficulty:] Agents often .hi[choose] to be treated based on characteristics which are related to their potential outcomes
+
+- Canonical model of self-selection is due to Roy (1951)
+
+- Within this framework, selection into treatment is directly based on the TE `\(Y_1-Y_0\)`
+
+- Individuals self-select into treatment iff `\(Y_1-Y_0&gt;0\)`
+
+- In this case, `\(\mathbb{E}(Y_1|D=1) \neq \mathbb{E}(Y_1)\)` and `\(\mathbb{E}(Y_0|D=0) \neq \mathbb{E}(Y_0)\)`
+
+
+---
+# The selection problem (Continued)
+
+- The ATE cannot be identified directly from the observed average outcomes
+
+- Need to know/assume more about selection rule to identify the TE parameters
+
+- Two alternative approaches: point vs. partial identification
+
+- Tradeoff strength/identifying power of the invoked assumptions
+
+
+---
+# Standard identifying assumptions
+Three main alternative assumptions to deal with selection.
+
+1. .hi[Unconfoundedness approach (Matching):] `\((Y_0,Y_1) \perp D | X\)`, where `\(X\)` is a set of observed covariates
+
+2. .hi[IV approach:] `\((Y_0,Y_1) \perp Z| X\)`, where `\(X\)` and `\(Z\)` denote two vectors of covariates affecting the potential outcomes and the treatment status, resp.
+
+3. .hi[Control function approach:] `\((Y_0,Y_1) \perp D| X,Z,\nu\)` (where `\(\nu\)` is an unobserved r.v.), plus some structure on the selection equation. 
+
+(2) and (3) are related in the sense that both hinge on existence of exclusion restrictions
+
+
+---
+# Standard identifying assumptions (Cont'd)
+Panel: most popular method to deal with selection is the difference-in-differences approach, which compares the evolution over time in the outcomes of treated vs. untreated individuals:
+
+- `\(\Delta Y_0 \perp D\)` (.hi[parallel trend assumption]), where `\(\Delta Y\)` denotes the variation in the outcome `\(Y\)` between `\(t_0\)` and `\(t_1\)`, with the treatment taking place between `\(t_0\)` and `\(t_1\)` 
+
+- Accounts for selection on .hi[time-invariant] characteristics 
+
+- One may combine difference-in-differences with matching, which yields identification under weaker conditions (Heckman, Ichimura, Smith, and Todd, 1998)
+
+
+---
+# Matching
+
+- Accounts for selection on observables only
+
+- Main identifying assumption: `\((Y_0,Y_1) \perp D | X\)`
+
+- This is known as the .hi[Conditional Independence Assumption] (CIA), or .hi[Unconfoundedness]
+
+- Conditioning on a set of observed covariates `\(X\)` randomizes treatment `\(D\)`
+
+- Additional assumption: `\(\mathbb{P}(D=1|X=x) \in (0,1)\)`, for all `\(x\)` in the support of `\(X\)`
+
+- Required to be able to compare the outcomes of treated vs. untreated individuals, for any given value of characteristics `\(X=x\)`
+
+
+---
+# Matching (Cont'd)
+
+-  Under these assumptions, the ATE is identified: 
+`\begin{align*}
+\mathbb{E}(Y_1-Y_0)&amp;=\mathbb{E}(\mathbb{E}(Y_1-Y_0|X))\\
+&amp;=\mathbb{E}(\mathbb{E}(Y_1|D=1,X)) - \mathbb{E}(\mathbb{E}(Y_0|D=0,X))
+\end{align*}`
+
+- Similar for the other average treatment effect parameters
+
+- However, distributional TE's are not identified without additional restrictions
+
+- Note that the CIA cannot be tested
+
+- The second assumption, on the other hand, is directly testable
+
+
+---
+# IV
+The IV approach also deals with selection on unobservables
+
+Key identifying assumptions:
+
+-  Exogeneity: `\((Y_0,Y_1,(D(z))_z)\perp Z | X\)`
+-  Relevance: `\(\mathbb{P}(D=1|X,Z)\)` is a nondegenerate function of `\(Z\)` given `\(X\)`
+
+Exogenous variation in the instrument `\(Z\)` (conditional on `\(X\)`) generates variation in `\(D\)`
+
+Allows to identify the average treatment effect parameters ... under (strong) restrictions on selection into treatment
+
+---
+# IV (Cont'd)
+Regression representation of the treatment effect model:
+`\begin{align*}
+Y&amp;=\alpha + \beta D + U
+\end{align*}`
+where `\(\alpha=\mathbb{E}(Y_0)\)`, `\(\beta=Y_1-Y_0\)` and `\(U=Y_0-\alpha\)`
+
+- It is useful to consider two important cases:
+
+- Homogeneous treatment effects ( `\(\beta\)` constant)
+
+- Heterogeneous treatment effects, with selection into treatment partly driven by the treatment effects 
+
+- Sometimes referred to as a model with .hi[essential heterogeneity] (Heckman, Urzua, and Vytlacil, 2006), aka the .hi[correlated random coefficient model]
+
+
+---
+# IV: homogeneous treatment effects
+Unique treatment effect `\((ATE=ATT=ATU=\beta)\)`
+
+- We can apply standard IV method to the previous regression, which identifies the treatment effect `\(\beta_{\textrm{IV}} = \frac{Cov(Y,Z)}{Cov(D,Z)}\)`
+
+- Special case of a binary instrument `\(Z\)`: Wald estimator
+
+- But, assuming homogeneous treatment effects is very restrictive! 
+
+- In practice, the effectiveness of social programs tends to vary a lot across individuals
+
+
+---
+# IV: heterogeneous treatment effects
+.smaller[
+The previous model is a correlated random coefficient model
+
+- Key (negative) result: in general, the instrumental approach does not identify the ATE (nor any standard treatment effect parameters)
+
+- Consider the previous model, where `\(\overline{\beta}\)` is the ATE and `\(\eta \equiv \beta - \overline{\beta}\)`. We have:
+`\begin{align*}
+Y&amp;=\alpha + \overline{\beta} D + (U+\eta D)
+\end{align*}`
+
+- In general, `\(Z\)` is correlated with `\(\eta D\)`, and the IV does not identify the ATE `\(\overline{\beta}\)`
+
+- The IV approach still works if selection into treatment is not driven by the idiosyncratic gains `\(\eta\)`, in which case:
+`\begin{align*}
+Cov(Z,\eta D)&amp;=\mathbb{E}(Z \eta D)\\
+&amp;=\mathbb{E}(ZD \mathbb{E}(\eta|Z,D))=0
+\end{align*}`
+]
+
+
+---
+# IV and Local Average Treatment Effects (LATE)
+
+- However, under an additional .hi[monotonicity] assumption, the IV identifies the LATE (Imbens and Angrist, 1994)
+
+- Monotonicity assumption ( `\(Z\)` binary): `\(D_{Z=1} \geq D_{Z=0}\)` 
+
+- All individuals respond to a change in the instrument `\(Z\)` in the same way (Only sufficient, (de
+Chaisemartin, 2017))
+
+- Under the previous assumptions, we have: `$$\widehat{\beta}_{IV} \overset{p}{\rightarrow} LATE=\mathbb{E}(Y_1 - Y_0|D_{0}=0, D_1=1)$$`
+
+- Interpretation: ATE for the subset of individuals who would change their `\(D\)` following a change in `\(Z\)` (.hi[compliers])
+
+
+
+
+---
+# IV and Local Average Treatment Effects (Cont'd)
+
+- In general, if heterogeneous treatment effects, `\(LATE \neq ATE\)` (or `\(ATT\)`)
+
+- Remark: when `\(Z\)` takes more than two values, IV identifies a weighted average of the LATEs 
+
+    - corresponding to a shift in `\(Z\)` from `\(z\)` to `\(z'\)` 
+    
+    - for all `\(z\)` and `\(z'\)` in the support of `\(Z\)` such that `\(\mathbb{P}(D=1|Z=z)&lt;\mathbb{P}(D=1|Z=z')\)`
+
+- See recent survey by Mogstad and Torgovitsky (2018) 
+
+    - discusses extrapolation of IV/LATE estimates to policy-relevant parameters
+
+
+---
+# Control function
+
+- Key idea: use an explicit model of the relationship between `\(D\)` and `\((Y_0,Y_1)\)` to correct for selection bias
+
+- Main assumption: there exists a variable `\(\nu\)` such that the following conditional independence condition holds:
+`$$(Y_0,Y_1) \perp D\,\vert\, X,Z,\nu$$`
+
+- And some structure is imposed on the selection equation 
+
+
+---
+# Control function (Cont'd)
+
+- This is a fairly general framework
+
+- Encompasses many treatment effects models 
+
+    - perfect proxy for `\(\nu\)` available to the econometrician 
+    
+    - `\(\nu\)` observed with error as is the case for factor models
+    
+    - ...
+
+- Important special case: seminal selection model of Heckman (1979)
+
+
+---
+# Control function (Cont'd)
+
+- Assume a threshold crossing model for selection into treatment: `\(D=1\left[g(X,Z)-\nu&gt;0\right]\)`
+
+- And additively separable potential outcomes: `\(Y_k = \psi_k(X) + \varepsilon_k\)`, with `\((\nu,\varepsilon_0,\varepsilon_1) \perp (X,Z)\)`
+
+- `\(\textrm{ATE}(X)=\psi_1(X) - \psi_0(X)\)`  
+
+- `\(\psi_1(\cdot)\)` is identified from:
+`\begin{align*}
+\mathbb{E}(Y_1|X,Z,D=1)&amp;=\psi_1(X) + \mathbb{E}(\varepsilon_1|X,Z,\nu&lt;g(X,Z))
+\end{align*}`
+
+
+---
+# Control function (Cont'd)
+
+- Under regularity conditions (absolute continuity and full support) on the distribution of `\(\nu\)`: `\(g(X,Z)=F^{-1}_{\nu}(\mathbb{P}(D=1|X,Z))\)`
+
+- Thus, there exists a function `\(K_1(\cdot)\)` (control function) such that:
+`\begin{align*}
+\mathbb{E}(Y_1|X,Z,D=1)&amp;=\psi_1(X) + K_1(\mathbb{P}(D=1|X,Z))
+\end{align*}`
+
+- This identifies `\(\psi_1(\cdot)\)` .hi[up to location] as long as `\(X\)` and `\(\mathbb{P}(D=1|X,Z)\)` can vary in a sufficiently independent way 
+    - measurable separability condition, (Florens, Mouchart, and Rolin, 1990; Florens, Heckman, Meghir, and Vytlacil, 2008)
+
+- But, the intercept is crucial to recover the treatment effect parameters!
+
+---
+# Control function (Cont'd)
+
+- Solution: address the selection problem .hi[at the limit], using individuals with treatment probability `\(\mathbb{P}(D=1|X,Z)\)` approaching 1 (0 for `\(\psi_0\)`) to identify the intercept (Heckman, 1990)
+
+- For these individuals, `\(K_1(\mathbb{P}(D=1|X,Z))\longrightarrow 0\)`, and therefore: `\(\mathbb{E}(Y_1|X,Z,D=1)=\psi_1(X)\)`, which identifies the intercept.
+
+- Key identifying assumption: `\(\textrm{Support}\left(\mathbb{P}(D=1|X,Z)\right) = [0,1]\)` 
+
+- Note that this is quite restrictive!
+
+
+---
+# Control function (Cont'd)
+
+Also identifies the treatment effect on the treated and untreated since: 
+
+`\begin{align*}
+\mathbb{E}(Y_1-Y_0|X,Z,D=1)&amp;=\mathbb{E}(Y|X,Z,D=1) - \psi_0(X) - \mathbb{E}(\varepsilon_0|X,Z,D=1)
+\end{align*}`
+
+And it follows from the law of iterated expectations that (denoting by `\(p=\mathbb{P}(D=1|X,Z)\)`):
+
+`\begin{align*}
+\mathbb{E}(\varepsilon_0|X,Z,D=1)&amp;=-\frac{1-p}{p}K_{0}(p)
+\end{align*}`
+
+---
+# Control function (Cont'd)
+ 
+-  Consistent estimators for `\((\psi_0,\psi_1)\)` up to location can be obtained 
+
+    - e.g. semiparametric regression with linear outcomes (Robinson, 1988)
+
+- Andrews and Schafgans (1998) provide a consistent estimator for the intercept 
+
+    - smoothed version of Heckman (1990)
+
+
+---
+# Further reading
+
+- Heckman and Leamer (2007)
+- Abadie and Cattaneo (2018)
+- Imbens (2015)
+- Athey and Imbens (2017)
+- Deaton (2010)
+- Heckman (2010)
+- Imbens and Wooldridge (2009)
+- Imbens (2004)
+- Mogstad and Torgovitsky (2018)
+
+---
+# References
+.minuscule[
+Abadie, A. and M. D. Cattaneo (2018). "Econometric Methods for Program
+Evaluation". In: _Annual Review of Economics_ 10.1, pp. 465-503. DOI:
+[10.1146/annurev-economics-080217-053402](https://doi.org/10.1146%2Fannurev-economics-080217-053402).
+
+Andrews, D. W. K. and M. M. A. Schafgans (1998). "Semiparametric
+Estimation of the Intercept of a Sample Selection Model". In: _Review
+of Economic Studies_ 65.3, pp. 497-517. URL:
+[http://www.jstor.org/stable/2566936](http://www.jstor.org/stable/2566936).
+
+Athey, S. and G. W. Imbens (2017). "The Econometrics of Randomized
+Experiments". In: _Handbook of Field Experiments_. Ed. by A. V.
+Banerjee and E. Duflo. Vol. 1. Handbook of Economic Field Experiments.
+North-Holland. Chap. 3, pp. 73-140. DOI:
+[10.1016/bs.hefe.2016.10.003](https://doi.org/10.1016%2Fbs.hefe.2016.10.003).
+
+Chaisemartin, C. de (2017). "Tolerating Defiance? Local Average
+Treatment Effects without Monotonicity". In: _Quantitative Economics_
+8.2, pp. 367-396. DOI:
+[10.3982/QE601](https://doi.org/10.3982%2FQE601).
+
+Deaton, A. (2010). "Instruments, Randomization, and Learning about
+Development". In: _Journal of Economic Literature_ 48.2, pp. 424-455.
+DOI: [10.1257/jel.48.2.424](https://doi.org/10.1257%2Fjel.48.2.424).
+
+Florens, J. P, J. J. Heckman, C. Meghir, et al. (2008). "Identification
+of Treatment Effects Using Control Functions in Models With Continuous,
+Endogenous Treatment and Heterogeneous Effects". In: _Econometrica_
+76.5, pp. 1191-1206. DOI:
+[10.3982/ECTA5317](https://doi.org/10.3982%2FECTA5317).
+
+Florens, J. P, M. Mouchart, and J. Rolin (1990). _Elements of Bayesian
+Statistics_. New York: Dekker.
+
+Heckman, J. (1990). "Varieties of Selection Bias". In: _American
+Economic Review_ 80.2, pp. 313-318. URL:
+[http://www.jstor.org/stable/2006591](http://www.jstor.org/stable/2006591).
+
+Heckman, J. J. (1979). "Sample Selection Bias as a Specification
+Error". In: _Econometrica_ 47.1, pp. 153-161. DOI:
+[10.2307/1912352](https://doi.org/10.2307%2F1912352).
+
+Heckman, J. J. (2010). "Building Bridges between Structural and Program
+Evaluation Approaches to Evaluating Policy". In: _Journal of Economic
+Literature_ 48.2, pp. 356-398. DOI:
+[10.1257/jel.48.2.356](https://doi.org/10.1257%2Fjel.48.2.356).
+
+Heckman, J. J. and E. E. Leamer, ed. (2007). _Handbook of Econometrics,
+Part 18: Econometric Evaluation of Social Programs_. Vol. 6. Elsevier.
+DOI:
+[10.1016/S1573-4412(07)06070-9](https://doi.org/10.1016%2FS1573-4412%2807%2906070-9).
+
+Heckman, J. J, S. Urzua, and E. Vytlacil (2006). "Understanding
+Instrumental Variables in Models with Essential Heterogeneity". In:
+_Review of Economics and Statistics_ 88.3, pp. 389-432. DOI:
+[10.1162/rest.88.3.389](https://doi.org/10.1162%2Frest.88.3.389).
+
+Heckman, J, H. Ichimura, J. Smith, et al. (1998). "Characterizing
+Selection Bias Using Experimental Data". In: _Econometrica_ 66.5, pp.
+1017-1098. URL:
+[https://www.jstor.org/stable/2999630](https://www.jstor.org/stable/2999630).
+
+Imbens, G. W. (2004). "Nonparametric Estimation of Average Treatment
+Effects Under Exogeneity: A Review". In: _The Review of Economics and
+Statistics_ 86.1, pp. 4-29. DOI:
+[10.1162/003465304323023651](https://doi.org/10.1162%2F003465304323023651).
+
+Imbens, G. W. (2015). "Matching Methods in Practice: Three Examples".
+In: _Journal of Human Resources_ 50.2, pp. 373-419. DOI:
+[10.3368/jhr.50.2.373](https://doi.org/10.3368%2Fjhr.50.2.373).
+
+Imbens, G. W. and J. D. Angrist (1994). "Identification and Estimation
+of Local Average Treatment Effects". In: _Econometrica_ 62.2, pp.
+467-475. DOI: [10.2307/2951620](https://doi.org/10.2307%2F2951620).
+
+Imbens, G. W. and J. M. Wooldridge (2009). "Recent Developments in the
+Econometrics of Program Evaluation". In: _Journal of Economic
+Literature_ 47.1, pp. 5-86. DOI:
+[10.1257/jel.47.1.5](https://doi.org/10.1257%2Fjel.47.1.5).
+
+Mogstad, M. and A. Torgovitsky (2018). "Identification and
+Extrapolation of Causal Effects with Instrumental Variables". In:
+_Annual Review of Economics_ 10.1, pp. 577-613. DOI:
+[10.1146/annurev-economics-101617-041813](https://doi.org/10.1146%2Fannurev-economics-101617-041813).
+
+Quandt, R. E. (1958). "The Estimation of the Parameters of a Linear
+Regression System Obeying Two Separate Regimes". In: _Journal of the
+American Statistical Association_ 53.284, pp. 873-880. DOI:
+[10.1080/01621459.1958.10501484](https://doi.org/10.1080%2F01621459.1958.10501484).
+
+Robinson, P. M. (1988). "Root-N-Consistent Semiparametric Regression".
+In: _Econometrica_ 56.4, pp. 931-954. URL:
+[http://www.jstor.org/stable/1912705](http://www.jstor.org/stable/1912705).
+
+Roy, A. (1951). "Some Thoughts on the Distribution of Earnings". In:
+_Oxford Economic Papers_ 3.2, pp. 135-146.
+
+Rubin, D. B. (1974). "Estimating Causal Effects of Treatments in
+Randomized and Nonrandomized Studies". In: _Journal of Educational
+Psychology_ 66.5, pp. 688-701. DOI:
+[10.1037/h0037350](https://doi.org/10.1037%2Fh0037350).
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="https://platform.twitter.com/widgets.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

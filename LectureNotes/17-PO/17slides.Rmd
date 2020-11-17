@@ -1,0 +1,450 @@
+---
+title: "Lecture 17"
+subtitle: "Potential Outcomes and Treatment Effects"
+author: Tyler Ransom
+date: ECON 6343, University of Oklahoma
+output:
+  xaringan::moon_reader:
+    includes:
+        in_header: "17slides_files/mathjax-equation-numbers.html"
+    css: ['default', 'metropolis', 'metropolis-fonts', 'ou-colors.css']
+    # self_contained: true
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: '16:9'
+      beforeInit: ["https://platform.twitter.com/widgets.js"]
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, 
+                      fig.retina = 3, fig.align = "center")
+```
+
+```{r, load_refs, include=FALSE, cache=FALSE}
+library(RefManageR)
+library(tidyverse)
+library(ggdag)
+BibOptions(check.entries = FALSE,
+           bib.style = "authoryear",
+           style = "markdown",
+           hyperlink = FALSE,
+           dashed = TRUE)
+biblio <- ReadBib("../../References/References.bib", check = FALSE)
+```
+
+# Attribution
+
+Today's material is based on lecture notes from Arnaud Maurel (Duke University).
+
+I have adjusted his materials to fit the needs and goals of this course
+
+
+---
+# Plan for the Day
+
+1. What are potential outcomes? What are treatment effects?
+
+2. Challenges to identifying treatment effects
+
+3. Matching & IV
+
+4. Control functions
+
+---
+# Potential Outcomes model
+
+- Developed by `r Citet(biblio,"quandt1958")` and `r Citet(biblio,"rubin1974")`
+
+- Two potential outcomes, $(Y_0,Y_1)$, associated with each treatment status $D\in\{0,1\}$
+
+- The econometrician only observes:
+    - the treatment dummy $D$
+    - the realized outcome $Y=D Y_1 + (1-D)Y_0$
+
+- Note: we could have more than two treatments
+
+- Note: we also assume .hi[SUTVA]: $i$'s treatment doesn't affect $j$'s outcome
+    - SUTVA also known as "no interference" in Judea Pearl's world
+
+---
+# Objects of interest
+
+Individual-level Treatment Effects: 
+
+- $Y_{i1} - Y_{i0},\,\,\,\, i=1,\ldots,N$
+
+Mean treatment effect parameters:
+
+- .hi[Average Treatment Effect (ATE):] $\mathbb{E}(Y_1-Y_0)$
+
+- .hi[Average Treatment on the Treated (ATT):] $\mathbb{E}(Y_1-Y_0|D=1)$
+
+- .hi[Average Treatment on the Untreated (ATU):] $\mathbb{E}(Y_1-Y_0|D=0)$
+ 
+- No covariates in this simple setting, but we could include them fairly easily
+
+---
+# Objects of interest (Continued)
+
+- Each treatment parameter answers a different question
+
+- ATT is most related to the effectiveness of an existing program 
+
+    - ATT does not account for program's cost
+
+- We can define many other relevant treatment effect parameters:
+
+    - Marginal Treatment Effect
+    
+    - Policy Relevant Treatment Effect
+    
+- These require imposing some structure on the underlying selection model 
+
+
+
+---
+# Identification challenges
+Two main problems arise when identifying the effect of treatment $D$ on outcome $Y$: 
+
+1. .hi[Evaluation problem:] for each $i$ we only observe either $Y_0$ or $Y_1$, but never both
+
+2. .hi[Selection problem:] selection into treatment is endogenous, i.e. $(Y_0,Y_1) \not \perp D$
+
+
+---
+# The evaluation problem
+
+- Fundamental observability problem $\implies$ individual TE $Y_{i1} - Y_{i0}$ is not identified
+
+- Thus, we often focus on mean treatment effects, such as the ATE, ATT, ATU 
+
+- Or on other parameters that depend on the marginal distributions only; e.g. QTE
+
+- Suppose individuals were randomly assigned across treatment and control groups: 
+\begin{align*}
+ATE&=\mathbb{E}(Y_1-Y_0)\\
+&=\mathbb{E}(Y_1|D=1) - \mathbb{E}(Y_0|D=0)\\
+&=\mathbb{E}(Y|D=1) - \mathbb{E}(Y|D=0)
+\end{align*}
+
+- Then the ATE would be directly identified from the data 
+ 
+(as would be the case for the other average treatment effects; they'd all be equal here)
+
+
+---
+# The evaluation problem (Cont'd)
+
+- Direct identification of TE from the data is specific to .hi[mean TE's]
+
+- Why? They only depend on the marginal distributions of $Y_0$ and $Y_1$
+
+- Other features of the distribution of TE's depend on the joint distribution of $(Y_0,Y_1)$ 
+
+    - e.g. variance, median
+
+- Additional assumptions would be needed for identification of these
+
+
+---
+# The selection problem
+ 
+- .hi[Major difficulty:] Agents often .hi[choose] to be treated based on characteristics which are related to their potential outcomes
+
+- Canonical model of self-selection is due to `r Citet(biblio,"roy1951")`
+
+- Within this framework, selection into treatment is directly based on the TE $Y_1-Y_0$
+
+- Individuals self-select into treatment iff $Y_1-Y_0>0$
+
+- In this case, $\mathbb{E}(Y_1|D=1) \neq \mathbb{E}(Y_1)$ and $\mathbb{E}(Y_0|D=0) \neq \mathbb{E}(Y_0)$
+
+
+---
+# The selection problem (Continued)
+
+- The ATE cannot be identified directly from the observed average outcomes
+
+- Need to know/assume more about selection rule to identify the TE parameters
+
+- Two alternative approaches: point vs. partial identification
+
+- Tradeoff strength/identifying power of the invoked assumptions
+
+
+---
+# Standard identifying assumptions
+Three main alternative assumptions to deal with selection.
+
+1. .hi[Unconfoundedness approach (Matching):] $(Y_0,Y_1) \perp D | X$, where $X$ is a set of observed covariates
+
+2. .hi[IV approach:] $(Y_0,Y_1) \perp Z| X$, where $X$ and $Z$ denote two vectors of covariates affecting the potential outcomes and the treatment status, resp.
+
+3. .hi[Control function approach:] $(Y_0,Y_1) \perp D| X,Z,\nu$ (where $\nu$ is an unobserved r.v.), plus some structure on the selection equation. 
+
+(2) and (3) are related in the sense that both hinge on existence of exclusion restrictions
+
+
+---
+# Standard identifying assumptions (Cont'd)
+Panel: most popular method to deal with selection is the difference-in-differences approach, which compares the evolution over time in the outcomes of treated vs. untreated individuals:
+
+- $\Delta Y_0 \perp D$ (.hi[parallel trend assumption]), where $\Delta Y$ denotes the variation in the outcome $Y$ between $t_0$ and $t_1$, with the treatment taking place between $t_0$ and $t_1$ 
+
+- Accounts for selection on .hi[time-invariant] characteristics 
+
+- One may combine difference-in-differences with matching, which yields identification under weaker conditions `r Citep(biblio,"heckman_al1998")`
+
+
+---
+# Matching
+
+- Accounts for selection on observables only
+
+- Main identifying assumption: $(Y_0,Y_1) \perp D | X$
+
+- This is known as the .hi[Conditional Independence Assumption] (CIA), or .hi[Unconfoundedness]
+
+- Conditioning on a set of observed covariates $X$ randomizes treatment $D$
+
+- Additional assumption: $\mathbb{P}(D=1|X=x) \in (0,1)$, for all $x$ in the support of $X$
+
+- Required to be able to compare the outcomes of treated vs. untreated individuals, for any given value of characteristics $X=x$
+
+
+---
+# Matching (Cont'd)
+
+-  Under these assumptions, the ATE is identified: 
+\begin{align*}
+\mathbb{E}(Y_1-Y_0)&=\mathbb{E}(\mathbb{E}(Y_1-Y_0|X))\\
+&=\mathbb{E}(\mathbb{E}(Y_1|D=1,X)) - \mathbb{E}(\mathbb{E}(Y_0|D=0,X))
+\end{align*}
+
+- Similar for the other average treatment effect parameters
+
+- However, distributional TE's are not identified without additional restrictions
+
+- Note that the CIA cannot be tested
+
+- The second assumption, on the other hand, is directly testable
+
+
+---
+# IV
+The IV approach also deals with selection on unobservables
+
+Key identifying assumptions:
+
+-  Exogeneity: $(Y_0,Y_1,(D(z))_z)\perp Z | X$
+-  Relevance: $\mathbb{P}(D=1|X,Z)$ is a nondegenerate function of $Z$ given $X$
+
+Exogenous variation in the instrument $Z$ (conditional on $X$) generates variation in $D$
+
+Allows to identify the average treatment effect parameters ... under (strong) restrictions on selection into treatment
+
+---
+# IV (Cont'd)
+Regression representation of the treatment effect model:
+\begin{align*}
+Y&=\alpha + \beta D + U
+\end{align*}
+where $\alpha=\mathbb{E}(Y_0)$, $\beta=Y_1-Y_0$ and $U=Y_0-\alpha$
+
+- It is useful to consider two important cases:
+
+- Homogeneous treatment effects ( $\beta$ constant)
+
+- Heterogeneous treatment effects, with selection into treatment partly driven by the treatment effects 
+
+- Sometimes referred to as a model with .hi[essential heterogeneity] `r Citep(biblio,"heckmanUrzuaVytlacil2006")`, aka the .hi[correlated random coefficient model]
+
+
+---
+# IV: homogeneous treatment effects
+Unique treatment effect $(ATE=ATT=ATU=\beta)$
+
+- We can apply standard IV method to the previous regression, which identifies the treatment effect $\beta_{\textrm{IV}} = \frac{Cov(Y,Z)}{Cov(D,Z)}$
+
+- Special case of a binary instrument $Z$: Wald estimator
+
+- But, assuming homogeneous treatment effects is very restrictive! 
+
+- In practice, the effectiveness of social programs tends to vary a lot across individuals
+
+
+---
+# IV: heterogeneous treatment effects
+.smaller[
+The previous model is a correlated random coefficient model
+
+- Key (negative) result: in general, the instrumental approach does not identify the ATE (nor any standard treatment effect parameters)
+
+- Consider the previous model, where $\overline{\beta}$ is the ATE and $\eta \equiv \beta - \overline{\beta}$. We have:
+\begin{align*}
+Y&=\alpha + \overline{\beta} D + (U+\eta D)
+\end{align*}
+
+- In general, $Z$ is correlated with $\eta D$, and the IV does not identify the ATE $\overline{\beta}$
+
+- The IV approach still works if selection into treatment is not driven by the idiosyncratic gains $\eta$, in which case:
+\begin{align*}
+Cov(Z,\eta D)&=\mathbb{E}(Z \eta D)\\
+&=\mathbb{E}(ZD \mathbb{E}(\eta|Z,D))=0
+\end{align*}
+]
+
+
+---
+# IV and Local Average Treatment Effects (LATE)
+
+- However, under an additional .hi[monotonicity] assumption, the IV identifies the LATE `r Citep(biblio,"imbensAngrist1994")`
+
+- Monotonicity assumption ( $Z$ binary): $D_{Z=1} \geq D_{Z=0}$ 
+
+- All individuals respond to a change in the instrument $Z$ in the same way (Only sufficient, `r Citep(biblio,"chaisemartin2017")`)
+
+- Under the previous assumptions, we have: $$\widehat{\beta}_{IV} \overset{p}{\rightarrow} LATE=\mathbb{E}(Y_1 - Y_0|D_{0}=0, D_1=1)$$
+
+- Interpretation: ATE for the subset of individuals who would change their $D$ following a change in $Z$ (.hi[compliers])
+
+```{r, echo=F, results=F}
+# - Note that the margin, which depends on the instrument $Z$ considered, is not identified
+```
+
+
+---
+# IV and Local Average Treatment Effects (Cont'd)
+
+- In general, if heterogeneous treatment effects, $LATE \neq ATE$ (or $ATT$)
+
+- Remark: when $Z$ takes more than two values, IV identifies a weighted average of the LATEs 
+
+    - corresponding to a shift in $Z$ from $z$ to $z'$ 
+    
+    - for all $z$ and $z'$ in the support of $Z$ such that $\mathbb{P}(D=1|Z=z)<\mathbb{P}(D=1|Z=z')$
+
+- See recent survey by `r Citet(biblio,"mogstadTorgovitsky2018")` 
+
+    - discusses extrapolation of IV/LATE estimates to policy-relevant parameters
+
+
+---
+# Control function
+
+- Key idea: use an explicit model of the relationship between $D$ and $(Y_0,Y_1)$ to correct for selection bias
+
+- Main assumption: there exists a variable $\nu$ such that the following conditional independence condition holds:
+$$(Y_0,Y_1) \perp D\,\vert\, X,Z,\nu$$
+
+- And some structure is imposed on the selection equation 
+
+
+---
+# Control function (Cont'd)
+
+- This is a fairly general framework
+
+- Encompasses many treatment effects models 
+
+    - perfect proxy for $\nu$ available to the econometrician 
+    
+    - $\nu$ observed with error as is the case for factor models
+    
+    - ...
+
+- Important special case: seminal selection model of `r Citet(biblio,"heckman1979")`
+
+
+---
+# Control function (Cont'd)
+
+- Assume a threshold crossing model for selection into treatment: $D=1\left[g(X,Z)-\nu>0\right]$
+
+- And additively separable potential outcomes: $Y_k = \psi_k(X) + \varepsilon_k$, with $(\nu,\varepsilon_0,\varepsilon_1) \perp (X,Z)$
+
+- $\textrm{ATE}(X)=\psi_1(X) - \psi_0(X)$  
+
+- $\psi_1(\cdot)$ is identified from:
+\begin{align*}
+\mathbb{E}(Y_1|X,Z,D=1)&=\psi_1(X) + \mathbb{E}(\varepsilon_1|X,Z,\nu<g(X,Z))
+\end{align*}
+
+
+---
+# Control function (Cont'd)
+
+- Under regularity conditions (absolute continuity and full support) on the distribution of $\nu$: $g(X,Z)=F^{-1}_{\nu}(\mathbb{P}(D=1|X,Z))$
+
+- Thus, there exists a function $K_1(\cdot)$ (control function) such that:
+\begin{align*}
+\mathbb{E}(Y_1|X,Z,D=1)&=\psi_1(X) + K_1(\mathbb{P}(D=1|X,Z))
+\end{align*}
+
+- This identifies $\psi_1(\cdot)$ .hi[up to location] as long as $X$ and $\mathbb{P}(D=1|X,Z)$ can vary in a sufficiently independent way 
+    - measurable separability condition, `r Citep(biblio,c("florens_al1990","florens_al2008"))`
+
+- But, the intercept is crucial to recover the treatment effect parameters!
+
+---
+# Control function (Cont'd)
+
+- Solution: address the selection problem .hi[at the limit], using individuals with treatment probability $\mathbb{P}(D=1|X,Z)$ approaching 1 (0 for $\psi_0$) to identify the intercept `r Citep(biblio,"heckman1990")`
+
+- For these individuals, $K_1(\mathbb{P}(D=1|X,Z))\longrightarrow 0$, and therefore: $\mathbb{E}(Y_1|X,Z,D=1)=\psi_1(X)$, which identifies the intercept.
+
+- Key identifying assumption: $\textrm{Support}\left(\mathbb{P}(D=1|X,Z)\right) = [0,1]$ 
+
+- Note that this is quite restrictive!
+
+
+---
+# Control function (Cont'd)
+
+Also identifies the treatment effect on the treated and untreated since: 
+
+\begin{align*}
+\mathbb{E}(Y_1-Y_0|X,Z,D=1)&=\mathbb{E}(Y|X,Z,D=1) - \psi_0(X) - \mathbb{E}(\varepsilon_0|X,Z,D=1)
+\end{align*}
+
+And it follows from the law of iterated expectations that (denoting by $p=\mathbb{P}(D=1|X,Z)$):
+
+\begin{align*}
+\mathbb{E}(\varepsilon_0|X,Z,D=1)&=-\frac{1-p}{p}K_{0}(p)
+\end{align*}
+
+---
+# Control function (Cont'd)
+ 
+-  Consistent estimators for $(\psi_0,\psi_1)$ up to location can be obtained 
+
+    - e.g. semiparametric regression with linear outcomes `r Citep(biblio,"robinson1988")`
+
+- `r Citet(biblio,"andrewsSchafgans1998")` provide a consistent estimator for the intercept 
+
+    - smoothed version of `r Citet(biblio,"heckman1990")`
+
+
+---
+# Further reading
+
+- `r Citet(biblio,"heckmanLeamer")`
+- `r Citet(biblio,"abadieCattaneo2018")`
+- `r Citet(biblio,"imbens2015")`
+- `r Citet(biblio,"atheyImbens2017")`
+- `r Citet(biblio,"deaton2010")`
+- `r Citet(biblio,"heckman2010jel")`
+- `r Citet(biblio,"imbensWooldridge2009")`
+- `r Citet(biblio,"imbens2004")`
+- `r Citet(biblio,"mogstadTorgovitsky2018")`
+
+---
+# References
+.minuscule[
+```{r refs, echo=FALSE, results="asis"}
+PrintBibliography(biblio)
+```
+]
