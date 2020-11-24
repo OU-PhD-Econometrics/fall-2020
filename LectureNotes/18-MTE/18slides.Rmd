@@ -1,0 +1,909 @@
+---
+title: "Lecture 18"
+subtitle: "Marginal and Distributional Treatment Effects"
+author: Tyler Ransom
+date: ECON 6343, University of Oklahoma
+output:
+  xaringan::moon_reader:
+    includes:
+        in_header: "18slides_files/mathjax-equation-numbers.html"
+    css: ['default', 'metropolis', 'metropolis-fonts', 'ou-colors.css']
+    # self_contained: true
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: '16:9'
+      beforeInit: ["https://platform.twitter.com/widgets.js"]
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, 
+                      fig.retina = 3, fig.align = "center")
+```
+
+```{r, load_refs, include=FALSE, cache=FALSE}
+library(RefManageR)
+library(tidyverse)
+BibOptions(check.entries = FALSE,
+           bib.style = "authoryear",
+           style = "markdown",
+           hyperlink = FALSE,
+           dashed = TRUE)
+biblio <- ReadBib("../../References/References.bib", check = FALSE)
+```
+
+# Attribution
+
+Today's material is based on lecture notes from Arnaud Maurel (Duke University)
+
+I have adjusted his materials to fit the needs and goals of this course
+
+
+---
+# Plan for the Day
+
+1. Marginal Treatment Effects
+
+2. Policy-Relevant Treatment Effects
+
+3. Distributional Treatment Effects
+
+
+---
+# Marginal Treatment Effects
+
+- .hi[Essential heterogeneity:] the standard IV approach does not identify the ATE, nor any standard average treatment effect parameter
+
+- `r Citet(biblio,"heckmanVytlacil2005")`: under some restrictions on the selection rule and with an instrument, one can identify .hi[Marginal Treatment Effects] (MTE, `r Citet(biblio,"bjorklundMoffitt1987")`) for individuals at certain margins
+
+- .hi[Key insight:] all the standard TE parameters can be expressed as weighted averages of the MTE parameters
+
+- Useful framework that highlights the conditions under which standard, or policy relevant TE parameters, are identified from the data
+
+```{r, echo=F, results=F}
+# - This allows to unify the treatment effect literature, and clarifies what is identified with a standard IV approach under alternative sets of assumptions
+```
+
+---
+# Econometric framework
+
+- Nonseparable outcome model:
+\begin{align*}
+Y_1&=\mu_1(X,U_1)\\
+Y_0&=\mu_0(X,U_0)
+\end{align*}
+
+- Decision rule for selection into treatment:
+\begin{align*}
+D&=1[\mu_{D}(Z)-U_D \geq 0]
+\end{align*}
+
+Additive separability on the index is key here
+
+- $(Z,X)$ are observed, $(U_0,U_1,U_D)$ unobserved
+
+- Exclusion restriction: $Z$ contains all the $X$ plus one element not in $X$
+
+---
+# Econometric framework (Continued)
+Assumptions maintained throughout the analysis:
+
+1. $\mu_{D}(Z)$ is a nondegenerate random variable conditional on $X$
+2. $(U_1,U_D)$ and $(U_0,U_D)$ are independent of $Z$ conditional on $X$
+3. The distribution of $U_D$ is absolutely continuous w.r.t. the Lebesgue measure
+4. $\mathbb{E}|Y_1|$ and $\mathbb{E}|Y_0|$ are finite
+5. $0<\mathbb{P}(D=1|X)<1$
+6. No feedback condition: $X_{D=1}=X_{D=0}$ almost surely
+
+- Overall, the model is quite general
+
+- The availability of a valid instrument (conditions 1-2) is most restrictive in practice
+
+---
+# Econometric framework (Continued)
+
+- Selection probability: $\mathbb{P}(Z)=\mathbb{P}(D=1|Z)=F_{U_D|X}(\mu_{D}(Z))$
+
+- Normalization: $U_D \sim U_{[0,1]}$ and $\mu_{D}(Z)=\mathbb{P}(Z)$
+
+- `r Citet(biblio,"vytlacil2002")`: this model, with the assumptions 1-5, is equivalent to the LATE model of `r Citet(biblio,"imbensAngrist1994")`
+
+
+
+---
+# The Marginal Treatment Effect
+ $$ \Delta^{MTE}(x,u_{d})=\mathbb{E}(Y_1-Y_0|X=x,U_d=u_d)$$
+
+- This is the mean effect of treatment conditional on the observable characteristics $X$ and the unobservables $U_D$ from the selection equation
+
+- Other interpretation: mean effect of treatment for individuals with observable characteristics $X$ who would be indifferent between treatment or not if exogenously assigned a value $Z$ $(z)$ such that $\mu_{D}(z)=u_d$
+
+- Essential heterogeneity: $\Delta^{MTE}(x,u_{d})$ varies with $u_d$
+
+
+---
+# Connection between MTE and LATE
+
+- Consider the case of a binary instrument $Z \in \{0,1\}$
+
+- The LATE writes:
+\begin{align*}
+\mathbb{E}(Y_1 - Y_0|X=x,D_{0}=0, D_1=1)&=\\
+\mathbb{E}(Y_1 - Y_0|X=x,u'_{D}\leq U_D \leq u_D)
+\end{align*}
+where $u'_{D}=\mathbb{P}(D_0=0)=\mathbb{P}(0)$ and $u_{D}=\mathbb{P}(D_1=1)=\mathbb{P}(1)$
+
+- For $u'_{D} \longrightarrow u_D$: $\Delta^{LATE}(x,u'_{d},u_d) \longrightarrow \Delta^{MTE}(x,u_{d})$
+
+
+---
+# MTE and ATE, ATT, ATU
+
+- Key result: all the standard treatment effect parameters are obtained as weighted averages of MTE
+
+- ATE:
+\begin{align*}
+\mathbb{E}(Y_1-Y_0|X=x)&=\mathbb{E}_{U_d|X=x}(\mathbb{E}(Y_1-Y_0|X=x,U_d=u_d))\\
+&=\int_{0}^{1} \Delta^{MTE}(x,u_{d})du_d
+\end{align*}
+
+
+---
+# MTE and ATT
+
+Similarly for the ATT:
+
+\begin{align*}
+\mathbb{E}(Y_1-Y_0|X=x,D=1)&=\int_{0}^{1} \Delta^{MTE}(x,u_{d})h_{TT}(x,u_d)du_d
+\end{align*}
+with the weights:
+\begin{align*}
+h_{TT}(x,u_D)&=\frac{1-F_{P|X=x}(u_D)}{\int_{0}^{1}(1-F_{P|X=x}(t))dt}
+\end{align*}
+
+Interpretation: the TT oversamples the MTE for the individuals with low values of $U_D$
+
+
+```{r, echo=F, results=F}
+# ---
+# # MTE and average treatment effect parameters (Continued)
+# From `r Citet(biblio,"heckmanVytlacil2005")`:
+# \begin{center}
+# \includegraphics[scale = 0.5]{HeckmanVytlacil05_Table1A.pdf}
+# \end{center}}}
+# 
+# ---
+# # MTE and average treatment effect parameters (Continued)
+# \begin{center}
+# \includegraphics[scale = 0.5]{HeckmanVytlacil05_Table1B.pdf}
+# \end{center}}}
+# 
+# %IV Estimand = LATE (IN THE BINARY CASE, UNDER THE PREVIOUS ASSUMPTIONS)
+```
+
+---
+# MTE and IV estimator
+
+- In the presence of essential heterogeneity, the standard IV approach in general does not identify any of the standard mean treatment effect parameters
+
+- Still, the IV estimand can also be obtained as a weighted sum of the MTE parameters. Consider a function $J(Z)$ as an instrument, the IV estimand writes:
+\begin{align*}
+\beta_{IV}(x,J)&=\frac{Cov(J(Z),Y|X=x)}{Cov(J(Z),D|X=x)}
+\end{align*}
+
+- Denoting $\widetilde{J(Z)}=J(Z)-\mathbb{E}(J(Z)|X=x)$, we can show that the numerator writes:
+$$\int_{0}^{1} \Delta^{MTE}(x,u_{d})\mathbb{E}(\widetilde{J(Z)}|X=x,\mathbb{P}(Z)\geq u_D)\mathbb{P}(\mathbb{P}(Z)\geq u_d|X)du_d$$
+
+
+
+
+---
+# MTE and IV estimator (Continued)
+.small[
+- And from the law of iterated expectations, we have: $Cov(J(Z),D|X=x)=Cov(J(Z),\mathbb{P}(Z)|X=x)$
+
+- This implies that $\beta_{IV}(x,J)$ is a weighted average of the MTE, with the weighting function $h_{IV}(u_D|x,J)$:
+
+\begin{align*}
+\frac{\mathbb{E}(\widetilde{J(Z)}|X=x,\mathbb{P}(Z)\geq u_D)\mathbb{P}(\mathbb{P}(Z)\geq u_d|X)}{Cov(J(Z),\mathbb{P}(Z)|X=x)}
+\end{align*}
+
+- $\mathbb{P}(Z)$ plays a special role here. In the case where $J(Z)=\mathbb{P}(Z)$, the weights are nonnegative for all evaluation points
+
+- In general this is not the case
+
+- This may lead to counterintuitive interpretations of the IV estimator: 
+e.g. all the MTEs are positive, but the IV estimate is negative!
+]
+
+---
+# Identification of the MTE
+
+- Key question given the central role played by the MTE in policy analysis
+
+- Idea: use $J(Z)=\mathbb{P}(Z)$ as an instrument (.hi[Local Instrumental Variable], LIV) approach
+
+- LIV is defined (and identified) by:
+
+\begin{align*}
+\Delta^{LIV}(x,p)&=\frac{\partial \mathbb{E}(Y|X=x,\mathbb{P}(Z)=p)}{\partial p}
+\end{align*}
+
+- Note that:
+\begin{align*}
+\mathbb{E}(Y|X=x,\mathbb{P}(Z)=p)&=\mathbb{E}(Y_0|X=x,\mathbb{P}(Z)=p) + \mathbb{E}(D(Y_1-Y_0)|X=x,\mathbb{P}(Z)=p)\\
+&=\mathbb{E}(Y_0|X=x) + \mathbb{E}(Y_1-Y_0|X=x,\mathbb{P}(Z)=p,D=1)p\\
+&=\mathbb{E}(Y_0|X=x) + \mathbb{E}(Y_1-Y_0|X=x,p\geq U_D)p
+\end{align*}
+
+
+---
+# Identification of the MTE (Continued)
+
+- Defining $U_k$ by: $Y_k=\mathbb{E}(Y_k|X) + U_k$ (for $k \in \{0,1\}$), we have:
+\begin{align*}
+\mathbb{E}(Y|X=x,\mathbb{P}(Z)=p)&=\mathbb{E}(Y_0|X=x) + \Delta^{ATE}(x)p \\
+&+ \int_{0}^p \mathbb{E}(U_1-U_0|X=x,U_D=u_D)du_D
+\end{align*}
+
+- Taking the derivative with respect to $p$ (the LIV) directly yields the MTE evaluated in $U_D=p$:
+\begin{align*}
+\frac{\partial \mathbb{E}(Y|X=x,\mathbb{P}(Z)=p)}{\partial p}&=\Delta^{ATE}(x) + \mathbb{E}(U_1-U_0|X=x,U_D=p)\\
+&=\Delta^{MTE}(x,p)
+\end{align*}
+
+
+
+---
+# Identification of the MTE (Continued)
+
+- This suggests a simple test for essential heterogeneity, which corresponds to the nonlinearity of $\mathbb{E}(Y|X=x,\mathbb{P}(Z)=p)$ as a function of $p$
+
+- Note this only identifies the MTE on the support of $\mathbb{P}$ conditional on $X=x$
+
+- Thus in general, the standard treatment effect parameters are .hi[not] identified, unless $\mathbb{P}(Z)$ has full support (conditional on $X$)
+
+- Of course, also need a continuous instrument to identify the partial derivative w.r.t. $p$
+
+- See `r Citet(biblio,"brinch_al2017")` who study identification with a discrete instrument for a linear MTE model
+
+
+---
+
+
+.center[
+.huge[.hi[Policy-Relevant Treatment Effects]]
+]
+
+
+
+---
+# Policy Relevant Treatment Effects
+
+- In the heterogeneous case, different TE parameters answer different policy questions
+
+- Another look at the situation: define a treatment parameter that answers a given policy question (.hi[Policy Relevant Treatment Effect], PRTE)
+
+- Consider a class of policies that affect $\mathbb{P}$, but not the MTE
+
+- i.e. if the policy does not change the potential outcomes (no GE consideration here), covariates $X$ or unobservables $U_D$
+
+    - Think about tuition fees in the context of schooling
+
+---
+# Policy Relevant Treatment Effects (Continued)
+
+- Denoting by $a$ and $a'$ two potential policies, the PRTE writes:
+\begin{align*}
+\mathbb{E}(Y_a|X=x) - E (Y_{a'}|X=x)\\
+=\int_{0}^1 \mathbb{E}(Y_1-Y_0|X=x,U_D=u_D)h_{PRTE}(x,u_D) du_D
+\end{align*}
+- with the weights:
+\begin{align*}
+h_{PRTE}(x,u_D) &= F_{P_{a'}|X=x}(u_D) - F_{P_{a}|X=x}(u_D)
+\end{align*}
+- PRTE weights for those affected by the policy:
+\begin{align*}
+\frac{h_{PRTE}(x,u_D)}{(\mathbb{E}(P_{a}|X=x)-\mathbb{E}(P_{a'}|X=x))}
+\end{align*}
+
+---
+# Policy Relevant Treatment Effects (Continued)
+
+- `r Citet(biblio,"heckmanVytlacil2005")` 
+
+    - for a given policy, possible to construct an IV such that the standard IV approach yields the PRTE
+
+    - ... under certain regularity conditions
+
+- Another natural question is the following: 
+
+    - for a given instrument, is it always possible to find a policy such that the IV identifies the corresponding PRTE?
+
+    - The answer is no in general
+
+
+---
+# `r Citet(biblio,"carneiro_al2011")`
+
+```{r, echo=F, results=F}
+# - Carneiro, Heckman and Vytlacil apply the previous treatment effect approach to the question of the returns to college
+```
+
+- Apply the MTE-Local IV approach to estimate the returns to college for individuals induced to attend college by a marginal policy change
+
+- .hi[Marginal] benefits (and costs) are the relevant units to assess the optimality of a policy
+
+- Their results provide evidence (from the NLSY79) of essential heterogeneity in the returns to college
+
+    - individuals with higher returns are more likely to attend college
+
+- Comparison with standard IV estimates of the returns to college
+
+    - Findings: IV estimate is 9.5% but MTE is only 1.5%!
+
+
+---
+# Econometric framework
+
+- Model similar to `r Citet(biblio,"heckmanVytlacil2005")`
+
+- $Y_1$ (or $Y_0$) denotes the potential log-wage if the individual were to attend college (or not attend college)
+
+- $S \in \{0,1\}$ is a dummy for college attendance (treatment)
+
+---
+# Econometric framework (Continued)
+
+- Additive separability is assumed for the outcome equations:
+\begin{align*}
+Y_1&=\mu_1(X) +U_1\\
+Y_0&=\mu_0(X) +U_0
+\end{align*}
+with $\mathbb{E}(Y_S|X=x)=\mu_S(x)$
+- Decision to enroll in college:
+\begin{align*}
+S&=1\{\mu_{S}(Z)-V \geq 0\}
+\end{align*}
+
+
+---
+# Econometric framework (Continued)
+
+- Key assumption: at least one exclusion restriction between $\mu_S$ and $(\mu_0,\mu_1)$, with one component of $Z$ being excluded from the outcome equations
+
+- Exogeneity condition: $Z \perp (U_0,U_1,V) |X$
+
+- Variables such as tuition fees or distance to college are natural candidates for this exclusion restriction in this context
+
+- As above, the selection equation can be rewritten as:
+
+\begin{align*}
+S&=1\{\mathbb{P}(Z)-U_S \geq 0\}
+\end{align*}
+with $\mathbb{P}(Z)=\mathbb{P}(S=1|Z)$ and $U_S$ uniformly distributed
+
+
+---
+# Effect of a marginal policy change: MPRTE
+
+- New treatment effect parameter: .hi[Marginal Policy Relevant Treatment Effect (MPRTE)]
+
+- Marginal version of the PRTE parameter
+
+- PRTE: in general only identified if the selection probability $\mathbb{P}(Z)$ has full support
+
+- MPRTE does not require this support condition
+
+- The MPRTE answers the following question: what is the effect of a marginal change from a baseline policy? 
+
+- In the context of schooling, what are the wage returns of a marginal decrease in tuition fees?
+
+
+---
+# Effect of a marginal policy change: MPRTE (Continued)
+More formal definition of the MPRTE from the PRTE:
+
+- Consider a sequence of policies indexed by $\alpha$, with $\alpha=0$ denoting status quo
+
+- Each policy is associated with a selection probability $P_\alpha$ and a $PRTE_{\alpha}$ corresponding to the effect of going from the baseline policy to policy $\alpha$
+
+- The MPRTE is defined as the limit of the parameters $(PRTE_{\alpha})_{\alpha}$ for $\alpha \longrightarrow 0$
+
+
+
+---
+# Effect of a marginal policy change: MPRTE (Continued)
+
+- `r Citet(biblio,"carneiro_al2010")` provide a detailed analysis of the properties of the MPRTE
+
+- Important point: MPRTE is not unique in the sense that it depends on the nature of the marginal policy change which is considered
+
+- Context of college attendance: effect of a marginal policy change subsidizing tuitions by a fixed amount will be different from the one of a policy change subsidizing tuitions by a fixed proportion
+
+
+---
+# Effect of a marginal policy change: MPRTE (Continued)
+
+- `r Citet(biblio,"carneiro_al2010")` show that the MPRTE can also be written as weighted sum of MTE parameters
+
+- Key result: the weighting function for the MPRTE is always zero outside of the support of the selection probability $\mathbb{P}(Z)$
+
+- A valid continuous instrument $Z$ for selection is sufficient to pin down the MPRTE, no strong support conditions on $\mathbb{P}(Z)$
+
+    - Continuity of the distribution of the instrument remains important to identify the MTE
+
+- Overall, this is an advantage of .hi[marginal] vs. .hi[average] TE parameters
+
+```{r, echo=F, results=F}
+# - Recall that the MTE parameters are identified without any support condition
+```
+
+
+---
+# Another interpretation of the MPRTE
+
+- The MPRTE has another nice interpretation
+
+- It corresponds to the average treatment effect for the individuals who are indifferent between being treated or not (the Average Marginal Treatment Effect, AMTE)
+
+- Idea: consider the average treatment effect for individuals arbitrarily close to the margin of indifference (for a certain metric)
+
+- `r Citet(biblio,"carneiro_al2010")` show that the MPRTE associated with different policy shifts correspond to AMTE associated with different metrics
+
+
+---
+# Application to the returns to college
+
+- Carneiro et al. apply their method to the estimation of the returns to college from the NLSY79 data
+
+- They consider a sample of white males, who attended college $(S=1)$, dropped out from high school or entered the labor market after graduating from high school $(S=0)$
+
+```{r, echo=F, results=F}
+# 
+# ---
+# # Variables used in the estimation
+# \begin{center}
+# \includegraphics[scale = 0.5]{Carneiro_al_10_Table2.pdf}
+# \end{center}
+# 
+# 
+# ---
+# # College attendance decision: reduced-form
+# \begin{center}
+# \includegraphics[scale = 0.5]{Carneiro_al_10_Table3.pdf}
+# \end{center}
+#
+# ---
+# # Testing for essential heterogeneity
+# 
+# - This can be done by testing for the linearity of $\mathbb{E}(Y|X=x,\mathbb{P}(Z)=p)$ as a function of $p$
+# 
+# - Imposing a stronger independence condition ($(X,Z) \perp (U_0,U_1,U_S)$) and using a semiparametric setting ($\mu_k(X)=X\delta_k$, $\mu_S(Z)=Z\gamma$) this is done by running the regression:
+#\begin{align*}
+# Y&=x\delta_0 + px(\delta_1-\delta_0) + K(p) + \nu
+# \end{align*}
+# where $K(p)$ is specified as a polynomial in $p$
+# 
+#
+#---
+## Testing for essential heterogeneity (Continued)
+#\begin{center}
+#\includegraphics[scale = 0.5]{Carneiro_al_10_Table4A.pdf}
+#\end{center}
+```
+
+---
+# Estimation of MPRTE
+Semiparametric estimation of the MPRTE:
+
+1. Estimation of the MTE over the support of the selection probability $\mathbb{P}(Z)$ using a local IV approach
+
+2. Estimation of the MPRTE (weighted sum of the MTE over the support of $\mathbb{P}(Z)$)
+
+---
+# Step 1: Estimation of the MTE
+Under the previous assumptions:
+\begin{align*}
+\Delta^{MTE}(x,p) &=\frac{\partial \mathbb{E}(Y|X=x,\mathbb{P}(Z)=p)}{\partial p}
+\end{align*}
+
+- $\Delta^{MTE}(x,p)$ can be estimated nonparametrically for all $p$ in the support of $\mathbb{P}(D=1|Z,X=x)$ using a nonparametric regression (Nadaraya-Watson)
+
+- Problem: the estimation becomes very imprecise if the dimension of the vector of covariates $X$ is large
+
+- This is typically the case in practice (.hi[curse of dimensionality])
+
+
+---
+# Step 1: Estimation of the MTE (Continued)
+
+- More convenient to work with the partially linear regression considered above
+
+- Three steps: 
+
+1. Estimation of the selection probability $\mathbb{P}(Z)$ using a parametric specification
+
+2. Estimation of $(\delta_0,\delta_1)$ by regressing $Y-\mathbb{E}(Y|P)$ on $X-\mathbb{E}(X|P)$ and $\mathbb{P}(X-\mathbb{E}(X|P))$ `r Citep(biblio,"robinson1988")`
+
+3. Estimation of $K(P)$ and $K'(P)$
+
+- $\Delta^{MTE}(x,p)$ may be estimated for all $P$ in the support of $\mathbb{P}(Z)$
+
+```{r, echo=F, results=F}
+
+#---
+## Step 1: Estimation of the MTE (Continued)
+#\begin{center}
+#\includegraphics[scale = 0.5]{Carneiro_al_10_Fig3.pdf}
+#\end{center}
+#
+#---
+## Step 1: Estimation of the MTE (Continued)
+#\begin{center}
+#\includegraphics[scale = 0.5]{Carneiro_al_10_Fig4.pdf}
+#\end{center}
+```
+
+---
+# Step 2: Estimation of the MPRTE
+
+1. Estimate nonparametrically the weights $h_{MPRTE}(X,p)$ (e.g. $h(X,p)=f_{P|X}(p)$ for the case of a policy of the form $P_\alpha=P + \alpha$) associated with the different MTE
+
+2. Then integrate over the distribution of $X$
+
+```{r, echo=F, results=F}
+#
+#---
+## Results
+#\begin{center}
+#\includegraphics[scale = 0.5]{Carneiro_al_10_Table5.pdf}
+#\end{center}
+```
+
+
+
+---
+
+
+.center[
+.huge[.hi[Distributional Treatment Effects]]
+]
+
+
+---
+# The evaluation problem
+Recall that this is one of the two main problems related to the identification of treatment effects:
+
+- For each individual we only observe either $Y_0$ or $Y_1$, but never both
+
+- This is true even in the presence of a perfect randomization, where $(Y_0,Y_1) \perp D$
+
+- In the absence of selection, marginal distributions of potential outcomes are identified
+
+- However, this is not the case of the joint distribution of $(Y_0,Y_1)$
+
+- In particular, the distribution of the treatment effects $Y_1-Y_0$ is not identified without additional restrictions
+
+
+---
+# The evaluation problem (Continued)
+
+- We will focus on the evaluation problem, assuming that the selection problem has been dealt with using one of the methods previously discussed
+
+- In other words, let us assume that we have identified the marginal distributions of the potential outcomes (conditional on observables $X$), $F_{Y_{0}|X}$ and $F_{Y_{1}|X}$
+
+- How can we identify the joint distribution of potential outcomes, $F_{Y_{0},Y_{1}|X}$?
+
+
+---
+# Why should we care about the distribution of TE's?
+Identifying the joint distribution of counterfactual outcomes is necessary to know how the benefits to treatment are distributed in the population. Needed to:
+
+- Identify the proportion of individuals who benefit from the treatment, $\mathbb{P}(Y_1>Y_0|X)$
+
+- Identify the dispersion of the benefits (or losses) from treatment
+
+- Compare the distribution of _ex ante_ (at the time of the treatment decision) and _ex post_ treatment effects
+
+
+
+---
+# Identifying the joint distribution of $(Y_0,Y_1)$
+Econometric methods allowing to identify the joint distribution of potential outcomes are typically based on assumptions on the structure of dependence between $Y_0$ and $Y_1$
+
+```{r, echo=F, results=F}
+# %based on two main types of assumptions:
+# %
+# %- Assumptions on selection rule (how do individuals self-select into treatment?), combined with data on choices
+# %- Assumptions on
+# %
+# %Recent methods in the literature typically use both of these assumptions.}
+```
+
+---
+# Partial identification
+One can derive "no-assumption" bounds on the joint distribution of $(Y_0,Y_1)$ from the marginal distributions of $Y_0$ and $Y_1$. Classical result in statistics (.hi[Frechet-Hoeffding bounds])
+\begin{align*}
+F(y_0,y_1|X) \in [\underline{F}(y_0,y_1,X),\overline{F}(y_0,y_1,X)]
+\end{align*}
+with:
+\begin{align*}
+\underline{F}(y_0,y_1,X)&=\max\left(F_{Y_0|X}(y_0)+F_{Y_1|X}(y_1)-1,0\right)
+\end{align*}
+and:
+\begin{align*}
+\overline{F}(y_0,y_1,X)&=\min\left(F_{Y_0|X}(y_0),F_{Y_1|X}(y_1)\right)
+\end{align*}
+
+---
+# Partial identification (Continued)
+
+- Both the upper and lower bound are proper probability distribution `r Citep(biblio,"mardia1970")`, and these bounds are sharp `r Citep(biblio,"ruschendorf1981")`
+
+- However, in practice these bounds are most often quite wide
+
+- See `r Citet(biblio,"heckmanSmith1993")` and `r Citet(biblio,"heckman_al1997")` for applications of these bounds
+
+---
+# Dependence assumptions
+(Point) identification of the joint distribution of $(Y_0,Y_1)$ can be obtained by restricting the dependence between the potential outcomes. Extreme case: homogeneous treatment effects $(Y_1-Y_0=C)$
+
+- Under the assumption that $Y_1-Y_0=\Delta=C$, the joint distribution $F(y_0,y_1|X)$ reduces to a one-dimensional distribution. For all $(y_0,y_1)$ such that $y_1-y_0 \geq \Delta$, we have:
+\begin{align*}
+F(y_0,y_1|X)&=F(y_0,y_0+\Delta|X)\\
+&=F_{Y_0|X}(y_0)
+\end{align*}
+- And $F(y_0,y_1|X)=F_{Y_0|X}(y_1-\Delta)$ otherwise. Thus the joint distribution is identified from the marginal $F_{Y_0|X}$
+
+
+---
+# Dependence assumptions (Continued)
+The joint distribution of $(Y_0,Y_1)$ can also be identified by extending the matching Conditional Independence Assumption to the dependence _between_ $Y_0$ and $Y_1$
+
+- Consider the standard matching CIA assumption: $Y_0 \perp D |X$ and $Y_1 \perp D |X$
+- Augmented by the following conditional independence assumption: $Y_0 \perp Y_1 |X$
+- Then it directly follows that:
+\begin{align*}
+F(y_0,y_1|X)&=F_{Y_0|X}(y_0)F_{Y_1|X}(y_1)\\
+&=F_{Y|X,D=0}(y_0)F_{Y|X,D=1}(y_1)
+\end{align*}
+which identifies the joint distribution $F(y_0,y_1|X)$
+
+
+
+---
+# Dependence assumptions (Continued)
+Another approach: assume rank invariance (or rank reversal) of the positions of individuals in the marginal distributions $F_{Y_0|X}$ and $F_{Y_1|X}$ 
+
+- See, e.g., `r Citet(biblio,"robins1997")`, `r Citet(biblio,"heckman_al1997")`
+
+- Rank invariance:
+\begin{align*}
+Y_1&=F^{-1}_{Y_1|X}(F_{Y_0|X}(Y_0))
+\end{align*}
+
+
+---
+# Dependence assumptions (Continued)
+
+- Under rank invariance, which generalizes the assumption of homogeneous treatment effects, we can show that:
+\begin{align*}
+F(y_0,y_1|X)&=\min\left(F_{Y_0|X}(y_0),F_{Y_1|X}(y_1)\right)
+\end{align*}
+This corresponds to the upper Frechet bound
+
+- Alternatively, assuming rank reversal
+
+\begin{align*}
+Y_1=F^{-1}_{Y_1|X}(1-F_{Y_0|X}(y_0))
+\end{align*}
+the joint distribution is equal to the lower Frechet bound
+
+---
+# Restrictions on selection and dependence
+More recently papers have imposed restrictions on the dependence between the unobservables of the model, combined with assumptions on the selection rule: `r Citet(biblio,"carneiro_al2003")`; `r Citet(biblio,"aakvik_al2005")`; `r Citet(biblio,"cunhaHeckman2007")`
+
+- These papers use a .hi[factor model] to restrict the dependence between the unobservables of the model and pin down the joint distribution of the potential outcomes
+
+- Key idea: dependence across the unobservables is generated by a low-dimensional set of mutually independent random variables (factors)
+
+
+---
+# Restrictions on selection and dependence (Continued)
+
+- Main idea: express the joint distribution of the counterfactuals as a function of the marginals, and the distribution of the factors
+
+- Access to measurements of these factors allows to identify their distribution
+
+- As in `r Citet(biblio,"heckmanVytlacil2005")`, additively separable latent selection rule
+
+- Exclusion restrictions between the selection and outcome equations are used to circumvent the selection problem
+
+
+---
+# Factor models
+
+- Key identifying assumptions: there exists a vector of unobserved factors $\theta$ such that
+\begin{align*}
+(Y_0,Y_1) \perp D |X,\theta
+\end{align*}
+
+- Extension of the matching CIA, where matching is done on both observed $X$ and unobserved $\theta$ variables
+
+- The factor approach also builds on the second conditional independence assumption:
+\begin{align*}
+Y_0 \perp Y_1 |X,\theta
+\end{align*}
+Identification of the distribution of the factors relies on the existence of a "sufficient" number of proxies for those factors
+
+
+---
+# Factor models: set-up
+
+- Multiple treatments: $s$ treatment states, with $s \in \{1,\ldots,S\}$
+
+- A vector of (potential) outcomes $Y(s,X)=\left(Y(k,s,X)\right)_{k \in \{1,\ldots,N_{Y}\}}$ for each $s$
+
+- A vector of $M(X)=\left(M(k,X)\right)_{k \in \{1,\ldots,N_{M}\}}$ measurements which .hi[do not] depend on the treatment state $s$
+
+- The outcomes and measurements may be discrete or continuous. We assume continuity here, and the following additively separable forms:
+
+\begin{align*}
+M(k,X)&=\mu_{M}(k,X) + U_{M}(k)\\
+Y(k,s,X)&=\mu(k,s,X)  + U(k,s)
+\end{align*}
+
+where $(U(k,s),U_{M}(k))$ are unobservable (to the econometrician) random components
+
+
+---
+# Factor models: selection model
+
+- Utility of each treatment state:
+\begin{align*}
+R(s,Z)&= \mu_{R}(s,Z) - V(s)
+\end{align*}
+where $Z$ is a vector of observed covariates affecting the choice of treatment, and $V(s)$ the unobserved component of utility
+
+- Selection into a treatment status $s$:
+\begin{align*}
+s&= \arg\max_{k} \{R(k,Z)\}
+\end{align*}
+
+
+---
+# Factor models (Continued)
+Linear factor structure for the unobservables:
+\begin{align*}
+U(k,s)&=\alpha'_{k,s} \theta + \varepsilon_{k}(s)    \\
+U_{M}(j)&=\alpha'_{j,M} \theta + \varepsilon_{j,M}\\
+V(s')&= \alpha'_{V(s')} \theta + \varepsilon_{V}(s')
+\end{align*}
+
+where we assume mutual independence between the components of $\theta$, between $\theta$ and the vector of the idiosyncratic shocks $\varepsilon=(\varepsilon_{k}(s),\varepsilon_{j,M},\varepsilon_{V}(s'))_{k,j,s,s'}$, and between the idiosyncratic shocks
+
+- We also assume independence between the covariates $(X,Z)$ and the unobservables $(\theta,\varepsilon)$
+
+---
+# Factor models: Identifying the joint distribution of counterfactuals
+To identify the joint distribution of counterfactual outcomes for each pair of treatment alternatives $(s,s')$ (with $s\neq s'$), we need to identify the joint distribution of the unobservables $(U(s),U(s'))$, where $U(s) \equiv (U(1,s),\ldots,U(k,s),\ldots,U(N_Y,s))$'
+
+- First assume that the .hi[factor loadings] $(\alpha_{k,s})_{k,s}$ are known. Then the joint distribution of $(U(s),U(s'))$ only depends on the marginal distributions of $\theta$, $(\varepsilon_{k}(s))_k$ and $(\varepsilon_{k}(s'))_k$
+
+- Selection has been addressed in a first step: the effects of the covariates $X$ on the outcomes, $(\mu(k,s,X))_{k,s}$, as well as the marginal distributions of the unobservables $(U(k,s))_{k,s}$ are identified
+
+---
+# Kotlarski's theorem
+Key result: Kotlarski's theorem `r Citep(biblio,"kotlarski1967")`
+
+Consider the following decomposition:
+\begin{align*}
+T_1&=\theta + \varepsilon_1\\
+T_2&=\theta + \varepsilon_2
+\end{align*}
+where $(\theta,\varepsilon_1,\varepsilon_2)$ are mutually independent, the means of $\theta$, $\varepsilon_1$ and $\varepsilon_2$ are finite and $\mathbb{E}(\varepsilon_1)=\mathbb{E}(\varepsilon_2)=0$, the random variables possess nonvanishing characteristic functions and the joint distribution of $(T_1,T_2)$ is identified
+
+Then the distributions of $(\theta,\varepsilon_1,\varepsilon_2)$ are identified
+
+---
+# Kotlarski's theorem (Continued)
+Proof: Let us consider three mutually independent random variables $(U_1,U_2,U_3)$ such that:
+\begin{align*}
+T_1&=U_1 + U_2\\
+T_2&=U_1 + U_3
+\end{align*}
+with $\mathbb{E}(U_{2})=\mathbb{E}(U_{3})=0$. Denoting by $\phi(t_1,t_2)$ the characteristic function of $(T_1,T_2)$, $(\phi_1(t),\phi_2(t),\phi_3(t))$ the characteristic functions of $(\theta,\varepsilon_1,\varepsilon_2)$ and $\psi_k(t)$ the characteristic functions of $U_k$, we have, for all $(t_1,t_2) \in \mathbb{R}^2$:
+\begin{align*}
+\phi(t_1,t_2)&=\mathbb{E}(\exp(i(t_{1}T_1 + t_{2}T_2)))\\
+&=\mathbb{E}(\exp(i(t_{1}\varepsilon_1 + t_{2}\varepsilon_2 + (t_1 + t_2)\theta)))\\
+&=\phi_2(t_1)\phi_3(t_2)\phi_1(t_1+t_2)
+\end{align*}
+
+---
+# Kotlarski's theorem (Continued)
+Proof (Continued): Similarly, it follows from the mutual independence of $(U_1,U_2,U_3)$ that:
+\begin{align*}
+\phi(t_1,t_2)&=\psi_2(t_1)\psi_3(t_2)\psi_1(t_1+t_2)
+\end{align*}
+Defining $r_k(t)$ as the ratio of the characteristic functions $\frac{\psi_k}{\phi_k}(t)$, this implies:
+\begin{align*}
+r_2(t_1)r_3(t_2)r_1(t_1+t_2)&=1
+\end{align*}
+The $r_k(\cdot)$ are unknown, complex functions, continuous over the real line and such that $r_k(0)=1$
+
+---
+# Kotlarski's theorem (Continued)
+Proof (Continued): Setting respectively $t_2=0$ and $t_1=0$, we have the following equalities:
+\begin{align*}
+r_2(t_1)r_1(t_1)&=1\\
+r_3(t_2)r_1(t_2)&=1\\
+\end{align*}
+And substituting into the equality from the previous slide, this yields, for all $(t_1,t_2)$:
+\begin{align*}
+r_1(t_1+t_2)&=r_1(t_1)r_1(t_2)
+\end{align*}
+This implies, with $r_1(0)=1$, that: $r_1(t)=\exp(\alpha t)$ (where $\alpha \in \mathbb{C}$). It follows that: $r_2(t)=r_3(t)=\exp(-\alpha t)$
+
+
+---
+# Kotlarski's theorem (Continued)
+Proof (Continued): Finally, considering the case of $r_1(\cdot)$ (same for $r_2$ and $r_3$), we have:
+\begin{align*}
+\psi_1(t)&=\exp(\alpha t)\phi_1(t)
+\end{align*}
+Using the fact that $\psi_1(-t)=\overline{\psi_1(t)}$ (characteristic function), it follows that $\exp(-\alpha t)=\overline{\exp(\alpha t)}$, which implies:
+\begin{align*}
+\psi_1(t)&=\exp(i \beta t)\phi_1(t)
+\end{align*}
+where $\beta \in \mathbb{R}$. Hence the distribution of $\theta$ is identified up to the location $\beta$ (resp. $-\beta$ for $\varepsilon_1$ and $\varepsilon_2$). The zero mean condition identifies $\beta$, which finally yields full identification of the distribution of $(\theta,\varepsilon_1,\varepsilon_2)$
+
+```{r, echo=F, results=F}
+# %See, e.g., Carneiro, Hansen and Heckman (2003) for an extension to the case where $\theta$ is a vector. The idea is to apply sequentially Kotlarski after imposing some triangularity %restrictions on the factor decomposition
+```
+
+---
+# Identifying the factor loadings
+We now turn to the identification of the factor loadings. Consider the system of factor decompositions for all the unobservables of the model, for all $s$:
+\begin{align*}
+U(s)&=\Lambda(s)\theta + \varepsilon(s)
+\end{align*}
+where we assume that there are $K$ factors and $L(s)$ components of $U(s)$
+From second-order moments, we identify, denoting by $V(X)$ the covariance matrix of a random vector $X$:
+\begin{align*}
+V(U(s))&=\Lambda(s)V(\theta)\Lambda'(s) + V(\varepsilon(s))
+\end{align*}
+Some restrictions are necessary to identify $\Lambda(s)$ from the second-order moments. Aside from the independence between the factors, we also assume that one factor loading for each factor is equal to one (innocuous scale normalization)
+
+
+---
+# Identifying the factor loadings (Continued)
+To be able to recover the factor loadings from the second-order moments, we can only use the $\frac{L(s)(L(s)-1)}{2}$ non-diagonal terms of $V(U(s))$ (the covariances), which both depend on the factor loadings and the variance of the factors.  Rank condition:
+```{r, echo=F, results=F}
+# %(minimal number of measurements needed to identify the factor loadings):
+```
+\begin{align*}
+\frac{L(s)(L(s)-1)}{2}& \geq &(L(s)K - K) + K\\
+&\Leftrightarrow& L(s) \geq 2K+1
+\end{align*}
+where $(L(s)K - K)$ is the number of unrestricted factor loadings and $K$ the number of (unknown) factor variances. Note that this is only a .hi[necessary] condition
+
+
+---
+# Identifying the factor loadings (Continued)
+
+- Most of the factor models used in the empirical literature only make use of the first and second-order moments, leading to the preceding necessary condition for identification
+- In the case where the measurements are .hi[not] normally distributed, one may also use higher-order moments to obtain more information on the factor loadings and the distributions of the factors. This allows to identify the factor loadings, the distribution of the factors and therefore the joint distribution of the outcomes under weaker conditions
+- See `r Citet(biblio,c("bonhommeRobin2009","bonhommeRobin2010"))`. In particular, they show that if all the factors display kurtosis, one may identify the factor loadings for up to $K=L$ factors
+- The idea dates back to `r Citet(biblio,"geary1942")` and `r Citet(biblio,"reiersol1950")`, who have shown that factor loadings are identified in a measurement error model if the factor is .hi[not] Gaussian
+
+
+---
+# References
+.minuscule[
+```{r refs, echo=FALSE, results="asis"}
+PrintBibliography(biblio)
+```
+]
