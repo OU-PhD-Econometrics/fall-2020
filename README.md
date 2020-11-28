@@ -32,8 +32,8 @@
 | 24 | Thu Nov 19  | [Potential Outcomes, ATE, LATE, and Control Functions](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/17-PO/17slides.html) | [Mixtape](https://www.scunning.com/causalinference_norap.pdf), pp. 85-93 | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ13.md) |
 | 25 | Tue Nov 24  | [Marginal and Distributional Treatment Effects](https://raw.githack.com/OU-PhD-Econometrics/fall-2020/master/LectureNotes/18-MTE/18slides.html) | Work on Referee Report & Presentation |  |
 | ---  | Thu Nov 26  | **No class** (Thanksgiving)  | | |
-| 26 | Tue Dec  1  | Intro to Machine Learning | | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ15.md) |
-| 27 | Thu Dec  3  | Machine Learning for Causal Modeling  | | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ16.md) |
+| 26 | Tue Dec  1  | Intro to Machine Learning | [James et al., section 2.1 (pp. 15-29)](https://faculty.marshall.usc.edu/gareth-james/ISL/ISLR%20Seventh%20Printing.pdf) | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ14.md) |
+| 27 | Thu Dec  3  | Machine Learning for Causal Modeling  | | [Reading Quiz](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/ReadingQuizzes/RQ15.md) |
 | 28 | Tue Dec  8  | Presentations  | | Presentation  |
 | 29 | Thu Dec 10  | Presentations  | | Presentation, [Referee Report](https://github.com/OU-PhD-Econometrics/fall-2020/blob/master/OtherAssignments/RefereeReport.pdf)  |
 | ---  | Mon Dec 14  | Final Exam (Referee Report due)  | | Research Proposal |
